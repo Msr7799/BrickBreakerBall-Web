@@ -1,13 +1,17 @@
 # Brick Breaker Ball Web
 
-نسخة ويب ثنائية اللغة من لعبة **Brick Breaker Ball**. يحتوي المشروع على موقع تعريفي، صفحات القوانين والخصوصية، ونسخة HTML5 قابلة للعب داخل المتصفح.
+[![Read in Arabic](https://img.shields.io/badge/Read_in_Arabic-README--AR.md-0f766e?style=for-the-badge)](README_AR.md)
+
+A bilingual website and playable HTML5 browser edition for **Brick Breaker Ball**. It includes the landing pages, world gallery, rules and privacy pages, plus a responsive Canvas-based game.
 
 English is available at `/en` and Arabic is available at `/ar`.
 
-![Brick Breaker Ball home page](game-pic.png)
-![Brick Breaker Ball play page](game-pic1.png)
-![Brick Breaker Ball worlds page](game-pic2.png)
-![Brick Breaker Ball cosmetics page](game-pic3.png)
+<p>
+  <img src="game-pic.png" alt="Brick Breaker Ball home page" width="190" />
+  <img src="game-pic1.png" alt="Brick Breaker Ball play page" width="190" />
+  <img src="game-pic2.png" alt="Brick Breaker Ball worlds page" width="190" />
+  <img src="game-pic3.png" alt="Brick Breaker Ball cosmetics page" width="190" />
+</p>
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.5.24-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.1.1-149eca?logo=react&logoColor=white)](https://react.dev/)
@@ -16,139 +20,105 @@ English is available at `/en` and Arabic is available at `/ar`.
 [![HTML5 Canvas](https://img.shields.io/badge/Game-HTML5_Canvas-e34f26?logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
 [![pnpm](https://img.shields.io/badge/Package_manager-pnpm-f69220?logo=pnpm&logoColor=white)](https://pnpm.io/)
 
-## نظرة عامة
+## Overview
 
-الموقع مبني باستخدام Next.js App Router، ويعرض محتوى اللعبة وأصولها بطريقة متجاوبة على الجوال والتابلت والكمبيوتر. صفحة اللعب تستخدم Canvas لمحاكاة حركة الكرة، اصطدامها بالبلوكات، حركة البادل، المراحل، الأرواح، القوى، والأهداف الخاصة.
+The site uses the Next.js App Router and presents the game's content and assets across desktop, tablet and mobile layouts. The play page uses HTML5 Canvas for paddle movement, ball physics, brick collisions, stages, lives, power-ups and special bricks.
 
-المشروع ليس نسخة مترجمة أو مشغّلًا مباشرًا لمحرك LibGDX الأصلي؛ بل هو إعادة تنفيذ ويب تستخدم بيانات الحملة والأصول المرئية والصوتية المتوفرة في المشروع الأصلي.
+This is a web adaptation rather than a direct runtime of the original LibGDX Android game. It reuses the supplied campaign structure, artwork, sounds, videos and sprite metadata in a browser-friendly implementation.
 
-## المزايا
+## Features
 
-- واجهة باللغة الإنجليزية والعربية مع مسارات مستقلة.
-- 90 مرحلة موزعة على 13 عالمًا.
-- فيديو خلفية متغير لكل عالم من `public/game/worlds`.
-- 60 كرة قابلة للاختيار من `balls_set`.
-- 36 مجموعة Paddle Style Sets، وكل مجموعة تحتوي نسخة `Normal` و`Weapon` و`Sticky`.
-- عرض الـ paddles من Sprite Sheets وملفات JSON الخاصة بالإحداثيات.
-- تحكم بالماوس واللمس والأسهم ومفاتيح `A` و`D`.
-- حفظ المرحلة المفتوحة، الكرة المختارة، ومجموعة البادل في `localStorage`.
-- صفحات مستقلة للقوانين والخصوصية باللغتين.
-- تصميم متجاوب مبني فوق Tailwind CSS.
+- English and Arabic interfaces with separate routes.
+- 90 campaign stages across 13 worlds.
+- Animated world backgrounds from `public/game/worlds`.
+- 60 selectable ball cosmetics from `balls_set`.
+- 36 paddle style sets, each containing `Normal`, `Weapon` and `Sticky` variants.
+- Sprite-sheet paddle rendering based on the supplied JSON frame metadata.
+- Mouse, touch, arrow-key and `A`/`D` controls.
+- Local progress and loadout persistence through `localStorage`.
+- Separate rules and privacy pages in both languages.
+- Responsive styling built with Tailwind CSS.
 
-## صفحات الموقع
+---
+<p>
+<img src="public/game/assets/sprites/spritesheet.png" alt="Brick Breaker Ball spritesheet" width="390" />
+<img src="public/game/assets/sprites/paddles-sprites/paddle-group3.png" alt="paddles" width="390" />
+<img src="public\game\assets\sprites\balls-sprites\balls_set\balls-sheet.png" alt="balls" width="300" />
 
-| المسار | الوصف |
+</p>
+## Routes
+
+| Route | Description |
 | --- | --- |
-| `/` | تحويل تلقائي إلى النسخة الإنجليزية |
-| `/en` | الصفحة الرئيسية بالإنجليزية |
-| `/en/play` | نسخة اللعب بالإنجليزية |
-| `/en/rules` | قوانين اللعبة بالإنجليزية |
-| `/en/privacy` | سياسة الخصوصية بالإنجليزية |
-| `/ar` | الصفحة الرئيسية بالعربية |
-| `/ar/play` | نسخة اللعب بالعربية |
-| `/ar/rules` | قوانين اللعبة بالعربية |
-| `/ar/privacy` | سياسة الخصوصية بالعربية |
+| `/` | Redirects to the default English version |
+| `/en` | English home page |
+| `/en/play` | English browser game |
+| `/en/rules` | English rules |
+| `/en/privacy` | English privacy page |
+| `/ar` | Arabic home page |
+| `/ar/play` | Arabic browser game |
+| `/ar/rules` | Arabic rules |
+| `/ar/privacy` | Arabic privacy page |
 
-## هيكل المشروع
+## Project Structure
 
 ```text
 BrickBreakerBall-Web/
-├── app/
-│   ├── page.tsx                 # المسار الرئيسي والتحويل للغة الافتراضية
-│   ├── layout.tsx               # Metadata والتخطيط العام
-│   ├── globals.css              # الألوان، الخلفيات، وتنسيقات اللعبة
-│   ├── en/                      # صفحات النسخة الإنجليزية
-│   └── ar/                      # صفحات النسخة العربية
-│
-├── components/
-│   ├── GameCanvas.tsx           # منطق ورسم لعبة Canvas واختيارات التجهيزات
-│   ├── PlayPage.tsx             # صفحة اللعب
-│   ├── HomePage.tsx             # الصفحة الرئيسية
-│   ├── PageShell.tsx            # الغلاف العام واتجاه اللغة
-│   ├── SiteHeader.tsx           # شريط التنقل
-│   ├── SiteFooter.tsx           # تذييل الموقع
-│   ├── RulesPage.tsx             # صفحة القوانين
-│   ├── RulesMarkdown.tsx         # عرض ملفات Markdown
-│   └── PrivacyPage.tsx           # صفحة الخصوصية
-│
-├── content/
-│   ├── rules-en.md              # قوانين اللعبة بالإنجليزية
-│   ├── rules-ar.md              # قوانين اللعبة بالعربية
-│   └── balls.json               # بيانات الكور الوصفية
-│
-├── lib/
-│   └── site.ts                  # اللغات، النصوص، بيانات العوالم، والروابط
-│
-├── public/game/
-│   ├── assets/                  # صور البلوكات، المؤثرات، القوى، والـ UI
-│   ├── audio/                   # المؤثرات الصوتية
-│   ├── branding/                # الشعار والأيقونات
-│   ├── cosmetics/               # أصول التجميل الإضافية
-│   ├── showcase/                # صور العرض
-│   ├── sprites/
-│   │   ├── balls-sprites/       # Sprite Sheets وملفات الكور الـ 60
-│   │   └── paddles-sprites/     # Sprite Sheets وبيانات مجموعات البادل
-│   ├── world-map/               # صور خريطة العوالم
-│   └── worlds/                  # فيديوهات العوالم من 1.mp4 إلى 13.mp4
-│
-├── next.config.ts               # إعدادات Next.js
-├── postcss.config.mjs           # إعداد PostCSS وTailwind
-├── tsconfig.json                # إعداد TypeScript
-├── package.json                 # السكربتات والاعتمادات
-└── pnpm-lock.yaml               # قفل إصدارات الاعتمادات
+├── app/                        # Routes, layouts and global styles
+│   ├── en/                     # English routes
+│   └── ar/                     # Arabic routes
+├── components/                 # Site and game components
+│   ├── GameCanvas.tsx          # Canvas game, physics and loadouts
+│   ├── PlayPage.tsx            # Play page
+│   ├── HomePage.tsx            # Home page
+│   ├── PageShell.tsx           # Shared wrapper and language direction
+│   ├── SiteHeader.tsx          # Navigation
+│   ├── SiteFooter.tsx          # Footer
+│   ├── RulesPage.tsx            # Rules page
+│   ├── RulesMarkdown.tsx        # Markdown renderer
+│   └── PrivacyPage.tsx          # Privacy page
+├── content/                   # Rules and ball metadata
+├── lib/site.ts                # Copy, languages, worlds and links
+├── public/game/               # Images, audio, sprites and videos
+│   ├── assets/                # Bricks, effects, power-ups and UI
+│   ├── audio/                 # Sound effects
+│   ├── sprites/               # Ball and paddle sprite sheets
+│   └── worlds/                # World videos 1.mp4 through 13.mp4
+├── next.config.ts             # Next.js configuration
+├── package.json               # Scripts and dependencies
+└── pnpm-lock.yaml             # Locked dependency versions
 ```
 
-## التقنيات المستخدمة
+## Technologies
 
-### واجهة الموقع
+- **Next.js 15 App Router:** routing, layouts and metadata.
+- **React 19:** component composition and interactive state.
+- **TypeScript:** typed application and asset data.
+- **Tailwind CSS 4:** responsive UI styling.
+- **HTML5 Canvas:** board, bricks, ball, paddle and HUD rendering.
+- **`requestAnimationFrame`:** game loop and physics updates.
+- **Web Audio:** brick, wall, power-up and explosion sounds.
+- **Pointer Events:** shared mouse and touch controls.
+- **`localStorage`:** stage progress and selected cosmetics.
 
-- **Next.js 15 App Router:** بناء الصفحات، التخطيط العام، والـ metadata.
-- **React 19:** بناء المكونات التفاعلية وإدارة حالة صفحة اللعب.
-- **TypeScript:** تعريف الأنواع وتقليل أخطاء بيانات الأصول.
-- **Tailwind CSS 4:** بناء الواجهات المتجاوبة بسرعة وبنمط موحد.
-- **CSS وHTML Video:** خلفيات متحركة، طبقات شفافة، وتصميم متجاوب.
+## Local Development
 
-### محرك اللعب
-
-- **HTML5 Canvas:** رسم الملعب، البلوكات، الكرة، البادل، واجهة المرحلة، والأهداف.
-- **`requestAnimationFrame`:** تحديث الحركة والفيزياء بصورة مستمرة.
-- **Web Audio:** تشغيل مؤثرات اصطدام البلوك والجدار والقوى والانفجار.
-- **Pointer Events:** دعم اللمس والماوس من نفس مسار التحكم.
-- **`localStorage`:** حفظ تقدم اللاعب وتجهيزاته المختارة على الجهاز.
-
-### إدارة الأصول
-
-- ملفات JSON تحدد أسماء وإحداثيات إطارات الـ Sprite Sheets.
-- قصّ إطارات البادل من الـ Sprite Sheets مع الحفاظ على النسبة الأصلية.
-- تحميل ملفات الكور والبادل والفيديو من مجلد `public` لتكون متاحة مباشرة من المتصفح.
-
-## التشغيل محليًا
-
-المتطلبات:
-
-- Node.js إصدار يدعم Next.js 15.
-- pnpm.
-
-التثبيت والتشغيل:
+Requirements: Node.js compatible with Next.js 15 and pnpm.
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-افتح:
+Open `http://localhost:3000`.
 
-```text
-http://localhost:3000
-```
-
-لتغيير رابط الموقع المستخدم في Open Graph metadata، عرّف المتغير:
+Set the production URL used by Open Graph metadata with:
 
 ```env
 NEXT_PUBLIC_SITE_URL=https://example.com
 ```
 
-## فحص وبناء الإنتاج
+## Production Build
 
 ```bash
 pnpm check
@@ -156,30 +126,19 @@ pnpm build
 pnpm start
 ```
 
-إذا ظهرت أخطاء عن chunks مفقودة مثل `Cannot find module './17.js'` أثناء التطوير، أوقف خادم Next.js واحذف مجلد `.next` ثم أعد تشغيله:
+If development reports a missing generated chunk such as `Cannot find module './17.js'`, stop Next.js, remove `.next`, and start it again:
 
 ```powershell
 Remove-Item .next -Recurse -Force
 pnpm dev
 ```
 
-## النشر على Vercel
+## Deployment
 
-1. اربط المستودع بمشروع جديد في Vercel.
-2. اختر إعدادات Next.js الافتراضية.
-3. أضف `NEXT_PUBLIC_SITE_URL` بقيمة رابط الإنتاج.
-4. استخدم أمر البناء الافتراضي أو:
+Import the repository into Vercel and use the default Next.js settings. Add `NEXT_PUBLIC_SITE_URL` with the production URL. No database or API server is required by the current web edition.
 
-```bash
-pnpm build
-```
+## Privacy and Scope
 
-لا يحتاج المشروع إلى قاعدة بيانات أو خادم API لتشغيل نسخة اللعب الحالية.
+The project does not include accounts, payments, advertising or third-party analytics by default. The game stores the unlocked stage, selected ball and selected paddle style in browser `localStorage`.
 
-## الخصوصية والتخزين
-
-لا يتضمن المشروع افتراضيًا حسابات أو مدفوعات أو أدوات تتبع أو إعلانات خارجية. يتم حفظ المرحلة المفتوحة والكرة والبادل المختارين داخل `localStorage` في متصفح المستخدم، ويمكن حذفها بمسح بيانات الموقع من إعدادات المتصفح.
-
-## ملاحظات التطوير
-
-نسخة الويب قابلة للعب عبر المراحل الـ90 وتستخدم بنية الحملة والأصول المتوفرة، لكنها لا تدّعي إعادة إنتاج كل ميكانيكيات نسخة Android الأصلية من LibGDX بشكل مطابق 1:1.
+The web edition supports all 90 campaign stages and uses the supplied structure and assets, but it is not intended to reproduce every native LibGDX mechanic one-to-one.
