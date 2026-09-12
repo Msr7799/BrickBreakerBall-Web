@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Lang } from "@/lib/site";
 import { worlds } from "@/lib/site";
+import ballFilesData from "@/content/ball-files.json";
 
 const W = 900;
 const H = 1600;
@@ -13,6 +14,7 @@ const BALL_R = 17;
 type Status = "ready" | "playing" | "paused" | "won" | "gameover";
 type Kind = "basic" | "blue" | "red" | "purple" | "green" | "orange" | "pink" | "electric" | "stone" | "armored" | "rough" | "steel" | "blackhole" | "lightning" | "powerup" | "boss";
 type DropType = "life" | "expand" | "slow";
+type PaddleForm = "normal" | "weapon" | "sticky";
 type Brick = { x: number; y: number; w: number; h: number; kind: Kind; hp: number; maxHp: number; breakable: boolean };
 type Drop = { x: number; y: number; vy: number; type: DropType };
 type Physics = {
@@ -36,6 +38,10 @@ type PaddleAsset = {
   spriteNumber: number;
   displayName?: { en: string; ar: string };
   file?: string;
+  name?: string;
+  type?: string;
+  style?: string;
+  group?: { id?: string; en?: string; ar?: string };
   x: number;
   y: number;
   width: number;
@@ -43,6 +49,7 @@ type PaddleAsset = {
   sheet: string;
   sheetWidth: number;
   sheetHeight: number;
+  previewSrc?: string;
 };
 
 type PaddleStyle = {
@@ -79,29 +86,11 @@ const defaultPaddle: PaddleAsset = {
   height: 86,
   sheet: "/game/assets/sprites/paddles-sprites/paddle-group1.png",
   sheetWidth: 1235,
-  sheetHeight: 1300
+  sheetHeight: 1254,
+  previewSrc: "/game/paddles/group1/style1-normal.png"
 };
 
-const ballFiles = [
-  "01_gold_segmented.png", "01_midnight_blue_half.png", "02_fire_flame.png", "02_silver_smoke.png", "03_stone_spiral.png", "03_violet_smoke.png",
-  "04_crimson_smoke.png", "04_magma_stripe.png", "05_cyan_smoke.png", "05_red_vortex.png", "06_forest_camo.png", "06_solar_honeycomb.png",
-  "07_obsidian_spike.png", "07_purple_swirl.png", "08_desert_camo.png", "08_silver_whirl.png", "09_steel_claw.png", "09_urban_camo.png",
-  "10_blue_cracked_ice.png", "10_lava_crack.png", "11_blue_stone_crack.png", "11_skull_core.png", "12_cyan_stone_crack.png", "12_dark_grid.png",
-  "13_black_crack.png", "13_ice_crystal.png", "14_frost_fang.png", "14_red_target.png", "15_gray_concentric.png", "15_smooth_blue_panel.png",
-  "16_aqua_bubble.png", "16_inferno_cross.png", "17_golden_spiral.png", "17_storm_lightning.png", "18_blue_starburst.png", "18_plasma_burst.png",
-  "19_molten_core.png", "19_red_core_eye.png", "20_blue_hex_crack.png", "20_tech_core.png", "21_blue_gem.png", "21_purple_spark.png",
-  "22_red_gem.png", "22_void_portal.png", "23_silver_cross.png", "23_violet_gem.png", "24_smoke_marble.png", "24_steel_emblem.png",
-  "25_hydro_mech.png", "25_shadow_crack.png", "26_magenta_lightning.png", "26_shadow_gloss.png", "27_blue_smoke.png", "27_midnight_gloss.png",
-  "28_bronze_band.png", "28_sun_vortex.png", "29_teal_lightning.png", "29_violet_vortex.png", "30_blue_energy_vortex.png", "30_green_lightning.png",
-  "31_blue_lightning.png", "31_cosmic_field.png", "32_ice_spiral.png", "32_slate_panel.png", "33_blue_diamond_grid.png", "33_deep_ocean.png",
-  "34_ink_splash.png", "34_layered_planet.png", "35_blue_gloss.png", "35_teal_spiral.png", "36_purple_cell.png", "36_teal_tunnel.png",
-  "37_black_mesh.png", "37_neon_purple.png", "38_chrome_mirror.png", "38_purple_mesh.png", "39_black_gloss.png", "39_violet_arc.png",
-  "40_blue_ribbed.png", "40_gold_segment.png", "41_pearl_white.png", "41_purple_storm.png", "42_smoky_stone.png", "42_teal_vortex.png",
-  "43_amber_glass.png", "43_green_starbolt.png", "44_orange_glass.png", "44_purple_wave.png", "45_mist_white.png", "45_navy_panel.png",
-  "46_silver_mesh.png", "47_blue_energy_core.png", "48_ice_portal.png", "49_purple_bolt.png", "50_blue_bolt.png", "51_maroon_crest.png",
-  "52_cyan_bolt.png", "53_woven_steel.png", "54_ice_star.png", "55_pink_bolt.png", "56_engraved_swirl.png", "57_gold_mech.png",
-  "58_purple_shard.png", "59_bronze_core.png", "60_gray_segmented.png"
-] as const;
+const ballFiles = ballFilesData as string[];
 
 const starterBalls = [
   ["38_chrome_mirror.png", "Chrome Mirror"],
@@ -240,12 +229,13 @@ function assetLabel(file: string) {
   return file.replace(/^\d+_/, "").replace(/\.png$/, "").replace(/_/g, " ");
 }
 
-function paddleKind(item: PaddleAsset) {
-  const name = (item.file || item.displayName?.en || "").toLowerCase();
-  if (name.includes("_weapon_")) return "weapon";
-  if (name.includes("_sticky_")) return "sticky";
-  if (name.includes("_normal_")) return "normal";
-  return item.displayName?.en.toLowerCase().includes("weapon") ? "weapon" : item.displayName?.en.toLowerCase().includes("sticky") ? "sticky" : "normal";
+function paddleKind(item: PaddleAsset): PaddleForm {
+  const declared = (item.group?.id || item.type || "").toLowerCase();
+  if (declared === "weapon" || declared === "sticky" || declared === "normal") return declared;
+  const name = (item.file || item.name || item.displayName?.en || "").toLowerCase();
+  if (name.includes("weapon") || name.includes("blaster") || name.includes("cannon")) return "weapon";
+  if (name.includes("sticky") || name.includes("gel") || name.includes("resin") || name.includes("membrane") || name.includes("foam") || name.includes("pad") || name.includes("mesh")) return "sticky";
+  return "normal";
 }
 
 function fitImage(ctx: CanvasRenderingContext2D, image: CanvasImageSource, sourceWidth: number, sourceHeight: number, targetX: number, targetY: number, targetWidth: number, targetHeight: number) {
@@ -265,9 +255,9 @@ function fitCrop(ctx: CanvasRenderingContext2D, image: CanvasImageSource, source
 export default function GameCanvas({ lang }: { lang: Lang }) {
   const ar = lang === "ar";
   const t = useMemo(() => ar ? {
-    stage: "المرحلة", world: "العالم", score: "النقاط", lives: "الحياة", launch: "ابدأ", pause: "إيقاف", resume: "متابعة", restart: "إعادة", sound: "الصوت", clear: "تم إنهاء المرحلة", next: "المرحلة التالية", gameOver: "انتهت اللعبة", retry: "حاول مجددًا", ready: "حرّك المضرب ثم اضغط للبدء", controls: "اسحب باللمس أو الماوس، أو استخدم الأسهم / A و D", ball: "الكرة", unlocked: "أعلى مرحلة مفتوحة", paddle: "المضرب", selectWorld: "اختر العالم", selectBall: "اختر الكرة", selectPaddle: "اختر البادل"
+    stage: "المرحلة", world: "العالم", score: "النقاط", lives: "الحياة", launch: "ابدأ", pause: "إيقاف", resume: "متابعة", restart: "إعادة", sound: "الصوت", clear: "تم إنهاء المرحلة", next: "المرحلة التالية", gameOver: "انتهت اللعبة", retry: "حاول مجددًا", ready: "حرّك المضرب ثم اضغط للبدء", controls: "اسحب باللمس أو الماوس، أو استخدم الأسهم / A و D", ball: "الكرة", unlocked: "أعلى مرحلة مفتوحة", paddle: "المضرب", selectWorld: "اختر العالم", selectBall: "اختر الكرة", selectPaddle: "اختر البادل", loadout: "التجهيزات", balls: "الكور", paddles: "المضارب", equipped: "مجهز", normal: "عادي", weapon: "مسلح", sticky: "لاصق", chooseForm: "اختر شكل البادل"
   } : {
-    stage: "STAGE", world: "WORLD", score: "SCORE", lives: "LIVES", launch: "LAUNCH", pause: "PAUSE", resume: "RESUME", restart: "RESTART", sound: "SOUND", clear: "STAGE CLEAR", next: "NEXT STAGE", gameOver: "GAME OVER", retry: "TRY AGAIN", ready: "Move the paddle, then tap to launch", controls: "Drag with touch/mouse, or use Arrow keys / A and D", ball: "BALL", unlocked: "Highest unlocked", paddle: "PADDLE", selectWorld: "SELECT WORLD", selectBall: "SELECT BALL", selectPaddle: "SELECT PADDLE"
+    stage: "STAGE", world: "WORLD", score: "SCORE", lives: "LIVES", launch: "LAUNCH", pause: "PAUSE", resume: "RESUME", restart: "RESTART", sound: "SOUND", clear: "STAGE CLEAR", next: "NEXT STAGE", gameOver: "GAME OVER", retry: "TRY AGAIN", ready: "Move the paddle, then tap to launch", controls: "Drag with touch/mouse, or use Arrow keys / A and D", ball: "BALL", unlocked: "Highest unlocked", paddle: "PADDLE", selectWorld: "SELECT WORLD", selectBall: "SELECT BALL", selectPaddle: "SELECT PADDLE", loadout: "LOADOUT", balls: "BALLS", paddles: "PADDLES", equipped: "EQUIPPED", normal: "NORMAL", weapon: "WEAPON", sticky: "STICKY", chooseForm: "CHOOSE PADDLE FORM"
   }, [ar]);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -288,7 +278,10 @@ export default function GameCanvas({ lang }: { lang: Lang }) {
   const [sound, setSound] = useState(true);
   const [ballFile, setBallFile] = useState<string>(starterBalls[0][0]);
   const [paddleStyles, setPaddleStyles] = useState<PaddleStyle[]>([]);
+  const [paddleStyleId, setPaddleStyleId] = useState("0-0");
+  const [paddleForm, setPaddleForm] = useState<PaddleForm>("normal");
   const [paddle, setPaddle] = useState<PaddleAsset | null>(defaultPaddle);
+  const [loadoutTab, setLoadoutTab] = useState<"paddles" | "balls">("paddles");
   const { world, worldStage } = campaignPosition(stage);
   const worldInfo = worlds[world - 1];
 
@@ -374,16 +367,25 @@ export default function GameCanvas({ lang }: { lang: Lang }) {
         }));
         for (let index = 0; index + 2 < loaded.length; index += 3) {
           const trio = loaded.slice(index, index + 3);
-          const normal = trio.find(item => paddleKind(item) === "normal") || trio[0];
-          const weapon = trio.find(item => paddleKind(item) === "weapon") || trio[1];
-          const sticky = trio.find(item => paddleKind(item) === "sticky") || trio[2];
+          const styleNumber = index / 3 + 1;
+          const withPreview = (item: PaddleAsset, form: PaddleForm): PaddleAsset => ({
+            ...item,
+            previewSrc: `/game/paddles/group${groupIndex + 1}/style${styleNumber}-${form}.png`
+          });
+          const normal = withPreview(trio.find(item => paddleKind(item) === "normal") || trio[0], "normal");
+          const weapon = withPreview(trio.find(item => paddleKind(item) === "weapon") || trio[1], "weapon");
+          const sticky = withPreview(trio.find(item => paddleKind(item) === "sticky") || trio[2], "sticky");
           styles.push({ id: `${groupIndex}-${index / 3}`, normal, weapon, sticky });
         }
       }
       setPaddleStyles(styles);
       const savedPaddle = window.localStorage.getItem("bbb-web-paddle-style");
+      const savedForm = window.localStorage.getItem("bbb-web-paddle-form") as PaddleForm | null;
       const selected = styles.find(item => item.id === savedPaddle) || styles[0];
-      setPaddle(selected?.normal || null);
+      const form: PaddleForm = savedForm && ["normal", "weapon", "sticky"].includes(savedForm) ? savedForm : "normal";
+      setPaddleStyleId(selected?.id || "0-0");
+      setPaddleForm(form);
+      setPaddle(selected?.[form] || selected?.normal || defaultPaddle);
     };
     void loadPaddles();
 
@@ -469,8 +471,6 @@ export default function GameCanvas({ lang }: { lang: Lang }) {
     if (ball?.complete && ball.naturalWidth) fitImage(ctx, ball, ball.naturalWidth, ball.naturalHeight, p.ballX - BALL_R, p.ballY - BALL_R, BALL_R * 2, BALL_R * 2);
     else { ctx.beginPath(); ctx.fillStyle = "white"; ctx.arc(p.ballX, p.ballY, BALL_R, 0, Math.PI * 2); ctx.fill(); }
 
-    ctx.fillStyle = "rgba(159, 7, 18, .68)";
-    ctx.fillRect(22, H - 28, W - 44, 4);
   }, [ar, t, worldInfo.ar, worldInfo.en]);
 
   useEffect(() => {
@@ -622,6 +622,14 @@ export default function GameCanvas({ lang }: { lang: Lang }) {
     if (statusRef.current === "ready") p.ballX = p.paddleX + p.paddleW / 2;
   };
 
+  const equipPaddle = (style: PaddleStyle, form: PaddleForm) => {
+    setPaddleStyleId(style.id);
+    setPaddleForm(form);
+    setPaddle(style[form]);
+    window.localStorage.setItem("bbb-web-paddle-style", style.id);
+    window.localStorage.setItem("bbb-web-paddle-form", form);
+  };
+
   const primaryAction = () => {
     if (status === "ready" || status === "paused") setGameStatus("playing");
     else if (status === "playing") setGameStatus("paused");
@@ -635,83 +643,153 @@ export default function GameCanvas({ lang }: { lang: Lang }) {
   const primaryLabel = status === "ready" ? t.launch : status === "playing" ? t.pause : status === "paused" ? t.resume : status === "won" ? (stage >= 90 ? t.restart : t.next) : t.retry;
 
   return (
-    <div className="grid gap-7 xl:grid-cols-[minmax(0,720px)_320px] xl:items-start">
-      <div>
-        <div className="game-shell mx-auto select-none">
-          <video key={world} autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
-            <source src={`/game/worlds/${world}.mp4`} type="video/mp4" />
-          </video>
-          <canvas
-            ref={canvasRef}
-            width={W}
-            height={H}
-            aria-label="Brick Breaker Ball web game"
-            onPointerMove={(e) => movePaddle(e.clientX)}
-            onPointerDown={(e) => { movePaddle(e.clientX); if (statusRef.current === "ready") setGameStatus("playing"); }}
-          />
-          {status !== "playing" && (
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/12">
-              <div className="mt-24 max-w-[78%] rounded-3xl border border-white/10 bg-[#070b11]/82 px-7 py-6 text-center shadow-2xl backdrop-blur-xl">
-                <div className="text-xl font-black text-white sm:text-2xl">
-                  {status === "won" ? t.clear : status === "gameover" ? t.gameOver : status === "paused" ? t.pause : t.ready}
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_500px] xl:items-start">
+      <section className="min-w-0">
+        <div className="glass rounded-[2rem] p-3 sm:p-4 lg:p-5">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3 px-1">
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-[.22em] text-orange-300">{t.world} {world} • {t.stage} {stage}</div>
+              <div className="mt-1 text-lg font-black text-white sm:text-xl">{ar ? worldInfo.ar : worldInfo.en}</div>
+            </div>
+            <div className="flex items-center gap-2 text-[10px] font-black text-white/55 sm:text-xs">
+              <span className="rounded-xl border border-white/8 bg-black/20 px-3 py-2">{t.score} <b className="text-white">{score}</b></span>
+              <span className="rounded-xl border border-white/8 bg-black/20 px-3 py-2">{t.lives} <b className="text-white">{lives}</b></span>
+            </div>
+          </div>
+
+          <div className="game-shell mx-auto select-none">
+            <video key={world} autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
+              <source src={`/game/worlds/${world}.mp4`} type="video/mp4" />
+            </video>
+            <canvas
+              ref={canvasRef}
+              width={W}
+              height={H}
+              aria-label="Brick Breaker Ball web game"
+              onPointerMove={(e) => movePaddle(e.clientX)}
+              onPointerDown={(e) => { movePaddle(e.clientX); if (statusRef.current === "ready") setGameStatus("playing"); }}
+            />
+            {status !== "playing" && (
+              <div className="pointer-events-none absolute inset-x-0 bottom-[8%] flex justify-center px-4">
+                <div className="max-w-[92%] rounded-2xl border border-white/10 bg-[#070b11]/88 px-5 py-4 text-center shadow-2xl backdrop-blur-xl sm:max-w-[78%]">
+                  <div className="text-base font-black text-white sm:text-lg">
+                    {status === "won" ? t.clear : status === "gameover" ? t.gameOver : status === "paused" ? t.pause : t.ready}
+                  </div>
+                  <div className="mt-1 text-[10px] leading-5 text-white/50 sm:text-xs">{status === "ready" ? t.controls : `${t.score}: ${score}`}</div>
                 </div>
-                <div className="mt-2 text-xs leading-6 text-white/50">{status === "ready" ? t.controls : `${t.score}: ${score}`}</div>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <button onClick={primaryAction} className="min-w-28 rounded-xl bg-gradient-to-b from-[#e46a0d] to-[#9f0712] px-5 py-3 text-xs font-black tracking-[.1em] text-white shadow-lg shadow-red-950/25 transition hover:brightness-110">{primaryLabel}</button>
+            <button onClick={() => resetStage(stage)} className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-xs font-black text-white/75 transition hover:bg-white/10">{t.restart}</button>
+            <button onClick={() => setSound(v => !v)} className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-xs font-black text-white/75 transition hover:bg-white/10">{t.sound}: {sound ? "ON" : "OFF"}</button>
+          </div>
+        </div>
+      </section>
+
+      <aside className="glass rounded-[2rem] p-4 sm:p-5 xl:sticky xl:top-24">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="text-[10px] font-black tracking-[.2em] text-orange-300">WEB CAMPAIGN</div>
+            <h2 className="mt-2 text-2xl font-black text-white">{ar ? worldInfo.ar : worldInfo.en}</h2>
+            <p className="mt-1 text-xs leading-5 text-white/45">{ar ? worldInfo.arSub : worldInfo.enSub}</p>
+          </div>
+          <div className="rounded-2xl border border-white/8 bg-black/20 px-3 py-2 text-center">
+            <div className="text-[9px] font-black uppercase tracking-wider text-white/35">{t.stage}</div>
+            <div className="text-xl font-black text-white">{stage}<span className="text-xs text-white/35">/90</span></div>
+          </div>
+        </div>
+
+        <div className="mt-5 grid grid-cols-3 gap-2">
+          <div className="rounded-2xl bg-black/20 p-3"><div className="text-[9px] font-bold uppercase tracking-wider text-white/35">{t.unlocked}</div><div className="mt-1 text-xl font-black">{maxUnlocked}</div></div>
+          <div className="rounded-2xl bg-black/20 p-3"><div className="text-[9px] font-bold uppercase tracking-wider text-white/35">{t.score}</div><div className="mt-1 text-xl font-black">{score}</div></div>
+          <div className="rounded-2xl bg-black/20 p-3"><div className="text-[9px] font-bold uppercase tracking-wider text-white/35">{t.lives}</div><div className="mt-1 text-xl font-black">{lives}</div></div>
+        </div>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+          <label className="block">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-white/40">{t.stage}</span>
+            <select value={stage} onChange={(e) => setStage(Number(e.target.value))} className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#0b1017] px-3 py-3 text-sm font-bold text-white outline-none focus:border-orange-500/60">
+              {Array.from({ length: maxUnlocked }, (_, i) => i + 1).map(n => <option key={n} value={n}>{t.stage} {n}</option>)}
+            </select>
+          </label>
+          <label className="block">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-white/40">{t.selectWorld}</span>
+            <select value={world} onChange={(e) => setStage(Number(e.target.value) === 13 ? 85 : (Number(e.target.value) - 1) * 7 + 1)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#0b1017] px-3 py-3 text-sm font-bold text-white outline-none focus:border-orange-500/60">
+              {worlds.map(item => {
+                const firstStage = item.id === 13 ? 85 : (item.id - 1) * 7 + 1;
+                const locked = firstStage > maxUnlocked;
+                return <option key={item.id} value={item.id} disabled={locked}>{t.world} {item.id} - {ar ? item.ar : item.en}{locked ? (ar ? " • مقفل" : " • LOCKED") : ""}</option>;
+              })}
+            </select>
+          </label>
+        </div>
+
+        <div className="mt-6 border-t border-white/8 pt-5">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-[.18em] text-orange-300">{t.loadout}</div>
+              <div className="mt-1 text-sm font-black text-white">{loadoutTab === "paddles" ? t.selectPaddle : t.selectBall}</div>
+            </div>
+            <div className="flex rounded-xl border border-white/8 bg-black/20 p-1">
+              <button onClick={() => setLoadoutTab("paddles")} className={`rounded-lg px-3 py-2 text-[10px] font-black transition ${loadoutTab === "paddles" ? "bg-orange-600 text-white" : "text-white/45 hover:text-white"}`}>{t.paddles}</button>
+              <button onClick={() => setLoadoutTab("balls")} className={`rounded-lg px-3 py-2 text-[10px] font-black transition ${loadoutTab === "balls" ? "bg-orange-600 text-white" : "text-white/45 hover:text-white"}`}>{t.balls}</button>
+            </div>
+          </div>
+
+          {loadoutTab === "balls" ? (
+            <div className="mt-4">
+              <div className="mb-2 flex items-center justify-between text-[10px] font-bold text-white/35"><span>{t.selectBall}</span><span>60</span></div>
+              <div className="grid max-h-[32rem] grid-cols-5 gap-2 overflow-y-auto pr-1 scrollbar-thin sm:grid-cols-7 xl:grid-cols-6">
+                {ballFiles.map(file => (
+                  <button key={file} onClick={() => { setBallFile(file); window.localStorage.setItem("bbb-web-ball", file); }} title={assetLabel(file)} className={`aspect-square overflow-hidden rounded-xl border p-1.5 transition ${ballFile === file ? "border-orange-400 bg-orange-500/12 ring-1 ring-orange-400/40" : "border-white/8 bg-black/15 hover:border-white/20 hover:bg-white/5"}`}>
+                    <img src={`/game/assets/sprites/balls-sprites/balls_set/${file}`} alt={assetLabel(file)} className="h-full w-full object-contain" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="mt-4">
+              <div className="mb-3 flex items-center justify-between text-[10px] font-bold text-white/35"><span>{t.chooseForm}</span><span>{paddleStyles.length || 36} {ar ? "ستايل" : "STYLE SETS"}</span></div>
+              <div className="max-h-[38rem] space-y-3 overflow-y-auto pr-1 scrollbar-thin">
+                {paddleStyles.map(style => {
+                  const selectedStyle = paddleStyleId === style.id;
+                  const styleLabel = style.normal.displayName?.[ar ? "ar" : "en"] || (style.normal.file ? assetLabel(style.normal.file) : "Paddle");
+                  const forms: Array<[PaddleForm, PaddleAsset, string]> = [
+                    ["normal", style.normal, t.normal],
+                    ["weapon", style.weapon, t.weapon],
+                    ["sticky", style.sticky, t.sticky]
+                  ];
+                  return (
+                    <div key={style.id} className={`rounded-2xl border p-3 transition ${selectedStyle ? "border-lime-500/70 bg-lime-500/[.04] shadow-[0_0_0_1px_rgba(132,204,22,.12)]" : "border-orange-950/70 bg-black/15 hover:border-orange-700/50"}`}>
+                      <div className="mb-2 flex items-center justify-between gap-3 px-1">
+                        <div className="truncate text-xs font-black uppercase tracking-wide text-white">{styleLabel}</div>
+                        {selectedStyle && <div className="text-[9px] font-black uppercase tracking-wider text-lime-400">{t.equipped}</div>}
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        {forms.map(([form, item, label]) => {
+                          const active = selectedStyle && paddleForm === form;
+                          return (
+                            <button key={form} onClick={() => equipPaddle(style, form)} title={`${styleLabel} • ${label}`} className={`group rounded-xl border p-2 transition ${active ? "border-orange-400 bg-orange-500/12" : "border-white/7 bg-[#090e14] hover:border-white/20 hover:bg-white/[.04]"}`}>
+                              <div className="flex h-14 items-center justify-center sm:h-16">
+                                <img src={item.previewSrc} alt={`${styleLabel} ${label}`} className="max-h-full max-w-full object-contain" draggable={false} />
+                              </div>
+                              <div className={`mt-1.5 text-center text-[8px] font-black tracking-[.14em] ${active ? "text-orange-300" : "text-white/40 group-hover:text-white/65"}`}>{label}</div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-          <button onClick={primaryAction} className="rounded-xl bg-gradient-to-b from-[#e46a0d] to-[#9f0712] px-5 py-3 text-xs font-black tracking-[.1em] text-white">{primaryLabel}</button>
-          <button onClick={() => resetStage(stage)} className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-xs font-black text-white/75 hover:bg-white/10">{t.restart}</button>
-          <button onClick={() => setSound(v => !v)} className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-xs font-black text-white/75 hover:bg-white/10">{t.sound}: {sound ? "ON" : "OFF"}</button>
-        </div>
-      </div>
-
-      <aside className="glass rounded-3xl p-5 sm:p-6">
-        <div className="text-xs font-black tracking-[.18em] text-orange-300">WEB CAMPAIGN</div>
-        <h2 className="mt-2 text-2xl font-black text-white">{ar ? worldInfo.ar : worldInfo.en}</h2>
-        <p className="mt-2 text-sm leading-6 text-white/50">{ar ? worldInfo.arSub : worldInfo.enSub}</p>
-
-        <div className="mt-6 grid grid-cols-2 gap-2">
-          <div className="rounded-2xl bg-black/20 p-4"><div className="text-[10px] font-bold uppercase tracking-wider text-white/35">{t.stage}</div><div className="mt-1 text-2xl font-black">{stage}/90</div></div>
-          <div className="rounded-2xl bg-black/20 p-4"><div className="text-[10px] font-bold uppercase tracking-wider text-white/35">{t.unlocked}</div><div className="mt-1 text-2xl font-black">{maxUnlocked}</div></div>
-          <div className="rounded-2xl bg-black/20 p-4"><div className="text-[10px] font-bold uppercase tracking-wider text-white/35">{t.score}</div><div className="mt-1 text-2xl font-black">{score}</div></div>
-          <div className="rounded-2xl bg-black/20 p-4"><div className="text-[10px] font-bold uppercase tracking-wider text-white/35">{t.lives}</div><div className="mt-1 text-2xl font-black">{lives}</div></div>
-        </div>
-
-        <label className="mt-6 block text-xs font-bold text-white/45">{t.stage}</label>
-        <select value={stage} onChange={(e) => setStage(Number(e.target.value))} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0b1017] px-3 py-3 text-sm font-bold text-white outline-none">
-          {Array.from({ length: maxUnlocked }, (_, i) => i + 1).map(n => <option key={n} value={n}>{t.stage} {n}</option>)}
-        </select>
-
-        <label className="mt-4 block text-xs font-bold text-white/45">{t.selectWorld}</label>
-        <select value={world} onChange={(e) => setStage(Number(e.target.value) === 13 ? 85 : (Number(e.target.value) - 1) * 7 + 1)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0b1017] px-3 py-3 text-sm font-bold text-white outline-none">
-          {worlds.map(item => <option key={item.id} value={item.id}>{t.world} {item.id} - {ar ? item.ar : item.en}</option>)}
-        </select>
-
-        <div className="mt-6 text-xs font-bold text-white/45">{t.selectBall} <span className="text-white/30">({ballFiles.length})</span></div>
-        <div className="mt-2 grid max-h-64 grid-cols-4 gap-2 overflow-y-auto pr-1 scrollbar-thin">
-          {ballFiles.map(file => (
-            <button key={file} onClick={() => { setBallFile(file); window.localStorage.setItem("bbb-web-ball", file); }} title={assetLabel(file)} className={`aspect-square rounded-xl border p-1 transition ${ballFile === file ? "border-orange-400 bg-orange-500/12" : "border-white/8 bg-black/15 hover:bg-white/5"}`}>
-              <img src={`/game/assets/sprites/balls-sprites/balls_set/${file}`} alt={assetLabel(file)} className="h-full w-full object-contain" />
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-6 text-xs font-bold text-white/45">{t.selectPaddle} <span className="text-white/30">({paddleStyles.length || 36} {ar ? "ستايل" : "STYLE SETS"})</span></div>
-        <div className="mt-2 grid max-h-72 grid-cols-2 gap-2 overflow-y-auto pr-1 scrollbar-thin">
-          {paddleStyles.map(style => {
-            const item = style.normal;
-            const scale = Math.min(174 / item.width, 52 / item.height);
-            const label = item.displayName?.[ar ? "ar" : "en"] || (item.file ? assetLabel(item.file) : "Paddle");
-            return <button key={style.id} onClick={() => { setPaddle(item); window.localStorage.setItem("bbb-web-paddle-style", style.id); }} title={`${label} - ${ar ? "يتضمن المسلح واللاصق" : "includes weapon and sticky"}`} className={`relative h-14 overflow-hidden rounded-xl border transition ${paddle === item ? "border-orange-400 bg-orange-500/12" : "border-white/8 bg-black/15 hover:bg-white/5"}`}>
-              <img src={item.sheet} alt={label} className="pointer-events-none absolute max-w-none" style={{ width: item.sheetWidth * scale, height: item.sheetHeight * scale, left: -item.x * scale + 4, top: -item.y * scale + 1 }} />
-            </button>;
-          })}
-        </div>
-
-        <div className="mt-6 rounded-2xl border border-white/8 bg-black/15 p-4 text-xs leading-6 text-white/48">{t.controls}</div>
+        <div className="mt-5 rounded-2xl border border-white/8 bg-black/15 p-4 text-xs leading-6 text-white/45">{t.controls}</div>
       </aside>
     </div>
   );

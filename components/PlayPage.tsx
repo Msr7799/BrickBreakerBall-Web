@@ -6,8 +6,8 @@ export default function PlayPage({ lang }: { lang: Lang }) {
   const ar = lang === "ar";
   return (
     <PageShell lang={lang}>
-      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mb-8 max-w-3xl">
+      <main className="mx-auto max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+        <div className="mb-7 max-w-4xl">
           <p className="text-xs font-black tracking-[.2em] text-orange-300">{ar ? "العب الآن • اختر تجهيزاتك" : "PLAY NOW • CHOOSE YOUR LOADOUT"}</p>
           <h1 className="mt-3 text-4xl font-black tracking-tight text-white sm:text-6xl">{ar ? "ابدأ اللعب واختر تجهيزاتك" : "Play now, your way"}</h1>
           <p className="mt-4 text-base leading-8 text-white/55">
