@@ -44,8 +44,10 @@
 <p>
 <img src="public/game/assets/sprites/spritesheet.png" alt="Brick Breaker Ball spritesheet" width="390" />
 <img src="public/game/assets/sprites/paddles-sprites/paddle-group3.png" alt="paddles" width="390" />
-<img src="public\game\assets\sprites\balls-sprites\balls_set\balls-sheet.png" alt="balls" width="300" />
+</p>
 
+<p>
+<img src="public\game\assets\sprites\balls-sprites\balls_set\balls-sheet.png" alt="balls" width="500" />
 </p>
 
 ## صفحات الموقع
