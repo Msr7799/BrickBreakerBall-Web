@@ -14,17 +14,14 @@
 
 ## 2. Paddles
 ### Normal Paddle
-![Normal Paddle](assets/paddle/paddle_normal.png)
 
 The baseline paddle. Moves left and right, returns the ball, has no built-in shooting or grabbing ability, and can be resized by power-ups.
 
 ### Laser Paddle
-![Laser Paddle](assets/paddle/paddle_laser.png)
 
 Armed paddle with two launch points. It fires Laser Projectiles upward to hit bricks. The supplied rules also describe Fire and Piercing effects being able to carry over to laser shots when those effects are active.
 
 ### Sticky / Grab Paddle
-![Sticky / Grab Paddle](assets/paddle/paddle_sticky.png)
 
 Catches a ball on contact and holds it to the paddle until the player releases it. The supplied rules allow it to hold multiple balls while multiball is active.
 
@@ -41,55 +38,46 @@ Catches a ball on contact and holds it to the paddle until the player releases i
 
 ### All Ball Sprites
 #### Small Fire Ball
-![Small Fire Ball](assets/ball/ball_fire_small.png)
 - Size: **Small**
 - Type: **Fire**
 - Rule: Small / Shrink size. About half-size in the supplied rules; harder to return, but better for narrow gaps. Fire effect: the struck brick explodes and can damage nearby bricks. The supplied rules describe Fire + Piercing as compatible effects.
 
 #### Small Normal Ball
-![Small Normal Ball](assets/ball/ball_normal_small.png)
 - Size: **Small**
 - Type: **Normal**
 - Rule: Small / Shrink size. About half-size in the supplied rules; harder to return, but better for narrow gaps. Standard collision behavior: the ball rebounds from the paddle, walls, and ordinary bricks.
 
 #### Small Piercing Ball
-![Small Piercing Ball](assets/ball/ball_piercing_small.png)
 - Size: **Small**
 - Type: **Piercing**
 - Rule: Small / Shrink size. About half-size in the supplied rules; harder to return, but better for narrow gaps. Piercing / Thru-Brick effect: passes through bricks and continues moving instead of bouncing from each brick.
 
 #### Medium Fire Ball
-![Medium Fire Ball](assets/ball/ball_fire_medium.png)
 - Size: **Medium**
 - Type: **Fire**
 - Rule: Normal/default size and baseline handling. Fire effect: the struck brick explodes and can damage nearby bricks. The supplied rules describe Fire + Piercing as compatible effects.
 
 #### Medium Normal Ball
-![Medium Normal Ball](assets/ball/ball_normal_medium.png)
 - Size: **Medium**
 - Type: **Normal**
 - Rule: Normal/default size and baseline handling. Standard collision behavior: the ball rebounds from the paddle, walls, and ordinary bricks.
 
 #### Medium Piercing Ball
-![Medium Piercing Ball](assets/ball/ball_piercing_medium.png)
 - Size: **Medium**
 - Type: **Piercing**
 - Rule: Normal/default size and baseline handling. Piercing / Thru-Brick effect: passes through bricks and continues moving instead of bouncing from each brick.
 
 #### Large Fire Ball
-![Large Fire Ball](assets/ball/ball_fire_large.png)
 - Size: **Large**
 - Type: **Fire**
 - Rule: Large / Mega size. About twice normal size in the supplied rules; easier to return but less suitable for narrow gaps. Fire effect: the struck brick explodes and can damage nearby bricks. The supplied rules describe Fire + Piercing as compatible effects.
 
 #### Large Normal Ball
-![Large Normal Ball](assets/ball/ball_normal_large.png)
 - Size: **Large**
 - Type: **Normal**
 - Rule: Large / Mega size. About twice normal size in the supplied rules; easier to return but less suitable for narrow gaps. Standard collision behavior: the ball rebounds from the paddle, walls, and ordinary bricks.
 
 #### Large Piercing Ball
-![Large Piercing Ball](assets/ball/ball_piercing_large.png)
 - Size: **Large**
 - Type: **Piercing**
 - Rule: Large / Mega size. About twice normal size in the supplied rules; easier to return but less suitable for narrow gaps. Piercing / Thru-Brick effect: passes through bricks and continues moving instead of bouncing from each brick.
@@ -294,7 +282,7 @@ Catches a ball on contact and holds it to the paddle until the player releases i
 - Impact behavior: Does not break from a normal collision. Piercing/Thru-Brick or explosions may affect it depending on the final game rules you implement.
 
 ### MAROON Crystal - Intact
-![MAROON Crystal - Intact](assets/brick/brick_crystal_red_intact.png)
+![MAROON Crystal - Intact](assets/brick/brick_crystal_MAROON_intact.png)
 - Material: **crystal**
 - Damage state: **intact**
 - Next state: `brick_crystal_MAROON_damaged`
@@ -340,7 +328,7 @@ Catches a ball on contact and holds it to the paddle until the player releases i
 - Impact behavior: Special hazard brick. The sprite map marks it as a hazard, but does not define the exact collision penalty or whether it can be destroyed. That behavior remains game-code defined.
 
 ### MAROON Crystal - Damaged
-![MAROON Crystal - Damaged](assets/brick/brick_crystal_red_damaged.png)
+![MAROON Crystal - Damaged](assets/brick/brick_crystal_MAROON_damaged.png)
 - Material: **crystal**
 - Damage state: **damaged**
 - Previous state: `brick_crystal_MAROON_intact`

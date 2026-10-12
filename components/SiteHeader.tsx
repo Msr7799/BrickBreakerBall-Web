@@ -2,37 +2,57 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { copy, type Lang } from "@/lib/site";
+import { useEffect, useState } from "react";
+import { copy, GOOGLE_PLAY_URL, type Lang } from "@/lib/site";
 
 export default function SiteHeader({ lang }: { lang: Lang }) {
   const pathname = usePathname();
   const c = copy[lang];
   const other: Lang = lang === "en" ? "ar" : "en";
   const otherPath = pathname.replace(/^\/(en|ar)/, `/${other}`);
+  const home = `/${lang}`;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const update = () => {
+      setScrolled(window.scrollY > 24);
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(total > 0 ? Math.min(100, window.scrollY / total * 100) : 0);
+    };
+    update(); window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
+
+  useEffect(() => { setMenuOpen(false); }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/8 bg-[#070b11]/85 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6 lg:px-8">
-        <Link href={`/${lang}`} className="flex min-w-0 items-center gap-3">
-          <img src="/game/branding/app-icon.png" alt="Brick Breaker Ball" className="h-10 w-10 rounded-xl object-cover shadow-lg" />
-          <div className="min-w-0">
-            <div className="truncate text-sm font-black tracking-[.14em] text-white sm:text-base">BRICK BREAKER BALL</div>
-            <div className="text-[10px] uppercase tracking-[.28em] text-white/45">Web Edition</div>
-          </div>
+    <header className={`site-header sticky top-0 z-50 border-b border-white/8 backdrop-blur-xl ${scrolled ? "is-scrolled" : ""}`}>
+      <div className="mx-auto flex h-[72px] max-w-[1480px] items-center gap-4 px-4 sm:px-8 xl:px-12">
+        <Link href={home} className="flex min-w-0 items-center gap-3" aria-label="Brick Breaker Ball home">
+          <img src="/game/site/branding/app-icon.png" alt="" className="h-11 w-11 rounded-xl object-cover shadow-[0_0_25px_rgba(55,166,255,.2)]" />
+          <div className="brand-copy min-w-0 leading-none"><div className="truncate text-sm font-black tracking-[.12em] text-white sm:text-base">BRICK BREAKER BALL</div><div className="mt-1.5 text-[8px] font-bold tracking-[.28em] text-[#ff8b42]">FORGE PULSE GAMES</div></div>
         </Link>
 
-        <nav className="scrollbar-thin ms-auto flex min-w-0 flex-1 items-center justify-end gap-1 overflow-x-auto">
-          <Link className="whitespace-nowrap rounded-lg px-3 py-2 text-sm text-white/70 transition hover:bg-white/6 hover:text-white" href={`/${lang}`}>{c.nav.home}</Link>
-          <Link className="whitespace-nowrap rounded-lg px-3 py-2 text-sm font-bold text-orange-200 transition hover:bg-orange-500/10" href={`/${lang}/play`}>{c.nav.play}</Link>
-          <Link className="whitespace-nowrap rounded-lg px-3 py-2 text-sm text-white/70 transition hover:bg-white/6 hover:text-white" href={`/${lang}#worlds`}>{c.nav.worlds}</Link>
-          <Link className="whitespace-nowrap rounded-lg px-3 py-2 text-sm text-white/70 transition hover:bg-white/6 hover:text-white" href={`/${lang}/rules`}>{c.nav.rules}</Link>
-          <Link className="whitespace-nowrap rounded-lg px-3 py-2 text-sm text-white/70 transition hover:bg-white/6 hover:text-white" href={`/${lang}/privacy`}>{c.nav.privacy}</Link>
+        <nav className="scrollbar-hide ms-auto hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
+          <Link className="nav-link" href={home}>{c.nav.home}</Link>
+          <Link className="nav-link" href={`${home}#modes`}>{c.nav.modes}</Link>
+          <Link className="nav-link" href={`${home}#bosses`}>{c.nav.bosses}</Link>
+          <Link className="nav-link" href={`${home}/play`}>{c.nav.gameplay}</Link>
+          <Link className="nav-link" href={`${home}/editor`}>{lang === "ar" ? "محرر المراحل" : "Level editor"}</Link>
+          <Link className="nav-link" href={`${home}#gallery`}>{c.nav.gallery}</Link>
+          <Link className="nav-link" href={`${home}/rules`}>{c.nav.rules}</Link>
         </nav>
 
-        <Link href={otherPath} className="shrink-0 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-bold text-white transition hover:bg-white/10">
-          {lang === "en" ? "العربية" : "EN"}
-        </Link>
+        <Link href={otherPath} className="language-button" aria-label={lang === "en" ? "العربية" : "English"}>{lang === "en" ? "ع" : "EN"}</Link>
+        <a href={GOOGLE_PLAY_URL} target="_blank" rel="noreferrer" className="header-cta"><span className="hidden sm:inline">{c.nav.download}</span><span className="sm:hidden">↓</span></a>
+        <button className="mobile-menu-button lg:hidden" aria-expanded={menuOpen} aria-controls="mobile-menu" onClick={() => setMenuOpen(v => !v)}><span /><span /><span /></button>
       </div>
+      <nav id="mobile-menu" className={`mobile-menu lg:hidden ${menuOpen ? "open" : ""}`} aria-label="Mobile navigation">
+        <Link onClick={() => setMenuOpen(false)} href={home}>{c.nav.home}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}#modes`}>{c.nav.modes}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}#bosses`}>{c.nav.bosses}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}/play`}>{c.nav.gameplay}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}/editor`}>{lang === "ar" ? "محرر المراحل" : "Level editor"}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}#gallery`}>{c.nav.gallery}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}/rules`}>{c.nav.rules}</Link>
+      </nav>
+      <div className="scroll-progress" style={{ width: `${progress}%` }} />
     </header>
   );
 }

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
 import PrivacyPage from "@/components/PrivacyPage";
-export const metadata: Metadata = { title: "سياسة الخصوصية" };
+import { localizedMetadata } from "@/lib/seo";
+export const metadata = localizedMetadata({ title: "سياسة الخصوصية", description: "اطّلع على سياسة الخصوصية الخاصة بموقع ولعبة Brick Breaker Ball وكيفية التعامل مع المعلومات.", locale: "ar", path: "/privacy" });
 export default function Page() { return <PrivacyPage lang="ar" />; }

@@ -3,8 +3,8 @@ import type { Lang } from "@/lib/site";
 
 const sections = {
   en: [
-    ["1. Overview", "Brick Breaker Ball includes an Android game and this web edition. Neither version requires an account to play. The project does not ask you to provide your name, email address, phone number or password as part of normal gameplay."],
-    ["2. Data stored on your device", "The Android game stores gameplay progress, settings, unlocked cosmetics, inventory, scores and similar game state locally on the device. The web edition stores browser-game progress, unlocked web stages, selected cosmetic and basic preferences in localStorage. Clearing app storage, browser storage or uninstalling the game may remove this local data."],
+    ["1. Overview", "Brick Breaker Ball is an Android game published by Forge Pulse Games. The game does not ask you to provide your name, email address, phone number or password as part of normal gameplay."],
+    ["2. Data stored on your device", "The Android game stores gameplay progress, settings, unlocked cosmetics, inventory, scores and similar game state locally on the device. Android backup is disabled for the app. Clearing app storage or uninstalling the game removes this local data."],
     ["3. Website data", "This website is designed to work without account creation. The supplied website code does not include third-party analytics, advertising trackers or payment forms by default. Standard hosting infrastructure may still process technical request data such as IP address, user agent and security logs as part of delivering the site."],
     ["4. Advertising in the Android game", "If advertising is enabled in a production Android build, Brick Breaker Ball may use Google Mobile Ads to show rewarded advertisements. Google and its advertising partners may process device identifiers, ad interaction information, approximate location derived from network information, diagnostics and related data according to Google's policies and the consent choices available to you."],
     ["5. In-app purchases", "Android purchases are processed by Google Play. The developer does not receive full payment-card details. The game may receive purchase identifiers, product information, purchase state and transaction information needed to unlock purchased content, prevent duplicate grants and restore eligible purchases."],
@@ -17,8 +17,8 @@ const sections = {
     ["12. Contact", "For privacy questions, contact the developer through the project GitHub profile: https://github.com/msr7799"]
   ],
   ar: [
-    ["1. نظرة عامة", "تتضمن Brick Breaker Ball لعبة أندرويد ونسخة الويب الموجودة في هذا الموقع. لا تتطلب أي من النسختين إنشاء حساب للعب، ولا يطلب المشروع اسمك أو بريدك الإلكتروني أو رقم هاتفك أو كلمة مرورك ضمن الاستخدام الطبيعي للعبة."],
-    ["2. البيانات المحفوظة على جهازك", "تحفظ لعبة أندرويد تقدم اللعب والإعدادات والعناصر التجميلية المفتوحة والمخزون والنتائج وحالة اللعبة محليًا على الجهاز. وتحفظ نسخة الويب تقدم مراحل المتصفح والمرحلة المفتوحة والكرة المختارة وبعض التفضيلات في localStorage. قد يؤدي حذف بيانات التطبيق أو بيانات المتصفح أو إزالة اللعبة إلى حذف هذه البيانات المحلية."],
+    ["1. نظرة عامة", "Brick Breaker Ball لعبة أندرويد منشورة من Forge Pulse Games. لا تطلب اللعبة اسمك أو بريدك الإلكتروني أو رقم هاتفك أو كلمة مرورك ضمن الاستخدام الطبيعي."],
+    ["2. البيانات المحفوظة على جهازك", "تحفظ لعبة أندرويد تقدم اللعب والإعدادات والعناصر التجميلية المفتوحة والمخزون والنتائج وحالة اللعبة محليًا على الجهاز. النسخ الاحتياطي في أندرويد معطل للتطبيق، ويؤدي حذف بياناته أو إزالته إلى حذف هذه البيانات المحلية."],
     ["3. بيانات الموقع", "صُمم الموقع ليعمل من دون إنشاء حساب. الكود المرفق للموقع لا يحتوي افتراضيًا على تحليلات خارجية أو متتبعات إعلانية أو نماذج دفع. ومع ذلك قد تقوم منصة الاستضافة بمعالجة بيانات تقنية مثل عنوان IP ونوع المتصفح وسجلات الأمان كجزء من تقديم الموقع وحمايته."],
     ["4. الإعلانات في لعبة أندرويد", "إذا تم تفعيل الإعلانات في نسخة أندرويد الإنتاجية، فقد تستخدم Brick Breaker Ball خدمة Google Mobile Ads لعرض إعلانات مكافآت. قد تعالج Google وشركاؤها معرّفات الجهاز وتفاعلات الإعلانات والموقع التقريبي المستنتج من الشبكة وبيانات التشخيص وفق سياسات Google وخيارات الموافقة المتاحة لك."],
     ["5. المشتريات داخل اللعبة", "تعالج Google Play عمليات الشراء في نسخة أندرويد. لا يحصل المطور على بيانات البطاقة كاملة. قد تستقبل اللعبة معرّفات الشراء ومعلومات المنتج وحالة العملية وبيانات المعاملة اللازمة لفتح المحتوى ومنع منح نفس العملية مرتين واستعادة المشتريات المؤهلة."],
@@ -40,7 +40,7 @@ export default function PrivacyPage({ lang }: { lang: Lang }) {
         <div className="mb-10">
           <p className="text-xs font-black tracking-[.2em] text-orange-300">LEGAL</p>
           <h1 className="mt-3 text-4xl font-black tracking-tight text-white sm:text-6xl">{ar ? "سياسة الخصوصية" : "Privacy Policy"}</h1>
-          <p className="mt-4 text-sm text-white/45">{ar ? "تاريخ السريان: 12 سبتمبر 2026" : "Effective date: September 12, 2026"}</p>
+          <p className="mt-4 text-sm text-white/45">{ar ? "تاريخ السريان: 11 أكتوبر 2026" : "Effective date: October 11, 2026"}</p>
         </div>
         <div className="space-y-4">
           {sections[lang].map(([title, body]) => (

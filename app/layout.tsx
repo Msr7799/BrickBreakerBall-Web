@@ -1,20 +1,33 @@
 import type { Metadata } from "next";
+import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "Brick Breaker Ball",
-    template: "%s | Brick Breaker Ball"
+    default: `${SITE_NAME} — Classic & Volley Android Game`,
+    template: `%s | ${SITE_NAME}`
   },
-  description: "Break through 90 stages across 13 worlds in Brick Breaker Ball. Play the web edition, explore the rules, cosmetics and game systems.",
-  icons: { icon: "/game/branding/app-icon.png" },
+  applicationName: SITE_NAME,
+  description: DEFAULT_DESCRIPTION,
+  category: "games",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+  },
+  icons: { icon: "/game/site/branding/app-icon.png" },
   openGraph: {
-    title: "Brick Breaker Ball",
-    description: "90 stages. 13 worlds. 60 collectible balls. Play in your browser.",
-    images: ["/game/branding/app-icon.png"],
-    type: "website"
-  }
+    title: `${SITE_NAME} — Classic & Volley Android Game`,
+    description: DEFAULT_DESCRIPTION,
+    siteName: SITE_NAME,
+    url: "/en",
+    images: [{ url: "/game/site/marketing/landscape-promo.png", width: 1536, height: 1024, alt: "Brick Breaker Ball game artwork" }],
+    type: "website",
+    locale: "en_US",
+    alternateLocale: ["ar_BH"],
+  },
+  twitter: { card: "summary_large_image", title: SITE_NAME, description: DEFAULT_DESCRIPTION, images: ["/game/site/marketing/landscape-promo.png"] },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

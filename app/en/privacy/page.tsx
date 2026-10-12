@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
 import PrivacyPage from "@/components/PrivacyPage";
-export const metadata: Metadata = { title: "Privacy Policy" };
+import { localizedMetadata } from "@/lib/seo";
+export const metadata = localizedMetadata({ title: "Privacy Policy", description: "Read the Brick Breaker Ball privacy policy and learn how information is handled when you use the game and website.", locale: "en", path: "/privacy" });
 export default function Page() { return <PrivacyPage lang="en" />; }

@@ -18,8 +18,12 @@ function assetUrl(raw: string) {
   return raw;
 }
 
-export default function RulesMarkdown({ lang }: { lang: Lang }) {
-  const fileName = lang === "ar" ? "rules-ar.md" : "rules-en.md";
+type RulesMode = "classic" | "volley";
+
+export default function RulesMarkdown({ lang, mode = "classic" }: { lang: Lang; mode?: RulesMode }) {
+  const fileName = mode === "volley"
+    ? (lang === "ar" ? "volley-rules-ar.md" : "volley-rules-en.md")
+    : (lang === "ar" ? "rules-ar.md" : "rules-en.md");
   const markdown = fs.readFileSync(path.join(process.cwd(), "content", fileName), "utf8");
   const lines = markdown.split(/\r?\n/);
   const nodes: React.ReactNode[] = [];
