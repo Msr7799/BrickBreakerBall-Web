@@ -1,0 +1,10 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "adminEditor": {
+      ".read": "auth != null && auth.token.email_verified == true && auth.token.email == 'alromaihi2224@gmail.com'",
+      ".write": "auth != null && auth.token.email_verified == true && auth.token.email == 'alromaihi2224@gmail.com'"
+    }
+  }
+}

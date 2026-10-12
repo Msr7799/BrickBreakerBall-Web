@@ -1,15 +1,19 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
   apiKey:
     process.env.NEXT_PUBLIC_FIREBASE_API_KEY ??
-    "AIzaSyDEKI8NXF769mgxuMGUH1stuUQKPPBVQkQ",
+    "AIzaSyDEKI8NXF769mgxuMGUHlstuUQKPPBVQkQ",
   authDomain:
     process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ??
     "brick-breaker-ball-8e4f5.firebaseapp.com",
   projectId:
     process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? "brick-breaker-ball-8e4f5",
+  databaseURL:
+    process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL ??
+    "https://brick-breaker-ball-8e4f5-default-rtdb.firebaseio.com",
   storageBucket:
     process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ??
     "brick-breaker-ball-8e4f5.firebasestorage.app",
@@ -36,6 +40,7 @@ export const firebaseApp = isFirebaseConfigured
   : null;
 
 export const firebaseAuth = firebaseApp ? getAuth(firebaseApp) : null;
+export const firebaseDatabase = firebaseApp ? getDatabase(firebaseApp) : null;
 
 export const googleAuthProvider = new GoogleAuthProvider();
 googleAuthProvider.setCustomParameters({ prompt: "select_account" });
