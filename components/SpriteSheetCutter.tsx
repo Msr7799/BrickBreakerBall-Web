@@ -1,6 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type PointerEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type PointerEvent,
+} from "react";
+import { get, ref, serverTimestamp, set } from "firebase/database";
+import { firebaseAuth, firebaseDatabase } from "@/lib/firebase";
 import type { Lang } from "@/lib/site";
 
 export type CustomEditorSprite = {
@@ -11,6 +20,7 @@ export type CustomEditorSprite = {
   height: number;
 };
 
+type Point = { x: number; y: number };
 type Region = {
   id: string;
   x: number;
@@ -20,8 +30,8 @@ type Region = {
   pixelArea: number;
   members: number[];
   manual?: boolean;
+  points?: Point[];
 };
-
 type Sheet = {
   name: string;
   url: string;
@@ -29,7 +39,6 @@ type Sheet = {
   width: number;
   height: number;
 };
-
 type Settings = {
   alphaThreshold: number;
   minArea: number;
@@ -39,6 +48,23 @@ type Settings = {
   bgColor: string;
   tolerance: number;
   cropMode: "exact" | "box";
+};
+type Tool = "select" | "rectangle" | "polygon";
+type CloudStatus = "loading" | "saving" | "saved" | "idle" | "error";
+type BoxHandle = "move" | "n" | "ne" | "e" | "se" | "s" | "sw" | "w" | "nw";
+type Transform =
+  | { kind: "box"; region: Region; start: Point; handle: BoxHandle }
+  | { kind: "vertex"; region: Region; pointIndex: number };
+type SpriteWorkspaceRecord = {
+  version: 1;
+  sheet: { name: string; dataUrl: string; width: number; height: number };
+  regions: Region[];
+  settings: Settings;
+  gridColumns: number;
+  gridRows: number;
+  selectedId: string | null;
+  updatedAt?: number;
+  updatedBy?: string;
 };
 
 const defaults: Settings = {
@@ -51,6 +77,64 @@ const defaults: Settings = {
   tolerance: 22,
   cropMode: "exact",
 };
+
+const handles: BoxHandle[] = ["nw", "n", "ne", "e", "se", "s", "sw", "w"];
+const clamp = (value: number, min: number, max: number) =>
+  Math.max(min, Math.min(max, value));
+
+function fileToDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error ?? new Error("Could not read image"));
+    reader.readAsDataURL(file);
+  });
+}
+
+function spriteWorkspacePath() {
+  const uid = firebaseAuth?.currentUser?.uid;
+  return uid ? `adminEditor/spriteWorkspaces/${uid}` : null;
+}
+
+function polygonArea(points: Point[]) {
+  return Math.abs(
+    points.reduce((sum, point, index) => {
+      const next = points[(index + 1) % points.length];
+      return sum + point.x * next.y - next.x * point.y;
+    }, 0) / 2,
+  );
+}
+
+function regionFromPoints(id: string, points: Point[]): Region {
+  const minX = Math.min(...points.map((point) => point.x));
+  const minY = Math.min(...points.map((point) => point.y));
+  const maxX = Math.max(...points.map((point) => point.x));
+  const maxY = Math.max(...points.map((point) => point.y));
+  return {
+    id,
+    x: Math.round(minX),
+    y: Math.round(minY),
+    w: Math.max(1, Math.round(maxX - minX)),
+    h: Math.max(1, Math.round(maxY - minY)),
+    pixelArea: Math.max(1, Math.round(polygonArea(points))),
+    members: [],
+    manual: true,
+    points,
+  };
+}
+
+function pointInPolygon(x: number, y: number, points: Point[]) {
+  let inside = false;
+  for (let index = 0, previous = points.length - 1; index < points.length; previous = index++) {
+    const a = points[index];
+    const b = points[previous];
+    const crosses =
+      a.y > y !== b.y > y &&
+      x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y || Number.EPSILON) + a.x;
+    if (crosses) inside = !inside;
+  }
+  return inside;
+}
 
 function extractSprite(
   sheet: Sheet,
@@ -84,6 +168,13 @@ function extractSprite(
   for (let y = 0; y < region.h; y += 1) {
     for (let x = 0; x < region.w; x += 1) {
       const offset = (y * region.w + x) * 4;
+      if (
+        region.points &&
+        !pointInPolygon(region.x + x + 0.5, region.y + y + 0.5, region.points)
+      ) {
+        data[offset + 3] = 0;
+        continue;
+      }
       if (data[offset + 3] < settings.alphaThreshold) {
         data[offset + 3] = 0;
         continue;
@@ -111,6 +202,46 @@ function extractSprite(
   return canvas;
 }
 
+function resizedRegion(
+  original: Region,
+  handle: BoxHandle,
+  current: Point,
+  start: Point,
+  sheet: Sheet,
+) {
+  if (handle === "move") {
+    const dx = clamp(current.x - start.x, -original.x, sheet.width - original.x - original.w);
+    const dy = clamp(current.y - start.y, -original.y, sheet.height - original.y - original.h);
+    const moved = {
+      ...original,
+      x: Math.round(original.x + dx),
+      y: Math.round(original.y + dy),
+      manual: true,
+    };
+    if (original.points) {
+      moved.points = original.points.map((point) => ({ x: point.x + dx, y: point.y + dy }));
+    }
+    return moved;
+  }
+  let left = original.x;
+  let top = original.y;
+  let right = original.x + original.w;
+  let bottom = original.y + original.h;
+  if (handle.includes("w")) left = clamp(current.x, 0, right - 1);
+  if (handle.includes("e")) right = clamp(current.x, left + 1, sheet.width);
+  if (handle.includes("n")) top = clamp(current.y, 0, bottom - 1);
+  if (handle.includes("s")) bottom = clamp(current.y, top + 1, sheet.height);
+  return {
+    ...original,
+    x: Math.round(left),
+    y: Math.round(top),
+    w: Math.max(1, Math.round(right - left)),
+    h: Math.max(1, Math.round(bottom - top)),
+    members: [],
+    manual: true,
+  };
+}
+
 export default function SpriteSheetCutter({
   lang,
   onUseSprite,
@@ -123,20 +254,23 @@ export default function SpriteSheetCutter({
   const [regions, setRegions] = useState<Region[]>([]);
   const [labels, setLabels] = useState<Uint32Array | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedPoint, setSelectedPoint] = useState<number | null>(null);
   const [settings, setSettings] = useState<Settings>(defaults);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [gridColumns, setGridColumns] = useState(8);
   const [gridRows, setGridRows] = useState(8);
-  const [drawing, setDrawing] = useState(false);
-  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
-  const [dragEnd, setDragEnd] = useState<{ x: number; y: number } | null>(null);
+  const [tool, setTool] = useState<Tool>("select");
+  const [dragStart, setDragStart] = useState<Point | null>(null);
+  const [dragEnd, setDragEnd] = useState<Point | null>(null);
+  const [polygonDraft, setPolygonDraft] = useState<Point[]>([]);
+  const [cloudStatus, setCloudStatus] = useState<CloudStatus>("loading");
+  const [cloudError, setCloudError] = useState("");
   const boardRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => () => {
-    if (sheet) URL.revokeObjectURL(sheet.url);
-  }, [sheet]);
+  const transformRef = useRef<Transform | null>(null);
+  const cloudReadyRef = useRef(false);
+  const cloudSaveTimerRef = useRef<number | null>(null);
 
   const ratio = sheet ? Math.min(1, 920 / sheet.width, 600 / sheet.height) : 1;
   const selected = regions.find((region) => region.id === selectedId) ?? null;
@@ -149,6 +283,119 @@ export default function SpriteSheetCutter({
     }));
   }, [labels, regions, settings, sheet]);
 
+  const replaceRegion = (next: Region) =>
+    setRegions((current) => current.map((region) => (region.id === next.id ? next : region)));
+
+  const restoreCloudWorkspace = async (announce = false) => {
+    const path = spriteWorkspacePath();
+    if (!firebaseDatabase || !path) {
+      setCloudStatus("error");
+      setCloudError(ar ? "جلسة Firebase غير متاحة" : "Firebase session is unavailable");
+      return;
+    }
+    cloudReadyRef.current = false;
+    setCloudStatus("loading");
+    setCloudError("");
+    try {
+      const snapshot = await get(ref(firebaseDatabase, path));
+      if (!snapshot.exists()) {
+        setCloudStatus("idle");
+        if (announce) setError(ar ? "لا يوجد مشروع قص محفوظ بعد." : "No saved cutter project yet.");
+        return;
+      }
+      const saved = snapshot.val() as SpriteWorkspaceRecord;
+      if (saved.version !== 1 || !saved.sheet?.dataUrl || !Array.isArray(saved.regions))
+        throw new Error(ar ? "بيانات المشروع السحابي غير صالحة." : "Cloud workspace data is invalid.");
+      const image = new Image();
+      image.src = saved.sheet.dataUrl;
+      await image.decode();
+      setSheet({
+        name: saved.sheet.name,
+        url: saved.sheet.dataUrl,
+        image,
+        width: saved.sheet.width,
+        height: saved.sheet.height,
+      });
+      setRegions(saved.regions);
+      setSettings({ ...defaults, ...saved.settings });
+      setGridColumns(saved.gridColumns || 8);
+      setGridRows(saved.gridRows || 8);
+      setSelectedId(saved.selectedId && saved.regions.some((region) => region.id === saved.selectedId) ? saved.selectedId : saved.regions[0]?.id ?? null);
+      setSelectedPoint(null);
+      setLabels(null);
+      setPolygonDraft([]);
+      setTool("select");
+      setCloudStatus("saved");
+      if (announce) setError("");
+    } catch (caught) {
+      const detail = caught instanceof Error ? caught.message : String(caught);
+      setCloudStatus("error");
+      setCloudError(detail);
+      if (announce) setError(detail);
+    } finally {
+      cloudReadyRef.current = true;
+    }
+  };
+
+  const saveCloudWorkspace = async (announce = false) => {
+    const path = spriteWorkspacePath();
+    const currentUser = firebaseAuth?.currentUser;
+    if (!firebaseDatabase || !path || !currentUser || !sheet) return;
+    setCloudStatus("saving");
+    setCloudError("");
+    const record: SpriteWorkspaceRecord = {
+      version: 1,
+      sheet: { name: sheet.name, dataUrl: sheet.url, width: sheet.width, height: sheet.height },
+      regions,
+      settings,
+      gridColumns,
+      gridRows,
+      selectedId,
+      updatedBy: currentUser.email ?? currentUser.uid,
+    };
+    try {
+      const payload = JSON.parse(JSON.stringify(record)) as SpriteWorkspaceRecord;
+      await set(ref(firebaseDatabase, path), { ...payload, updatedAt: serverTimestamp() });
+      try {
+        localStorage.setItem("bbb-sprite-cutter-workspace", JSON.stringify(record));
+      } catch {
+        // Firebase remains the source of truth when a large sheet exceeds localStorage.
+      }
+      setCloudStatus("saved");
+      if (announce) setError("");
+    } catch (caught) {
+      const detail = caught instanceof Error ? caught.message : String(caught);
+      setCloudStatus("error");
+      setCloudError(detail);
+      if (announce) setError(detail);
+    }
+  };
+
+  useEffect(() => {
+    void restoreCloudWorkspace();
+    // The authenticated admin identity is fixed while this component is mounted.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!cloudReadyRef.current || !sheet) return;
+    if (cloudSaveTimerRef.current) window.clearTimeout(cloudSaveTimerRef.current);
+    setCloudStatus("saving");
+    cloudSaveTimerRef.current = window.setTimeout(() => void saveCloudWorkspace(), 1200);
+    return () => {
+      if (cloudSaveTimerRef.current) window.clearTimeout(cloudSaveTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gridColumns, gridRows, regions, selectedId, settings, sheet?.name, sheet?.url]);
+
+  const point = (event: PointerEvent<HTMLElement>): Point => {
+    const bounds = boardRef.current!.getBoundingClientRect();
+    return {
+      x: clamp(Math.round((event.clientX - bounds.left) / ratio), 0, sheet!.width),
+      y: clamp(Math.round((event.clientY - bounds.top) / ratio), 0, sheet!.height),
+    };
+  };
+
   const loadSheet = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = "";
@@ -157,28 +404,21 @@ export default function SpriteSheetCutter({
       setError(ar ? "استخدم صورة PNG أو JPG أو WebP." : "Use a PNG, JPG, or WebP image.");
       return;
     }
-    const url = URL.createObjectURL(file);
-    const image = new Image();
-    image.src = url;
     try {
+      const url = await fileToDataUrl(file);
+      const image = new Image();
+      image.src = url;
       await image.decode();
-      if (image.naturalWidth * image.naturalHeight > 16_000_000) {
+      if (image.naturalWidth * image.naturalHeight > 16_000_000)
         throw new Error(ar ? "الصورة تتجاوز حد 16 مليون بكسل." : "The image exceeds 16 million pixels.");
-      }
-      if (sheet) URL.revokeObjectURL(sheet.url);
-      setSheet({
-        name: file.name,
-        url,
-        image,
-        width: image.naturalWidth,
-        height: image.naturalHeight,
-      });
+      setSheet({ name: file.name, url, image, width: image.naturalWidth, height: image.naturalHeight });
       setRegions([]);
       setLabels(null);
       setSelectedId(null);
+      setSelectedPoint(null);
+      setPolygonDraft([]);
       setError("");
     } catch (caught) {
-      URL.revokeObjectURL(url);
       setError(caught instanceof Error ? caught.message : String(caught));
     }
   };
@@ -211,24 +451,17 @@ export default function SpriteSheetCutter({
           reject(new Error(ar ? "تعطلت أداة تحليل الصورة." : "Image analysis failed."));
         };
         worker.postMessage(
-          {
-            sheetId: "editor-sheet",
-            buffer: pixels.data.buffer,
-            width: sheet.width,
-            height: sheet.height,
-            settings,
-          },
+          { sheetId: "editor-sheet", buffer: pixels.data.buffer, width: sheet.width, height: sheet.height, settings },
           [pixels.data.buffer],
         );
       });
       if (result.type === "error") throw new Error(result.message ?? "Detection failed");
-      const next = (result.regions ?? []).map((region) => ({
-        ...region,
-        id: `auto-${region.index}`,
-      }));
+      const next = (result.regions ?? []).map((region) => ({ ...region, id: `auto-${region.index}` }));
       setRegions(next);
       setLabels(result.labels ?? null);
       setSelectedId(next[0]?.id ?? null);
+      setSelectedPoint(null);
+      setTool("select");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : String(caught));
     } finally {
@@ -247,57 +480,165 @@ export default function SpriteSheetCutter({
         const y = Math.round(row * cellHeight);
         const right = Math.round((column + 1) * cellWidth);
         const bottom = Math.round((row + 1) * cellHeight);
-        next.push({
-          id: `grid-${row}-${column}`,
-          x,
-          y,
-          w: right - x,
-          h: bottom - y,
-          pixelArea: (right - x) * (bottom - y),
-          members: [],
-          manual: true,
-        });
+        next.push({ id: `grid-${row}-${column}`, x, y, w: right - x, h: bottom - y, pixelArea: (right - x) * (bottom - y), members: [], manual: true });
       }
     }
     setRegions(next);
     setLabels(null);
     setSelectedId(next[0]?.id ?? null);
+    setSelectedPoint(null);
+    setTool("select");
   };
 
-  const point = (event: PointerEvent<HTMLDivElement>) => {
-    const bounds = boardRef.current!.getBoundingClientRect();
-    return {
-      x: Math.max(0, Math.min(sheet!.width, Math.round((event.clientX - bounds.left) / ratio))),
-      y: Math.max(0, Math.min(sheet!.height, Math.round((event.clientY - bounds.top) / ratio))),
-    };
-  };
-
-  const addManualRegion = (end = dragEnd) => {
-    if (!dragStart || !end) return;
+  const addManualRegion = (end: Point) => {
+    if (!dragStart) return;
     const x = Math.min(dragStart.x, end.x);
     const y = Math.min(dragStart.y, end.y);
     const w = Math.abs(end.x - dragStart.x);
     const h = Math.abs(end.y - dragStart.y);
     if (w > 1 && h > 1) {
-      const region: Region = {
-        id: `manual-${crypto.randomUUID()}`,
-        x,
-        y,
-        w,
-        h,
-        pixelArea: w * h,
-        members: [],
-        manual: true,
-      };
+      const region: Region = { id: `manual-${crypto.randomUUID()}`, x, y, w, h, pixelArea: w * h, members: [], manual: true };
       setRegions((current) => [...current, region]);
       setSelectedId(region.id);
+      setTool("select");
     }
     setDragStart(null);
     setDragEnd(null);
   };
 
-  const splitSelected = (axis: "x" | "y") => {
+  const finishPolygon = () => {
+    if (polygonDraft.length < 3) return;
+    const region = regionFromPoints(`polygon-${crypto.randomUUID()}`, polygonDraft);
+    setRegions((current) => [...current, region]);
+    setSelectedId(region.id);
+    setSelectedPoint(null);
+    setPolygonDraft([]);
+    setTool("select");
+  };
+
+  const beginBoxTransform = (
+    event: PointerEvent<HTMLElement>,
+    region: Region,
+    handle: BoxHandle,
+  ) => {
+    if (tool !== "select") return;
+    event.preventDefault();
+    event.stopPropagation();
+    boardRef.current?.setPointerCapture(event.pointerId);
+    setSelectedId(region.id);
+    setSelectedPoint(null);
+    transformRef.current = { kind: "box", region: { ...region, points: region.points?.map((item) => ({ ...item })) }, start: point(event), handle };
+  };
+
+  const beginVertexTransform = (
+    event: PointerEvent<HTMLButtonElement>,
+    region: Region,
+    pointIndex: number,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+    boardRef.current?.setPointerCapture(event.pointerId);
+    setSelectedPoint(pointIndex);
+    transformRef.current = { kind: "vertex", region: { ...region, points: region.points?.map((item) => ({ ...item })) }, pointIndex };
+  };
+
+  const onBoardPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    const value = point(event);
+    if (tool === "rectangle") {
+      event.currentTarget.setPointerCapture(event.pointerId);
+      setDragStart(value);
+      setDragEnd(value);
+      return;
+    }
+    if (tool === "polygon") {
+      const first = polygonDraft[0];
+      const closeDistance = first ? Math.hypot(value.x - first.x, value.y - first.y) * ratio : Infinity;
+      if (polygonDraft.length >= 3 && closeDistance <= 12) finishPolygon();
+      else setPolygonDraft((current) => [...current, value]);
+      return;
+    }
+    setSelectedId(null);
+    setSelectedPoint(null);
+  };
+
+  const onBoardPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const value = point(event);
+    if (tool === "rectangle" && dragStart) {
+      setDragEnd(value);
+      return;
+    }
+    const transform = transformRef.current;
+    if (!transform || !sheet) return;
+    if (transform.kind === "box") {
+      replaceRegion(resizedRegion(transform.region, transform.handle, value, transform.start, sheet));
+      return;
+    }
+    const points = transform.region.points?.map((item) => ({ ...item })) ?? [];
+    points[transform.pointIndex] = {
+      x: clamp(value.x, 0, sheet.width),
+      y: clamp(value.y, 0, sheet.height),
+    };
+    replaceRegion(regionFromPoints(transform.region.id, points));
+  };
+
+  const onBoardPointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    if (tool === "rectangle" && dragStart) addManualRegion(point(event));
+    transformRef.current = null;
+  };
+
+  const convertToPolygon = () => {
     if (!selected) return;
+    const points = [
+      { x: selected.x, y: selected.y },
+      { x: selected.x + selected.w, y: selected.y },
+      { x: selected.x + selected.w, y: selected.y + selected.h },
+      { x: selected.x, y: selected.y + selected.h },
+    ];
+    replaceRegion(regionFromPoints(selected.id, points));
+    setSelectedPoint(0);
+  };
+
+  const insertPolygonPoint = (index: number) => {
+    if (!selected?.points) return;
+    const points = selected.points.map((item) => ({ ...item }));
+    const next = points[(index + 1) % points.length];
+    const current = points[index];
+    points.splice(index + 1, 0, { x: (current.x + next.x) / 2, y: (current.y + next.y) / 2 });
+    replaceRegion(regionFromPoints(selected.id, points));
+    setSelectedPoint(index + 1);
+  };
+
+  const deleteSelectedPoint = () => {
+    if (!selected?.points || selectedPoint === null || selected.points.length <= 3) return;
+    const points = selected.points.filter((_, index) => index !== selectedPoint);
+    replaceRegion(regionFromPoints(selected.id, points));
+    setSelectedPoint(null);
+  };
+
+  const updateGeometry = (field: "x" | "y" | "w" | "h", raw: number) => {
+    if (!selected || !sheet || !Number.isFinite(raw)) return;
+    const next = { ...selected, points: selected.points?.map((item) => ({ ...item })) };
+    const old = { x: selected.x, y: selected.y, w: selected.w, h: selected.h };
+    if (field === "x") next.x = clamp(Math.round(raw), 0, sheet.width - next.w);
+    if (field === "y") next.y = clamp(Math.round(raw), 0, sheet.height - next.h);
+    if (field === "w") next.w = clamp(Math.round(raw), 1, sheet.width - next.x);
+    if (field === "h") next.h = clamp(Math.round(raw), 1, sheet.height - next.y);
+    if (next.points) {
+      next.points = next.points.map((item) => ({
+        x: next.x + ((item.x - old.x) / old.w) * next.w,
+        y: next.y + ((item.y - old.y) / old.h) * next.h,
+      }));
+      replaceRegion(regionFromPoints(next.id, next.points));
+    } else {
+      next.manual = true;
+      next.members = [];
+      next.pixelArea = next.w * next.h;
+      replaceRegion(next);
+    }
+  };
+
+  const splitSelected = (axis: "x" | "y") => {
+    if (!selected || selected.points) return;
     const cut = Math.floor((axis === "x" ? selected.w : selected.h) / 2);
     if (cut < 1) return;
     const halves: Region[] = axis === "x"
@@ -348,11 +689,25 @@ export default function SpriteSheetCutter({
         <div>
           <small>SPRITEFORGE TOOLS</small>
           <h2>{ar ? "تقطيع واستخراج Sprite Sheet" : "Sprite sheet cutter"}</h2>
-          <p>{ar ? "المعالجة محلية داخل المتصفح، ولا تُرفع الصور إلى أي خادم." : "Images are processed locally in your browser and are never uploaded."}</p>
+          <p>{ar ? "ارسم مستطيلات أو مسارات نقطية دقيقة. تتم المعالجة محليًا داخل المتصفح." : "Draw rectangles or precise point paths. Images are processed locally in your browser."}</p>
         </div>
-        <button className="primary" onClick={() => fileRef.current?.click()}>
-          {ar ? "رفع Sprite Sheet" : "Upload sprite sheet"}
-        </button>
+        <div className="sprite-project-actions">
+          <span className={`sprite-project-status ${cloudStatus}`} title={cloudError || undefined}>
+            <i />
+            {cloudStatus === "loading" && (ar ? "استعادة المشروع…" : "Restoring…")}
+            {cloudStatus === "saving" && (ar ? "حفظ تلقائي…" : "Auto-saving…")}
+            {cloudStatus === "saved" && (ar ? "محفوظ في السحابة" : "Saved to cloud")}
+            {cloudStatus === "idle" && (ar ? "جاهز للحفظ" : "Ready to save")}
+            {cloudStatus === "error" && (ar ? "تعذرت المزامنة" : "Sync failed")}
+          </span>
+          <button disabled={!sheet || cloudStatus === "saving"} onClick={() => void saveCloudWorkspace(true)}>
+            {ar ? "حفظ الآن" : "Save now"}
+          </button>
+          <button disabled={cloudStatus === "loading"} onClick={() => void restoreCloudWorkspace(true)}>
+            {ar ? "استعادة" : "Restore"}
+          </button>
+          <button className="primary" onClick={() => fileRef.current?.click()}>{ar ? "رفع Sprite Sheet" : "Upload sprite sheet"}</button>
+        </div>
         <input ref={fileRef} hidden type="file" accept="image/png,image/jpeg,image/webp" onChange={loadSheet} />
       </div>
 
@@ -381,20 +736,105 @@ export default function SpriteSheetCutter({
           </aside>
 
           <div className="sprite-workspace">
-            <div className="sprite-toolbar"><b dir="ltr">{sheet.name} · {sheet.width}×{sheet.height}</b><button className={drawing ? "active" : ""} onClick={() => setDrawing((value) => !value)}>{drawing ? (ar ? "إنهاء الرسم" : "Stop drawing") : (ar ? "رسم قطعة يدويًا" : "Draw region")}</button></div>
+            <div className="sprite-toolbar">
+              <b dir="ltr">{sheet.name} · {sheet.width}×{sheet.height}</b>
+              <div className="sprite-tool-group">
+                <button className={tool === "select" ? "active" : ""} onClick={() => { setTool("select"); setPolygonDraft([]); }}>⌖ {ar ? "تحديد" : "Select"}</button>
+                <button className={tool === "rectangle" ? "active" : ""} onClick={() => { setTool("rectangle"); setPolygonDraft([]); }}>▭ {ar ? "مستطيل" : "Rectangle"}</button>
+                <button className={tool === "polygon" ? "active" : ""} onClick={() => setTool("polygon")}>◇ {ar ? "نقاط" : "Pen"}</button>
+                {tool === "polygon" && polygonDraft.length >= 3 && <button className="primary" onClick={finishPolygon}>{ar ? "إغلاق الشكل" : "Close shape"}</button>}
+                {tool === "polygon" && polygonDraft.length > 0 && <button onClick={() => setPolygonDraft([])}>{ar ? "إلغاء" : "Cancel"}</button>}
+              </div>
+            </div>
+            {tool === "polygon" && <div className="sprite-tool-tip">{ar ? "انقر لزرع النقاط، ثم انقر أول نقطة أو زر «إغلاق الشكل»." : "Click to place points, then click the first point or Close shape."}</div>}
             <div className="sprite-board-scroll">
-              <div ref={boardRef} className={`sprite-board ${drawing ? "drawing" : ""}`} style={{ width: sheet.width * ratio, height: sheet.height * ratio }} onPointerDown={(event) => { if (drawing) { event.currentTarget.setPointerCapture(event.pointerId); const value = point(event); setDragStart(value); setDragEnd(value); } }} onPointerMove={(event) => { if (drawing && dragStart) setDragEnd(point(event)); }} onPointerUp={(event) => { if (drawing) addManualRegion(point(event)); }}>
+              <div
+                ref={boardRef}
+                className={`sprite-board tool-${tool}`}
+                style={{ width: sheet.width * ratio, height: sheet.height * ratio }}
+                onPointerDown={onBoardPointerDown}
+                onPointerMove={onBoardPointerMove}
+                onPointerUp={onBoardPointerUp}
+                onPointerCancel={() => { transformRef.current = null; setDragStart(null); setDragEnd(null); }}
+              >
                 <img src={sheet.url} alt={sheet.name} draggable={false} />
-                {regions.map((region, index) => <button key={region.id} className={`sprite-region ${selectedId === region.id ? "selected" : ""}`} style={{ left: region.x * ratio, top: region.y * ratio, width: Math.max(3, region.w * ratio), height: Math.max(3, region.h * ratio) }} onClick={(event) => { event.stopPropagation(); if (!drawing) setSelectedId(region.id); }}><span>{index + 1}</span></button>)}
+                <svg className="sprite-vector-layer" viewBox={`0 0 ${sheet.width} ${sheet.height}`} preserveAspectRatio="none" aria-hidden="true">
+                  {regions.filter((region) => region.points).map((region) => (
+                    <polygon key={region.id} className={selectedId === region.id ? "selected" : ""} points={region.points!.map((item) => `${item.x},${item.y}`).join(" ")} />
+                  ))}
+                  {polygonDraft.length > 0 && <polyline className="draft" points={polygonDraft.map((item) => `${item.x},${item.y}`).join(" ")} />}
+                </svg>
+                {regions.map((region, index) => (
+                  <div
+                    key={region.id}
+                    className={`sprite-region ${region.points ? "polygon" : ""} ${selectedId === region.id ? "selected" : ""}`}
+                    style={{ left: region.x * ratio, top: region.y * ratio, width: Math.max(3, region.w * ratio), height: Math.max(3, region.h * ratio) }}
+                    onPointerDown={(event) => beginBoxTransform(event, region, "move")}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <span>{index + 1}</span>
+                  </div>
+                ))}
+                {selected && !selected.points && handles.map((handle) => (
+                  <button
+                    key={handle}
+                    type="button"
+                    aria-label={`Resize ${handle}`}
+                    className={`sprite-resize-handle handle-${handle}`}
+                    style={{ left: (selected.x + (handle.includes("w") ? 0 : handle.includes("e") ? selected.w : selected.w / 2)) * ratio, top: (selected.y + (handle.includes("n") ? 0 : handle.includes("s") ? selected.h : selected.h / 2)) * ratio }}
+                    onPointerDown={(event) => beginBoxTransform(event, selected, handle)}
+                  />
+                ))}
+                {selected?.points?.map((item, index) => {
+                  const next = selected.points![(index + 1) % selected.points!.length];
+                  return (
+                    <span key={`${selected.id}-point-${index}`}>
+                      <button
+                        type="button"
+                        aria-label={`Point ${index + 1}`}
+                        className={`sprite-vector-point ${selectedPoint === index ? "active" : ""}`}
+                        style={{ left: item.x * ratio, top: item.y * ratio }}
+                        onPointerDown={(event) => beginVertexTransform(event, selected, index)}
+                        onDoubleClick={deleteSelectedPoint}
+                      />
+                      <button
+                        type="button"
+                        aria-label={ar ? "إضافة نقطة" : "Add point"}
+                        className="sprite-vector-midpoint"
+                        style={{ left: ((item.x + next.x) / 2) * ratio, top: ((item.y + next.y) / 2) * ratio }}
+                        onPointerDown={(event) => event.stopPropagation()}
+                        onClick={() => insertPolygonPoint(index)}
+                      />
+                    </span>
+                  );
+                })}
+                {polygonDraft.map((item, index) => <i key={`draft-point-${index}`} className={`sprite-draft-point ${index === 0 ? "first" : ""}`} style={{ left: item.x * ratio, top: item.y * ratio }} />)}
                 {draft && <i className="sprite-draft" style={{ left: draft.x * ratio, top: draft.y * ratio, width: draft.w * ratio, height: draft.h * ratio }} />}
               </div>
             </div>
-            {selected && <div className="sprite-selection-actions"><span dir="ltr">X {selected.x} · Y {selected.y} · {selected.w}×{selected.h}</span><button onClick={() => splitSelected("x")}>{ar ? "قسم يمين/يسار" : "Split left/right"}</button><button onClick={() => splitSelected("y")}>{ar ? "قسم أعلى/أسفل" : "Split top/bottom"}</button><button onClick={() => { setRegions((current) => current.filter((region) => region.id !== selected.id)); setSelectedId(null); }}>{ar ? "حذف" : "Delete"}</button><button onClick={downloadSelected}>{ar ? "تنزيل PNG" : "Download PNG"}</button><button className="primary" onClick={useSelected}>{ar ? "استخدمها في المحرر" : "Use in editor"}</button></div>}
+            {selected && (
+              <div className="sprite-selection-panel">
+                <div className="sprite-geometry-fields">
+                  {(["x", "y", "w", "h"] as const).map((field) => (
+                    <label key={field}><span>{field.toUpperCase()}</span><input type="number" min={field === "w" || field === "h" ? 1 : 0} value={selected[field]} onChange={(event) => updateGeometry(field, Number(event.target.value))} /></label>
+                  ))}
+                </div>
+                <div className="sprite-selection-actions">
+                  <span dir="ltr">{selected.points ? `${selected.points.length} POINTS` : `X ${selected.x} · Y ${selected.y} · ${selected.w}×${selected.h}`}</span>
+                  {!selected.points && <><button onClick={() => splitSelected("x")}>{ar ? "قسم يمين/يسار" : "Split left/right"}</button><button onClick={() => splitSelected("y")}>{ar ? "قسم أعلى/أسفل" : "Split top/bottom"}</button><button onClick={convertToPolygon}>{ar ? "تحويل إلى نقاط" : "Convert to path"}</button></>}
+                  {selected.points && <button disabled={selectedPoint === null || selected.points.length <= 3} onClick={deleteSelectedPoint}>{ar ? "حذف النقطة" : "Delete point"}</button>}
+                  <button onClick={() => { setRegions((current) => current.filter((region) => region.id !== selected.id)); setSelectedId(null); setSelectedPoint(null); }}>{ar ? "حذف الشكل" : "Delete shape"}</button>
+                  <button onClick={downloadSelected}>{ar ? "تنزيل PNG" : "Download PNG"}</button>
+                  <button className="primary" onClick={useSelected}>{ar ? "استخدامها في المحرر" : "Use in editor"}</button>
+                </div>
+              </div>
+            )}
           </div>
 
           <aside className="sprite-results">
             <div><h3>{ar ? "القطع المستخرجة" : "Extracted sprites"}</h3><b>{regions.length}</b></div>
-            <div className="sprite-results-grid">{previews.map(({ region, index, dataUrl }) => <button key={region.id} className={selectedId === region.id ? "active" : ""} onClick={() => setSelectedId(region.id)}><img src={dataUrl} alt={`Sprite ${index + 1}`} /><span>{index + 1}</span></button>)}</div>
+            <div className="sprite-results-grid">{previews.map(({ region, index, dataUrl }) => <button key={region.id} className={selectedId === region.id ? "active" : ""} onClick={() => { setSelectedId(region.id); setSelectedPoint(null); setTool("select"); }}><img src={dataUrl} alt={`Sprite ${index + 1}`} /><span>{index + 1}</span></button>)}</div>
           </aside>
         </div>
       )}

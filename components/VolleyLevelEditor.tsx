@@ -169,6 +169,53 @@ function brickStyle(brick: EditorBrick): React.CSSProperties {
   return { "--brick-color": color, clipPath: clip } as React.CSSProperties;
 }
 
+function brickGeometry(
+  shape: VolleyShape,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+) {
+  const left = x;
+  const right = x + width;
+  const bottom = y;
+  const top = y + height;
+  const verticesByShape: Record<VolleyShape, Array<{ x: number; y: number }>> = {
+    RECTANGLE: [
+      { x: left, y: bottom },
+      { x: right, y: bottom },
+      { x: right, y: top },
+      { x: left, y: top },
+    ],
+    TRIANGLE_NW: [
+      { x: left, y: top },
+      { x: right, y: bottom },
+      { x: left, y: bottom },
+    ],
+    TRIANGLE_NE: [
+      { x: left, y: top },
+      { x: right, y: top },
+      { x: left, y: bottom },
+    ],
+    TRIANGLE_SW: [
+      { x: left, y: top },
+      { x: right, y: top },
+      { x: right, y: bottom },
+    ],
+    TRIANGLE_SE: [
+      { x: right, y: top },
+      { x: right, y: bottom },
+      { x: left, y: bottom },
+    ],
+  };
+  return {
+    kind: shape === "RECTANGLE" ? "polygon-4" : "polygon-3",
+    shape,
+    bounds: { x, y, width, height },
+    vertices: verticesByShape[shape],
+  };
+}
+
 function AtlasSprite({
   type,
   sheet,
@@ -403,10 +450,14 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
           updatedAt: serverTimestamp(),
           updatedBy: currentUser.email ?? currentUser.uid,
         });
-        localStorage.setItem(
-          `bbb-volley-editor-${world}-${stageNumber}`,
-          JSON.stringify(serializableStage),
-        );
+        try {
+          localStorage.setItem(
+            `bbb-volley-editor-${world}-${stageNumber}`,
+            JSON.stringify(serializableStage),
+          );
+        } catch {
+          // The Firebase save already succeeded; large embedded sprites can exceed localStorage.
+        }
         setCloudStatus("saved");
         if (announce)
           flash(ar ? "تم الحفظ في Firebase" : "Saved to Firebase");
@@ -576,34 +627,55 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
       (boardWidth - brickGap * (EDITOR_COLUMNS - 1)) / EDITOR_COLUMNS;
     const { referenceAsset: _referenceAsset, ...exportableStage } = stage;
     const bricks = stage.cells.flatMap((row, rowIndex) =>
-      row.flatMap((brick, columnIndex) =>
-        brick
-          ? [
-              {
-                id: rowIndex * EDITOR_COLUMNS + columnIndex + 1,
-                row: rowIndex,
-                column: columnIndex,
-                x: 38 + columnIndex * (brickWidth + brickGap),
-                y: 1368 - (rowIndex + 1) * 70,
-                width: brickWidth,
-                height: 66,
-                type: brick.type,
-                hp: brick.hp,
-                shape: brick.shape,
-                groupId: brick.groupId,
-                countsForClear: brick.countsForClear,
-                shieldLock: Boolean(brick.shieldLock),
-                hazardKind: brick.hazardKind ?? null,
-                atlasSprite: brick.atlasSprite ?? null,
-                customSpriteDataUrl: brick.customSpriteDataUrl ?? null,
-                customSpriteName: brick.customSpriteName ?? null,
-              },
-            ]
-          : [],
-      ),
+      row.flatMap((brick, columnIndex) => {
+        if (!brick) return [];
+        const x = 38 + columnIndex * (brickWidth + brickGap);
+        const y = 1368 - (rowIndex + 1) * 70;
+        return [
+          {
+            id: rowIndex * EDITOR_COLUMNS + columnIndex + 1,
+            row: rowIndex,
+            column: columnIndex,
+            x,
+            y,
+            width: brickWidth,
+            height: 66,
+            normalizedBoardBounds: {
+              x: (x - 38) / boardWidth,
+              y: y / 1600,
+              width: brickWidth / boardWidth,
+              height: 66 / 1600,
+            },
+            geometry: brickGeometry(brick.shape, x, y, brickWidth, 66),
+            type: brick.type,
+            hp: brick.hp,
+            shape: brick.shape,
+            groupId: brick.groupId,
+            countsForClear: brick.countsForClear,
+            shieldLock: Boolean(brick.shieldLock),
+            hazardKind: brick.hazardKind ?? null,
+            atlasSprite: brick.atlasSprite ?? null,
+            customSpriteDataUrl: brick.customSpriteDataUrl ?? null,
+            customSpriteName: brick.customSpriteName ?? null,
+          },
+        ];
+      }),
     );
     return {
       ...exportableStage,
+      blueprint: {
+        schema: "brick-breaker-ball-ai-stage-blueprint",
+        version: 1,
+        purpose: "Rebuild this editor stage exactly from its grid, world coordinates, brick properties, and geometry vertices.",
+        instructions: [
+          "Treat cells as the canonical editable 9x11 grid.",
+          "Treat bricks as the canonical flat render and game-geometry list.",
+          "Use geometry.vertices to reproduce rectangles and triangular collision shapes exactly.",
+          "Preserve type, hp, groupId, countsForClear, sprite references, rails, pickups, baseHp, and startingBalls.",
+          "Coordinates use a bottom-left origin in a 900x1600 game world.",
+        ],
+        acceptedShapes: shapeOptions,
+      },
       coordinateSystem: {
         origin: "bottom-left",
         worldWidth: 900,
@@ -649,7 +721,7 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `volley-world-${stage.world}-stage-${stage.stage}.json`;
+    anchor.download = `volley-world-${stage.world}-stage-${stage.stage}-ai-blueprint.json`;
     anchor.click();
     URL.revokeObjectURL(url);
     flash(
@@ -665,6 +737,10 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
         ? "تم نسخ JSON مع الإحداثيات"
         : "JSON with coordinates copied",
     );
+  };
+  const saveAndDownload = async () => {
+    await saveCloud(true);
+    download();
   };
   const saveLocal = () => {
     localStorage.setItem(
@@ -763,8 +839,8 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
           <button onClick={() => void saveCloud(true)}>
             {ar ? "حفظ سحابي" : "Save to cloud"}
           </button>
-          <button onClick={download} className="primary">
-            {ar ? "تنزيل المرحلة" : "Download stage"}
+          <button onClick={() => void saveAndDownload()} className="primary">
+            {ar ? "حفظ + تنزيل JSON للـAI" : "Save + download AI JSON"}
           </button>
         </div>
       </header>
@@ -1154,13 +1230,13 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
               {selected && (
                 <div className="coordinate-readout">
                   <span>
-                    X <b>{(38 + selected.column * 92).toFixed(2)}</b>
+                    X <b>{(38 + selected.column * gridColumnPitch).toFixed(2)}</b>
                   </span>
                   <span>
                     Y <b>{(1368 - (selected.row + 1) * 70).toFixed(2)}</b>
                   </span>
                   <span>
-                    W <b>88.00</b>
+                    W <b>{gridBrickWidth.toFixed(2)}</b>
                   </span>
                   <span>
                     H <b>66.00</b>
@@ -1255,11 +1331,19 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
             </label>
           </div>
           <div className="export-panel">
+            <p>
+              {ar
+                ? "ملف مخطط كامل للـAI: مواقع الطوب، المقاسات، رؤوس الأشكال، HP، الأنواع والمجموعات. ويمكن استيراده هنا مرة أخرى."
+                : "Complete AI blueprint with brick positions, sizes, shape vertices, HP, types and groups. It can also be imported here again."}
+            </p>
             <button onClick={copyJson}>
-              {ar ? "نسخ JSON" : "Copy JSON"}
+              {ar ? "نسخ JSON للـAI" : "Copy AI JSON"}
             </button>
-            <button onClick={download} className="primary">
-              {ar ? "تنزيل ملف المرحلة" : "Download stage file"}
+            <button onClick={() => void saveCloud(true)}>
+              {ar ? "حفظ في Firebase" : "Save to Firebase"}
+            </button>
+            <button onClick={() => void saveAndDownload()} className="primary">
+              {ar ? "حفظ + تنزيل JSON" : "Save + download JSON"}
             </button>
           </div>
         </aside>
