@@ -2,40 +2,143 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  BRICK_TYPES, EDITOR_COLUMNS, EDITOR_ROWS, EDITOR_WORLDS, cloneStage, createVolleyStage,
-  type EditorBrick, type EditorStage, type VolleyBrickType, type VolleyShape,
+  BRICK_TYPES,
+  EDITOR_COLUMNS,
+  EDITOR_ROWS,
+  EDITOR_WORLDS,
+  cloneStage,
+  createVolleyStage,
+  type EditorBrick,
+  type EditorStage,
+  type VolleyBrickType,
+  type VolleyShape,
 } from "@/lib/volley-editor-data";
 import type { Lang } from "@/lib/site";
 
 type Tool = "select" | "draw" | "erase";
 type Point = { row: number; column: number } | null;
-type AtlasSlice = { name: string; sourceSheet: string; x: number; y: number; width: number; height: number };
-type AtlasJson = { frames: Record<string, { frame: { x: number; y: number; w: number; h: number }; origin: { sheet: string; x: number; y: number; w: number; h: number } }>; meta: { image: string; size: { w: number; h: number } } };
+type AtlasSlice = {
+  name: string;
+  sourceSheet: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+type AtlasJson = {
+  frames: Record<
+    string,
+    {
+      frame: { x: number; y: number; w: number; h: number };
+      origin: { sheet: string; x: number; y: number; w: number; h: number };
+    }
+  >;
+  meta: { image: string; size: { w: number; h: number } };
+};
 
-const shapeOptions: VolleyShape[] = ["RECTANGLE", "TRIANGLE_NW", "TRIANGLE_NE", "TRIANGLE_SW", "TRIANGLE_SE"];
+const shapeOptions: VolleyShape[] = [
+  "RECTANGLE",
+  "TRIANGLE_NW",
+  "TRIANGLE_NE",
+  "TRIANGLE_SW",
+  "TRIANGLE_SE",
+];
 const typeColors: Record<string, string> = {
-  NORMAL_ONE_HIT: "#b7c4d5", CRYSTAL_BLUE: "#30b8ff", CRYSTAL_MAROON: "#d74478", CRYSTAL_GREEN: "#43df7b",
-  CRYSTAL_ORANGE: "#ff9c37", CRYSTAL_RED: "#ff4949", CRYSTAL_PURPLE: "#a86cff", CRYSTAL_PINK: "#f063d8",
-  ELECTRIC_WHITE: "#e6fbff", STONE_GRAY: "#7d8795", ROUGH_STONE: "#81715f", GLASS: "#8cecff",
-  ARMORED_TWO_HIT: "#a6b2c3", ARMORED_THREE_HIT: "#667285", ARMORED_DARK: "#34394b", POWERUP_CARRIER: "#ffcc3d",
-  RANDOM_INVENTORY_POWERUP: "#82ff69", REGENERATING: "#64dc8c", EXPLOSIVE: "#ff633c", LIGHTNING_SPEED_PASS_THROUGH: "#f7f45c",
-  TRANSPARENT_SLOW_PASS_THROUGH: "#76d7ff", MOVING_HORIZONTAL: "#68a6ff", MOVING_VERTICAL: "#68a6ff", KEY_BRICK: "#ffd866",
-  LOCKED: "#b27b42", SWITCH: "#55dcff", GHOST: "#d7d5ff", CHAIN_BRICK: "#c4a074", BLACK_HOLE_TELEPORTER: "#9b4dff",
-  INDESTRUCTIBLE: "#9ba2ad", SPIKED_HAZARD: "#f13d61", BOSS_CORE: "#ff274f",
+  NORMAL_ONE_HIT: "#b7c4d5",
+  CRYSTAL_BLUE: "#30b8ff",
+  CRYSTAL_MAROON: "#d74478",
+  CRYSTAL_GREEN: "#43df7b",
+  CRYSTAL_ORANGE: "#ff9c37",
+  CRYSTAL_RED: "#ff4949",
+  CRYSTAL_PURPLE: "#a86cff",
+  CRYSTAL_PINK: "#f063d8",
+  ELECTRIC_WHITE: "#e6fbff",
+  STONE_GRAY: "#7d8795",
+  ROUGH_STONE: "#81715f",
+  GLASS: "#8cecff",
+  ARMORED_TWO_HIT: "#a6b2c3",
+  ARMORED_THREE_HIT: "#667285",
+  ARMORED_DARK: "#34394b",
+  POWERUP_CARRIER: "#ffcc3d",
+  RANDOM_INVENTORY_POWERUP: "#82ff69",
+  REGENERATING: "#64dc8c",
+  EXPLOSIVE: "#ff633c",
+  LIGHTNING_SPEED_PASS_THROUGH: "#f7f45c",
+  TRANSPARENT_SLOW_PASS_THROUGH: "#76d7ff",
+  MOVING_HORIZONTAL: "#68a6ff",
+  MOVING_VERTICAL: "#68a6ff",
+  KEY_BRICK: "#ffd866",
+  LOCKED: "#b27b42",
+  SWITCH: "#55dcff",
+  GHOST: "#d7d5ff",
+  CHAIN_BRICK: "#c4a074",
+  BLACK_HOLE_TELEPORTER: "#9b4dff",
+  INDESTRUCTIBLE: "#9ba2ad",
+  SPIKED_HAZARD: "#f13d61",
+  BOSS_CORE: "#ff274f",
 };
 
 function shortName(type: string) {
-  const aliases: Record<string, string> = { NORMAL_ONE_HIT: "1", POWERUP_CARRIER: "+", RANDOM_INVENTORY_POWERUP: "?", ARMORED_TWO_HIT: "A2", ARMORED_THREE_HIT: "A3", ARMORED_DARK: "AD", REGENERATING: "RG", EXPLOSIVE: "EX", MOVING_HORIZONTAL: "â†”", MOVING_VERTICAL: "â†•", KEY_BRICK: "KEY", LOCKED: "ðŸ”’", SWITCH: "SW", GHOST: "GH", CHAIN_BRICK: "CH", BLACK_HOLE_TELEPORTER: "â—Ž", INDESTRUCTIBLE: "âˆž", SPIKED_HAZARD: "âš ", BOSS_CORE: "BOSS" };
-  return aliases[type] ?? type.replace("CRYSTAL_", "").replace("ELECTRIC_", "").slice(0, 4);
+  const aliases: Record<string, string> = {
+    NORMAL_ONE_HIT: "1",
+    POWERUP_CARRIER: "+",
+    RANDOM_INVENTORY_POWERUP: "?",
+    ARMORED_TWO_HIT: "A2",
+    ARMORED_THREE_HIT: "A3",
+    ARMORED_DARK: "AD",
+    REGENERATING: "RG",
+    EXPLOSIVE: "EX",
+    MOVING_HORIZONTAL: "↔",
+    MOVING_VERTICAL: "↕",
+    KEY_BRICK: "KEY",
+    LOCKED: "🔒",
+    SWITCH: "SW",
+    GHOST: "GH",
+    CHAIN_BRICK: "CH",
+    BLACK_HOLE_TELEPORTER: "◎",
+    INDESTRUCTIBLE: "∞",
+    SPIKED_HAZARD: "⚠",
+    BOSS_CORE: "BOSS",
+  };
+  return (
+    aliases[type] ??
+    type.replace("CRYSTAL_", "").replace("ELECTRIC_", "").slice(0, 4)
+  );
 }
 
 const brickOrdinals: Record<VolleyBrickType, number> = {
-  NORMAL_ONE_HIT:0, ARMORED_TWO_HIT:1, ARMORED_THREE_HIT:2, INDESTRUCTIBLE:3, GLASS:4, EXPLOSIVE:5,
-  POWERUP_CARRIER:6, MOVING_HORIZONTAL:7, MOVING_VERTICAL:8, REGENERATING:9, GHOST:10, SWITCH:11,
-  LOCKED:12, KEY_BRICK:13, CHAIN_BRICK:14, BOSS_CORE:15, ROUGH_STONE:16, LIGHTNING_SPEED_PASS_THROUGH:17,
-  ELECTRIC_WHITE:18, CRYSTAL_BLUE:19, CRYSTAL_RED:20, CRYSTAL_PURPLE:21, STONE_GRAY:22,
-  BLACK_HOLE_TELEPORTER:23, RANDOM_INVENTORY_POWERUP:24, CRYSTAL_MAROON:25, ARMORED_DARK:26,
-  CRYSTAL_PINK:27, CRYSTAL_ORANGE:28, CRYSTAL_GREEN:29, SPIKED_HAZARD:30, TRANSPARENT_SLOW_PASS_THROUGH:31,
+  NORMAL_ONE_HIT: 0,
+  ARMORED_TWO_HIT: 1,
+  ARMORED_THREE_HIT: 2,
+  INDESTRUCTIBLE: 3,
+  GLASS: 4,
+  EXPLOSIVE: 5,
+  POWERUP_CARRIER: 6,
+  MOVING_HORIZONTAL: 7,
+  MOVING_VERTICAL: 8,
+  REGENERATING: 9,
+  GHOST: 10,
+  SWITCH: 11,
+  LOCKED: 12,
+  KEY_BRICK: 13,
+  CHAIN_BRICK: 14,
+  BOSS_CORE: 15,
+  ROUGH_STONE: 16,
+  LIGHTNING_SPEED_PASS_THROUGH: 17,
+  ELECTRIC_WHITE: 18,
+  CRYSTAL_BLUE: 19,
+  CRYSTAL_RED: 20,
+  CRYSTAL_PURPLE: 21,
+  STONE_GRAY: 22,
+  BLACK_HOLE_TELEPORTER: 23,
+  RANDOM_INVENTORY_POWERUP: 24,
+  CRYSTAL_MAROON: 25,
+  ARMORED_DARK: 26,
+  CRYSTAL_PINK: 27,
+  CRYSTAL_ORANGE: 28,
+  CRYSTAL_GREEN: 29,
+  SPIKED_HAZARD: 30,
+  TRANSPARENT_SLOW_PASS_THROUGH: 31,
 };
 
 function sliceFor(type: VolleyBrickType, slices: AtlasSlice[]) {
@@ -49,12 +152,33 @@ function sliceFor(type: VolleyBrickType, slices: AtlasSlice[]) {
 
 function brickStyle(brick: EditorBrick): React.CSSProperties {
   const color = typeColors[brick.type] ?? "#8090a0";
-  const clip = brick.shape === "TRIANGLE_NW" ? "polygon(0 0,100% 100%,0 100%)" : brick.shape === "TRIANGLE_NE" ? "polygon(0 0,100% 0,0 100%)" : brick.shape === "TRIANGLE_SW" ? "polygon(0 0,100% 0,100% 100%)" : brick.shape === "TRIANGLE_SE" ? "polygon(100% 0,100% 100%,0 100%)" : undefined;
+  const clip =
+    brick.shape === "TRIANGLE_NW"
+      ? "polygon(0 0,100% 100%,0 100%)"
+      : brick.shape === "TRIANGLE_NE"
+        ? "polygon(0 0,100% 0,0 100%)"
+        : brick.shape === "TRIANGLE_SW"
+          ? "polygon(0 0,100% 0,100% 100%)"
+          : brick.shape === "TRIANGLE_SE"
+            ? "polygon(100% 0,100% 100%,0 100%)"
+            : undefined;
   return { "--brick-color": color, clipPath: clip } as React.CSSProperties;
 }
 
-function AtlasSprite({ type, sheet, slices, spriteName }: { type: VolleyBrickType; sheet: string; slices: AtlasSlice[]; spriteName?: string }) {
-  const slice = (spriteName && slices.find(item => item.name === spriteName)) || sliceFor(type, slices);
+function AtlasSprite({
+  type,
+  sheet,
+  slices,
+  spriteName,
+}: {
+  type: VolleyBrickType;
+  sheet: string;
+  slices: AtlasSlice[];
+  spriteName?: string;
+}) {
+  const slice =
+    (spriteName && slices.find((item) => item.name === spriteName)) ||
+    sliceFor(type, slices);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -66,28 +190,64 @@ function AtlasSprite({ type, sheet, slices, spriteName }: { type: VolleyBrickTyp
       canvas.width = slice.width;
       canvas.height = slice.height;
       context.clearRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(image, slice.x, slice.y, slice.width, slice.height, 0, 0, canvas.width, canvas.height);
+      context.drawImage(
+        image,
+        slice.x,
+        slice.y,
+        slice.width,
+        slice.height,
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+      );
     };
     image.src = sheet;
-    return () => { image.onload = null; };
+    return () => {
+      image.onload = null;
+    };
   }, [sheet, slice?.name, slice?.x, slice?.y, slice?.width, slice?.height]);
-  if (!slice) return <span className="atlas-sprite-fallback" style={{ background:typeColors[type] }} />;
+  if (!slice)
+    return (
+      <span
+        className="atlas-sprite-fallback"
+        style={{ background: typeColors[type] }}
+      />
+    );
   return <canvas ref={canvasRef} className="atlas-sprite" aria-hidden="true" />;
 }
 
-function withoutLegacyFormationAsset(value: EditorStage & { formationAsset?: unknown }): EditorStage {
+function withoutLegacyFormationAsset(
+  value: EditorStage & { formationAsset?: unknown },
+): EditorStage {
   const clean = { ...value, rails: [] };
   delete clean.formationAsset;
   return clean;
 }
 
-function normalizeEditorCells(value: unknown): Array<Array<EditorBrick | null>> {
+function normalizeEditorCells(
+  value: unknown,
+): Array<Array<EditorBrick | null>> {
   if (!Array.isArray(value)) throw new Error("Invalid stage grid");
   const rows = value as Array<Array<EditorBrick | null>>;
-  if (rows.length === EDITOR_ROWS && rows.every(row => Array.isArray(row) && row.length === EDITOR_COLUMNS)) return rows.map(row => [...row]);
-  if (rows.length === 8 && rows.every(row => Array.isArray(row) && row.length === 9)) {
-    const expanded: Array<Array<EditorBrick | null>> = Array.from({ length: EDITOR_ROWS }, () => Array(EDITOR_COLUMNS).fill(null));
-    rows.forEach((row, r) => row.forEach((brick, c) => { expanded[r][c + 1] = brick; }));
+  if (
+    rows.length === EDITOR_ROWS &&
+    rows.every((row) => Array.isArray(row) && row.length === EDITOR_COLUMNS)
+  )
+    return rows.map((row) => [...row]);
+  if (
+    rows.length === 8 &&
+    rows.every((row) => Array.isArray(row) && row.length === 9)
+  ) {
+    const expanded: Array<Array<EditorBrick | null>> = Array.from(
+      { length: EDITOR_ROWS },
+      () => Array(EDITOR_COLUMNS).fill(null),
+    );
+    rows.forEach((row, r) =>
+      row.forEach((brick, c) => {
+        expanded[r][c + 1] = brick;
+      }),
+    );
     return expanded;
   }
   throw new Error("Unsupported stage grid size");
@@ -97,7 +257,9 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
   const ar = lang === "ar";
   const [world, setWorld] = useState(1);
   const [stageNumber, setStageNumber] = useState(1);
-  const [stage, setStage] = useState<EditorStage>(() => createVolleyStage(1, 1));
+  const [stage, setStage] = useState<EditorStage>(() =>
+    createVolleyStage(1, 1),
+  );
   const [selected, setSelected] = useState<Point>(null);
   const [tool, setTool] = useState<Tool>("select");
   const [brushType, setBrushType] = useState<VolleyBrickType>("CRYSTAL_BLUE");
@@ -109,189 +271,826 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
   const redoRef = useRef<EditorStage[]>([]);
   const importRef = useRef<HTMLInputElement>(null);
 
-  const flash = useCallback((value: string) => { setMessage(value); window.setTimeout(() => setMessage(""), 2200); }, []);
+  const flash = useCallback((value: string) => {
+    setMessage(value);
+    window.setTimeout(() => setMessage(""), 2200);
+  }, []);
   const commit = useCallback((change: (draft: EditorStage) => void) => {
-    setStage(current => {
+    setStage((current) => {
       undoRef.current.push(cloneStage(current));
       if (undoRef.current.length > 60) undoRef.current.shift();
       redoRef.current = [];
-      const next = cloneStage(current); change(next); return next;
+      const next = cloneStage(current);
+      change(next);
+      return next;
     });
   }, []);
 
-  const loadOriginal = useCallback((nextWorld = world, nextStage = stageNumber) => {
-    const original = createVolleyStage(nextWorld, nextStage);
-    setStage(original); setSelected(null); undoRef.current = []; redoRef.current = [];
-  }, [stageNumber, world]);
+  const loadOriginal = useCallback(
+    (nextWorld = world, nextStage = stageNumber) => {
+      const original = createVolleyStage(nextWorld, nextStage);
+      setStage(original);
+      setSelected(null);
+      undoRef.current = [];
+      redoRef.current = [];
+    },
+    [stageNumber, world],
+  );
 
   const undo = useCallback(() => {
-    const prior = undoRef.current.pop(); if (!prior) return;
-    redoRef.current.push(cloneStage(stage)); setStage(prior); setSelected(null);
+    const prior = undoRef.current.pop();
+    if (!prior) return;
+    redoRef.current.push(cloneStage(stage));
+    setStage(prior);
+    setSelected(null);
   }, [stage]);
   const redo = useCallback(() => {
-    const next = redoRef.current.pop(); if (!next) return;
-    undoRef.current.push(cloneStage(stage)); setStage(next); setSelected(null);
+    const next = redoRef.current.pop();
+    if (!next) return;
+    undoRef.current.push(cloneStage(stage));
+    setStage(next);
+    setSelected(null);
   }, [stage]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (!(event.ctrlKey || event.metaKey)) return;
-      if (event.key.toLowerCase() === "z") { event.preventDefault(); event.shiftKey ? redo() : undo(); }
-      if (event.key.toLowerCase() === "y") { event.preventDefault(); redo(); }
+      if (event.key.toLowerCase() === "z") {
+        event.preventDefault();
+        event.shiftKey ? redo() : undo();
+      }
+      if (event.key.toLowerCase() === "y") {
+        event.preventDefault();
+        redo();
+      }
     };
-    window.addEventListener("keydown", onKey); return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [redo, undo]);
 
   useEffect(() => {
     let active = true;
     setAtlasSlices([]);
     setBrushSprite(undefined);
-    fetch(stage.atlasAsset).then(response => response.json()).then((atlas: AtlasJson) => {
-      if (!active) return;
-      // atlas.json frame rectangles address atlas.png. Ice Grave is missing its
-      // atlas.png asset, so use that world's source sheet with origin rectangles.
-      const sourceFallback = stage.world === 5;
-      const slices = Object.entries(atlas.frames)
-        .sort(([a], [b]) => (Number(a.match(/_(\d+)\.png$/)?.[1]) || 9999) - (Number(b.match(/_(\d+)\.png$/)?.[1]) || 9999))
-        .map(([name, frame]) => ({
-          name,
-          sourceSheet: frame.origin.sheet,
-          x: sourceFallback ? frame.origin.x : frame.frame.x,
-          y: sourceFallback ? frame.origin.y : frame.frame.y,
-          width: sourceFallback ? frame.origin.w : frame.frame.w,
-          height: sourceFallback ? frame.origin.h : frame.frame.h,
-        }));
-      setAtlasSlices(slices);
-    }).catch(() => active && setAtlasSlices([]));
-    return () => { active = false; };
+    fetch(stage.atlasAsset)
+      .then((response) => response.json())
+      .then((atlas: AtlasJson) => {
+        if (!active) return;
+        // atlas.json frame rectangles address atlas.png. Ice Grave is missing its
+        // atlas.png asset, so use that world's source sheet with origin rectangles.
+        const sourceFallback = stage.world === 5;
+        const slices = Object.entries(atlas.frames)
+          .sort(
+            ([a], [b]) =>
+              (Number(a.match(/_(\d+)\.png$/)?.[1]) || 9999) -
+              (Number(b.match(/_(\d+)\.png$/)?.[1]) || 9999),
+          )
+          .map(([name, frame]) => ({
+            name,
+            sourceSheet: frame.origin.sheet,
+            x: sourceFallback ? frame.origin.x : frame.frame.x,
+            y: sourceFallback ? frame.origin.y : frame.frame.y,
+            width: sourceFallback ? frame.origin.w : frame.frame.w,
+            height: sourceFallback ? frame.origin.h : frame.frame.h,
+          }));
+        setAtlasSlices(slices);
+      })
+      .catch(() => active && setAtlasSlices([]));
+    return () => {
+      active = false;
+    };
   }, [stage.atlasAsset]);
 
-  const selectedBrick = selected ? stage.cells[selected.row][selected.column] : null;
+  const selectedBrick = selected
+    ? stage.cells[selected.row][selected.column]
+    : null;
   const gridBrickWidth = (824 - 4 * (EDITOR_COLUMNS - 1)) / EDITOR_COLUMNS;
   const gridColumnPitch = gridBrickWidth + 4;
-  const brickCount = useMemo(() => stage.cells.flat().filter(Boolean).length, [stage]);
-  const totalHp = useMemo(() => stage.cells.flat().reduce((sum, cell) => sum + (cell && cell.hp < 999 ? cell.hp : 0), 0), [stage]);
+  const brickCount = useMemo(
+    () => stage.cells.flat().filter(Boolean).length,
+    [stage],
+  );
+  const totalHp = useMemo(
+    () =>
+      stage.cells
+        .flat()
+        .reduce((sum, cell) => sum + (cell && cell.hp < 999 ? cell.hp : 0), 0),
+    [stage],
+  );
 
-  const chooseWorld = (value: number) => { const nextStage = 1; setWorld(value); setStageNumber(nextStage); loadOriginal(value, nextStage); };
-  const chooseStage = (value: number) => { setStageNumber(value); loadOriginal(world, value); };
+  const chooseWorld = (value: number) => {
+    const nextStage = 1;
+    setWorld(value);
+    setStageNumber(nextStage);
+    loadOriginal(value, nextStage);
+  };
+  const chooseStage = (value: number) => {
+    setStageNumber(value);
+    loadOriginal(world, value);
+  };
   const activateCell = (row: number, column: number) => {
     setSelected({ row, column });
-    if (tool === "erase") commit(draft => { draft.cells[row][column] = null; });
-    if (tool === "draw") commit(draft => { draft.cells[row][column] = { type: brushType, ...(brushSprite ? { atlasSprite: brushSprite } : {}), hp: brushHp, shape: "RECTANGLE", groupId: 0, countsForClear: true }; });
+    if (tool === "erase")
+      commit((draft) => {
+        draft.cells[row][column] = null;
+      });
+    if (tool === "draw")
+      commit((draft) => {
+        draft.cells[row][column] = {
+          type: brushType,
+          ...(brushSprite ? { atlasSprite: brushSprite } : {}),
+          hp: brushHp,
+          shape: "RECTANGLE",
+          groupId: 0,
+          countsForClear: true,
+        };
+      });
   };
   const updateSelected = (patch: Partial<EditorBrick>) => {
     if (!selected) return;
-    commit(draft => { const current = draft.cells[selected.row][selected.column]; if (current) draft.cells[selected.row][selected.column] = { ...current, ...patch }; });
+    commit((draft) => {
+      const current = draft.cells[selected.row][selected.column];
+      if (current)
+        draft.cells[selected.row][selected.column] = { ...current, ...patch };
+    });
   };
-  const clearGrid = () => commit(draft => { draft.cells = Array.from({ length: EDITOR_ROWS }, () => Array(EDITOR_COLUMNS).fill(null)); draft.rails = []; draft.pickups = []; });
+  const clearGrid = () =>
+    commit((draft) => {
+      draft.cells = Array.from({ length: EDITOR_ROWS }, () =>
+        Array(EDITOR_COLUMNS).fill(null),
+      );
+      draft.rails = [];
+      draft.pickups = [];
+    });
   const exportPayload = useCallback(() => {
     const brickGap = 4;
     const boardWidth = 862 - 38;
-    const brickWidth = (boardWidth - brickGap * (EDITOR_COLUMNS - 1)) / EDITOR_COLUMNS;
+    const brickWidth =
+      (boardWidth - brickGap * (EDITOR_COLUMNS - 1)) / EDITOR_COLUMNS;
     const { referenceAsset: _referenceAsset, ...exportableStage } = stage;
-    const bricks = stage.cells.flatMap((row, rowIndex) => row.flatMap((brick, columnIndex) => brick ? [{
-      id: rowIndex * EDITOR_COLUMNS + columnIndex + 1, row:rowIndex, column:columnIndex,
-      x:38 + columnIndex * (brickWidth + brickGap), y:1368 - (rowIndex + 1) * 70,
-      width:brickWidth, height:66, type:brick.type, hp:brick.hp, shape:brick.shape,
-      groupId:brick.groupId, countsForClear:brick.countsForClear,
-      shieldLock:Boolean(brick.shieldLock), hazardKind:brick.hazardKind ?? null, atlasSprite:brick.atlasSprite ?? null,
-    }] : []));
+    const bricks = stage.cells.flatMap((row, rowIndex) =>
+      row.flatMap((brick, columnIndex) =>
+        brick
+          ? [
+              {
+                id: rowIndex * EDITOR_COLUMNS + columnIndex + 1,
+                row: rowIndex,
+                column: columnIndex,
+                x: 38 + columnIndex * (brickWidth + brickGap),
+                y: 1368 - (rowIndex + 1) * 70,
+                width: brickWidth,
+                height: 66,
+                type: brick.type,
+                hp: brick.hp,
+                shape: brick.shape,
+                groupId: brick.groupId,
+                countsForClear: brick.countsForClear,
+                shieldLock: Boolean(brick.shieldLock),
+                hazardKind: brick.hazardKind ?? null,
+                atlasSprite: brick.atlasSprite ?? null,
+              },
+            ]
+          : [],
+      ),
+    );
     return {
       ...exportableStage,
-      coordinateSystem:{ origin:"bottom-left", worldWidth:900, worldHeight:1600, units:"game-world-pixels" },
-      board:{ left:38, right:862, top:1410, brickStartTop:1368, rows:EDITOR_ROWS, columns:EDITOR_COLUMNS, brickWidth, brickHeight:66, brickGap, rowPitch:70, dangerY:300 },
+      coordinateSystem: {
+        origin: "bottom-left",
+        worldWidth: 900,
+        worldHeight: 1600,
+        units: "game-world-pixels",
+      },
+      board: {
+        left: 38,
+        right: 862,
+        top: 1410,
+        brickStartTop: 1368,
+        rows: EDITOR_ROWS,
+        columns: EDITOR_COLUMNS,
+        brickWidth,
+        brickHeight: 66,
+        brickGap,
+        rowPitch: 70,
+        dangerY: 300,
+      },
       bricks,
-      rails:stage.rails.map((rail,id)=>({ id:id+1, x1:38+824*(rail.x1/9), y1:1368-rail.y1*70, x2:38+824*(rail.x2/9), y2:1368-rail.y2*70, thickness:rail.thickness, fixed:rail.fixed })),
-      pickups:stage.pickups.map((pickup,id)=>({ id:id+1, x:38+824*(pickup.x/9), y:1368-pickup.y*70, amount:pickup.amount, type:pickup.type })),
+      rails: stage.rails.map((rail, id) => ({
+        id: id + 1,
+        x1: 38 + 824 * (rail.x1 / 9),
+        y1: 1368 - rail.y1 * 70,
+        x2: 38 + 824 * (rail.x2 / 9),
+        y2: 1368 - rail.y2 * 70,
+        thickness: rail.thickness,
+        fixed: rail.fixed,
+      })),
+      pickups: stage.pickups.map((pickup, id) => ({
+        id: id + 1,
+        x: 38 + 824 * (pickup.x / 9),
+        y: 1368 - pickup.y * 70,
+        amount: pickup.amount,
+        type: pickup.type,
+      })),
     };
   }, [stage]);
   const download = () => {
-    const blob = new Blob([JSON.stringify(exportPayload(), null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob); const anchor = document.createElement("a");
-    anchor.href = url; anchor.download = `volley-world-${stage.world}-stage-${stage.stage}.json`; anchor.click(); URL.revokeObjectURL(url);
-    flash(ar ? "ØªÙ… ØªÙ†Ø²ÙŠÙ„ Ù…Ù„Ù Ø§Ù„Ù…Ø±Ø­Ù„Ø©" : "Stage file downloaded");
+    const blob = new Blob([JSON.stringify(exportPayload(), null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `volley-world-${stage.world}-stage-${stage.stage}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    flash(
+      ar ? "تم تنزيل ملف المرحلة" : "Stage file downloaded",
+    );
   };
-  const copyJson = async () => { await navigator.clipboard.writeText(JSON.stringify(exportPayload(), null, 2)); flash(ar ? "ØªÙ… Ù†Ø³Ø® JSON Ù…Ø¹ Ø§Ù„Ø¥Ø­Ø¯Ø§Ø«ÙŠØ§Øª" : "JSON with coordinates copied"); };
-  const saveLocal = () => { localStorage.setItem(`bbb-volley-editor-${world}-${stageNumber}`, JSON.stringify(stage)); flash(ar ? "Ø­ÙÙØ¸Øª Ù…Ø­Ù„ÙŠÙ‹Ø§ ÙÙŠ Ø§Ù„Ù…ØªØµÙØ­" : "Saved in this browser"); };
+  const copyJson = async () => {
+    await navigator.clipboard.writeText(
+      JSON.stringify(exportPayload(), null, 2),
+    );
+    flash(
+      ar
+        ? "تم نسخ JSON مع الإحداثيات"
+        : "JSON with coordinates copied",
+    );
+  };
+  const saveLocal = () => {
+    localStorage.setItem(
+      `bbb-volley-editor-${world}-${stageNumber}`,
+      JSON.stringify(stage),
+    );
+    flash(
+      ar ? "حُفظت محليًا في المتصفح" : "Saved in this browser",
+    );
+  };
   const restoreLocal = () => {
-    const raw = localStorage.getItem(`bbb-volley-editor-${world}-${stageNumber}`);
-    if (!raw) return flash(ar ? "Ù„Ø§ ØªÙˆØ¬Ø¯ Ù†Ø³Ø®Ø© Ù…Ø­Ù„ÙŠØ©" : "No local save found");
+    const raw = localStorage.getItem(
+      `bbb-volley-editor-${world}-${stageNumber}`,
+    );
+    if (!raw)
+      return flash(
+        ar ? "لا توجد نسخة محلية" : "No local save found",
+      );
     try {
-      const saved = withoutLegacyFormationAsset(JSON.parse(raw) as EditorStage & { formationAsset?: unknown });
+      const saved = withoutLegacyFormationAsset(
+        JSON.parse(raw) as EditorStage & { formationAsset?: unknown },
+      );
       const source = createVolleyStage(saved.world, saved.stage);
-      setStage({ ...source, ...saved, rows:EDITOR_ROWS, columns:EDITOR_COLUMNS, cells:normalizeEditorCells(saved.cells), backgroundAsset:source.backgroundAsset, spritesheetAsset:source.spritesheetAsset, atlasAsset:source.atlasAsset, expectedSourceSheet:source.expectedSourceSheet, cannonAsset:source.cannonAsset, referenceAsset:source.referenceAsset });
-      flash(ar ? "ØªÙ… Ø§Ø³ØªØ±Ø¬Ø§Ø¹ Ø§Ù„Ù†Ø³Ø®Ø©" : "Local save restored");
-    } catch { flash(ar ? "ØªØ¹Ø°Ø± Ù‚Ø±Ø§Ø¡Ø© Ø§Ù„Ù†Ø³Ø®Ø©" : "Could not read local save"); }
+      setStage({
+        ...source,
+        ...saved,
+        rows: EDITOR_ROWS,
+        columns: EDITOR_COLUMNS,
+        cells: normalizeEditorCells(saved.cells),
+        backgroundAsset: source.backgroundAsset,
+        spritesheetAsset: source.spritesheetAsset,
+        atlasAsset: source.atlasAsset,
+        expectedSourceSheet: source.expectedSourceSheet,
+        cannonAsset: source.cannonAsset,
+        referenceAsset: source.referenceAsset,
+      });
+      flash(ar ? "تم استرجاع النسخة" : "Local save restored");
+    } catch {
+      flash(
+        ar ? "تعذرت قراءة النسخة" : "Could not read local save",
+      );
+    }
   };
   const importStage = async (file?: File) => {
     if (!file) return;
     try {
-      const parsed = withoutLegacyFormationAsset(JSON.parse(await file.text()) as EditorStage & { formationAsset?: unknown });
+      const parsed = withoutLegacyFormationAsset(
+        JSON.parse(await file.text()) as EditorStage & {
+          formationAsset?: unknown;
+        },
+      );
       const normalizedCells = normalizeEditorCells(parsed.cells);
-      if (parsed.format !== "brick-breaker-ball-volley-stage") throw new Error("format");
-      const safeWorld=Math.max(1,Math.min(9,parsed.world)); const safeStage=Math.max(1,Math.min(EDITOR_WORLDS[safeWorld-1].stages,parsed.stage)); const source=createVolleyStage(safeWorld,safeStage);
-      setStage({...source,...parsed,rows:EDITOR_ROWS,columns:EDITOR_COLUMNS,cells:normalizedCells,world:safeWorld,stage:safeStage,backgroundAsset:source.backgroundAsset,spritesheetAsset:source.spritesheetAsset,atlasAsset:source.atlasAsset,expectedSourceSheet:source.expectedSourceSheet,cannonAsset:source.cannonAsset,referenceAsset:source.referenceAsset}); setWorld(safeWorld); setStageNumber(safeStage); setSelected(null); undoRef.current=[]; redoRef.current=[]; flash(ar ? "ØªÙ… Ø§Ø³ØªÙŠØ±Ø§Ø¯ Ø§Ù„Ù…Ø±Ø­Ù„Ø©" : "Stage imported");
-    } catch { flash(ar ? "Ù…Ù„Ù Ø§Ù„Ù…Ø±Ø­Ù„Ø© ØºÙŠØ± ØµØ§Ù„Ø­" : "Invalid stage file"); }
+      if (parsed.format !== "brick-breaker-ball-volley-stage")
+        throw new Error("format");
+      const safeWorld = Math.max(1, Math.min(9, parsed.world));
+      const safeStage = Math.max(
+        1,
+        Math.min(EDITOR_WORLDS[safeWorld - 1].stages, parsed.stage),
+      );
+      const source = createVolleyStage(safeWorld, safeStage);
+      setStage({
+        ...source,
+        ...parsed,
+        rows: EDITOR_ROWS,
+        columns: EDITOR_COLUMNS,
+        cells: normalizedCells,
+        world: safeWorld,
+        stage: safeStage,
+        backgroundAsset: source.backgroundAsset,
+        spritesheetAsset: source.spritesheetAsset,
+        atlasAsset: source.atlasAsset,
+        expectedSourceSheet: source.expectedSourceSheet,
+        cannonAsset: source.cannonAsset,
+        referenceAsset: source.referenceAsset,
+      });
+      setWorld(safeWorld);
+      setStageNumber(safeStage);
+      setSelected(null);
+      undoRef.current = [];
+      redoRef.current = [];
+      flash(ar ? "تم استيراد المرحلة" : "Stage imported");
+    } catch {
+      flash(ar ? "ملف المرحلة غير صالح" : "Invalid stage file");
+    }
   };
 
   return (
     <div className="volley-editor" dir={ar ? "rtl" : "ltr"}>
       <header className="editor-hero">
-        <div><p>VOLLEY WORKSHOP • 11 × 9</p><h1>{ar ? "Ù…Ø­Ø±Ù‘Ø± Ù…Ø±Ø§Ø­Ù„ Ø§Ù„ÙÙˆÙ„ÙŠ" : "Volley Level Editor"}</h1><span>{ar ? "Ø­Ù…Ù‘Ù„ Ø£ÙŠ Ù…Ø±Ø­Ù„Ø© Ø£ØµÙ„ÙŠØ©ØŒ Ø¹Ø¯Ù‘Ù„ Ø§Ù„Ø¨Ø±ÙŠÙƒØ³ ÙˆHPØŒ Ø«Ù… Ù†Ø²Ù‘Ù„Ù‡Ø§ Ø¨ØµÙŠØºØ© JSON." : "Load any original stage, edit bricks and HP, then export it as JSON."}</span></div>
-        <div className="editor-hero-actions"><button onClick={saveLocal}>{ar ? "Ø­ÙØ¸ Ù…Ø­Ù„ÙŠ" : "Save local"}</button><button onClick={download} className="primary">{ar ? "ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø±Ø­Ù„Ø©" : "Download stage"}</button></div>
+        <div>
+          <p>VOLLEY WORKSHOP • 11 × 9</p>
+          <h1>
+            {ar ? "محرّر مراحل الفولي" : "Volley Level Editor"}
+          </h1>
+          <span>
+            {ar
+              ? "حمّل أي مرحلة أصلية، وعدّل الطوب ونقاط الصحة HP، ثم نزّلها بصيغة JSON."
+              : "Load any original stage, edit bricks and HP, then export it as JSON."}
+          </span>
+        </div>
+        <div className="editor-hero-actions">
+          <button onClick={saveLocal}>
+            {ar ? "حفظ محلي" : "Save local"}
+          </button>
+          <button onClick={download} className="primary">
+            {ar ? "تنزيل المرحلة" : "Download stage"}
+          </button>
+        </div>
       </header>
 
       <section className="editor-sourcebar">
-        <label><span>{ar ? "Ø§Ù„Ø¹Ø§Ù„Ù…" : "World"}</span><select value={world} onChange={e => chooseWorld(Number(e.target.value))}>{EDITOR_WORLDS.map(item => <option key={item.id} value={item.id}>{item.id}. {ar ? item.ar : item.en}</option>)}</select></label>
-        <label><span>{ar ? "Ø§Ù„Ù…Ø±Ø­Ù„Ø©" : "Stage"}</span><select value={stageNumber} onChange={e => chooseStage(Number(e.target.value))}>{Array.from({ length: EDITOR_WORLDS[world-1].stages },(_,i)=><option key={i+1} value={i+1}>{i+1}{i+1===EDITOR_WORLDS[world-1].stages ? ` â€¢ ${ar?"Ø²Ø¹ÙŠÙ…":"Boss"}`:""}</option>)}</select></label>
-        <div className="editor-source-actions"><button onClick={() => loadOriginal()}>{ar ? "Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„Ø£ØµÙ„" : "Reload original"}</button><button onClick={restoreLocal}>{ar ? "Ø§Ø³ØªØ±Ø¬Ø§Ø¹" : "Restore"}</button><button onClick={() => importRef.current?.click()}>{ar ? "Ø§Ø³ØªÙŠØ±Ø§Ø¯ JSON" : "Import JSON"}</button><input ref={importRef} hidden type="file" accept="application/json,.json" onChange={e=>importStage(e.target.files?.[0])}/></div>
+        <label>
+          <span>{ar ? "العالم" : "World"}</span>
+          <select
+            value={world}
+            onChange={(e) => chooseWorld(Number(e.target.value))}
+          >
+            {EDITOR_WORLDS.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.id}. {ar ? item.ar : item.en}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          <span>{ar ? "المرحلة" : "Stage"}</span>
+          <select
+            value={stageNumber}
+            onChange={(e) => chooseStage(Number(e.target.value))}
+          >
+            {Array.from({ length: EDITOR_WORLDS[world - 1].stages }, (_, i) => (
+              <option key={i + 1} value={i + 1}>
+                {i + 1}
+                {i + 1 === EDITOR_WORLDS[world - 1].stages
+                  ? ` • ${ar ? "زعيم" : "Boss"}`
+                  : ""}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="editor-source-actions">
+          <button onClick={() => loadOriginal()}>
+            {ar ? "إعادة تحميل الأصل" : "Reload original"}
+          </button>
+          <button onClick={restoreLocal}>
+            {ar ? "استرجاع" : "Restore"}
+          </button>
+          <button onClick={() => importRef.current?.click()}>
+            {ar ? "استيراد JSON" : "Import JSON"}
+          </button>
+          <input
+            ref={importRef}
+            hidden
+            type="file"
+            accept="application/json,.json"
+            onChange={(e) => importStage(e.target.files?.[0])}
+          />
+        </div>
       </section>
 
       <div className="editor-layout">
         <aside className="editor-panel editor-palette">
-          <div className="editor-panel-title"><div><small>{ar ? "Ø£Ø¯Ø§Ø© Ø§Ù„Ø±Ø³Ù…" : "DRAW TOOL"}</small><h2>{ar ? "Ù…ÙƒØªØ¨Ø© Ø§Ù„Ø¨Ø±ÙŠÙƒØ³" : "Brick Library"}</h2></div><b>{atlasSlices.length}</b></div>
-          <div className="editor-tools"><button className={tool==="select"?"active":""} onClick={()=>setTool("select")}>âŒ {ar?"ØªØ­Ø¯ÙŠØ¯":"Select"}</button><button className={tool==="draw"?"active":""} onClick={()=>setTool("draw")}>âœ¦ {ar?"Ø±Ø³Ù…":"Draw"}</button><button className={tool==="erase"?"active":""} onClick={()=>setTool("erase")}>âŒ« {ar?"Ù…Ø³Ø­":"Erase"}</button></div>
-          <label className="hp-brush"><span>{ar ? "HP Ù„Ù„Ø¨Ø±ÙŠÙƒ Ø§Ù„Ø¬Ø¯ÙŠØ¯" : "NEW BRICK HP"}</span><input type="number" min="1" max="999" value={brushHp} onChange={e=>setBrushHp(Math.max(1,Math.min(999,Number(e.target.value)||1)))}/></label>
-          <div className="atlas-palette-caption">{ar ? `كل ${atlasSlices.length} إطارًا من أطلس العالم ${world} • اختر الصورة ثم ارسم` : `All ${atlasSlices.length} sprites in this world's atlas · choose one to draw`}</div>
-          <div className="brick-palette-list">{atlasSlices.map((slice,index)=><button key={slice.name} title={`${slice.name} · ${slice.sourceSheet} · ${slice.width}×${slice.height}`} className={brushSprite===slice.name?"active":""} onClick={()=>{setBrushSprite(slice.name);setBrushType("CRYSTAL_GREEN");setTool("draw");}}><i><AtlasSprite type="CRYSTAL_GREEN" sheet={world===5?stage.spritesheetAsset:stage.atlasAsset.replace(/\.json$/i,".png")} slices={atlasSlices} spriteName={slice.name}/></i><span>{slice.sourceSheet} · {slice.name.replace(/\.png$/i, "")}</span><em>{index+1}</em></button>)}</div>
+          <div className="editor-panel-title">
+            <div>
+              <small>{ar ? "أداة الرسم" : "DRAW TOOL"}</small>
+              <h2>{ar ? "مكتبة الطوب" : "Brick Library"}</h2>
+            </div>
+            <b>{atlasSlices.length}</b>
+          </div>
+          <div className="editor-tools">
+            <button
+              className={tool === "select" ? "active" : ""}
+              onClick={() => setTool("select")}
+            >
+              ⌁ {ar ? "تحديد" : "Select"}
+            </button>
+            <button
+              className={tool === "draw" ? "active" : ""}
+              onClick={() => setTool("draw")}
+            >
+              ✦ {ar ? "رسم" : "Draw"}
+            </button>
+            <button
+              className={tool === "erase" ? "active" : ""}
+              onClick={() => setTool("erase")}
+            >
+              ⌫ {ar ? "مسح" : "Erase"}
+            </button>
+          </div>
+          <label className="hp-brush">
+            <span>{ar ? "HP للطوبة الجديدة" : "NEW BRICK HP"}</span>
+            <input
+              type="number"
+              min="1"
+              max="999"
+              value={brushHp}
+              onChange={(e) =>
+                setBrushHp(
+                  Math.max(1, Math.min(999, Number(e.target.value) || 1)),
+                )
+              }
+            />
+          </label>
+          <div className="atlas-palette-caption">
+            {ar
+              ? `كل ${atlasSlices.length} إطارًا من أطلس العالم ${world} • اختر الصورة ثم ارسم`
+              : `All ${atlasSlices.length} sprites in this world's atlas · choose one to draw`}
+          </div>
+          <div className="brick-palette-list">
+            {atlasSlices.map((slice, index) => (
+              <button
+                key={slice.name}
+                title={`${slice.name} · ${slice.sourceSheet} · ${slice.width}×${slice.height}`}
+                className={brushSprite === slice.name ? "active" : ""}
+                onClick={() => {
+                  setBrushSprite(slice.name);
+                  setBrushType("CRYSTAL_GREEN");
+                  setTool("draw");
+                }}
+              >
+                <i>
+                  <AtlasSprite
+                    type="CRYSTAL_GREEN"
+                    sheet={
+                      world === 5
+                        ? stage.spritesheetAsset
+                        : stage.atlasAsset.replace(/\.json$/i, ".png")
+                    }
+                    slices={atlasSlices}
+                    spriteName={slice.name}
+                  />
+                </i>
+                <span>
+                  {slice.sourceSheet} · {slice.name.replace(/\.png$/i, "")}
+                </span>
+                <em>{index + 1}</em>
+              </button>
+            ))}
+          </div>
         </aside>
 
         <main className="editor-canvas-column">
-          <div className="editor-stage-meta"><div><small>{stage.bossStage?(ar?"Ù…Ø±Ø­Ù„Ø© Ø²Ø¹ÙŠÙ…":"BOSS STAGE"):(ar?"Ù…Ø±Ø­Ù„Ø© Ø¹Ø§Ø¯ÙŠØ©":"STANDARD STAGE")}</small><h2>{stage.name}</h2></div><div className="editor-stats"><span><b>{brickCount}</b>{ar?"Ø¨Ø±ÙŠÙƒ":"bricks"}</span><span><b>{totalHp}</b>HP</span><span><b>{stage.startingBalls}</b>{ar?"ÙƒØ±Ø©":"balls"}</span></div></div>
-          <div className="editor-board-comparison">
-            <aside className="editor-reference-card">
-              <div className="editor-reference-heading"><small>{ar ? "صورة مرجعية" : "REFERENCE IMAGE"}</small><b>{ar ? "مرجع الشكل الهندسي" : "GEOMETRY REFERENCE"}</b></div>
-              <img src={stage.referenceAsset} alt={ar ? `مرجع تشكيل المرحلة ${stage.stage} من العالم ${stage.world}` : `Formation reference for world ${stage.world}, stage ${stage.stage}`} draggable={false}/>
-              <p>{ar ? "المرجع للشكل الهندسي وترتيب القراميد فقط؛ خلفية اللوحة مأخوذة من عالم ومرحلة اللعبة الفعلية." : "This image guides brick geometry and arrangement only; the board keeps the selected game's actual world and stage background."}</p>
-            </aside>
-            <div className="editor-board" style={{backgroundImage:`linear-gradient(rgba(2,5,10,.28),rgba(2,5,10,.62)),url("${stage.backgroundAsset}")`}}>
-            <div className="danger-line"><span>{ar ? "Ø®Ø· Ø§Ù„Ø®Ø·Ø±" : "DANGER LINE"}</span></div>
-            <div className="editor-pickups" aria-hidden="true">{stage.pickups.map((pickup,i)=><span key={i} title={pickup.type} style={{left:`${(38+824*(pickup.x/9))/9}%`,top:`${(232+pickup.y*70)/16}%`}}>{pickup.type==="BALL"?`+${pickup.amount}`:pickup.type.slice(0,2)}</span>)}</div>
-            <img className="editor-cannon" src={stage.cannonAsset} alt="" draggable={false}/>
-            <div className="editor-grid">{stage.cells.map((row,r)=>row.map((brick,c)=><button key={`${r}-${c}`} style={{left:`${(38+c*gridColumnPitch)/9}%`,top:`${(236+r*70)/16}%`,width:`${gridBrickWidth/9}%`,height:`${66/16}%`}} aria-label={`${r+1}, ${c+1}`} className={`editor-cell ${brick?"filled":""} ${selected?.row===r&&selected.column===c?"selected":""}`} onClick={()=>activateCell(r,c)} onContextMenu={event=>{event.preventDefault();setSelected({row:r,column:c});commit(d=>{d.cells[r][c]=null;});}}>{brick&&<span className="editor-brick" style={brickStyle(brick)}><AtlasSprite type={brick.type} sheet={world===5?stage.spritesheetAsset:stage.atlasAsset.replace(/\.json$/i,".png")} slices={atlasSlices} spriteName={brick.atlasSprite}/><b>{brick.hp>=999?"âˆž":brick.hp}</b><small>{shortName(brick.type)}</small></span>}</button>))}</div>
+          <div className="editor-stage-meta">
+            <div>
+              <small>
+                {stage.bossStage
+                  ? ar
+                    ? "مرحلة زعيم"
+                    : "BOSS STAGE"
+                  : ar
+                    ? "مرحلة عادية"
+                    : "STANDARD STAGE"}
+              </small>
+              <h2>{stage.name}</h2>
+            </div>
+            <div className="editor-stats">
+              <span>
+                <b>{brickCount}</b>
+                {ar ? "طوبة" : "bricks"}
+              </span>
+              <span>
+                <b>{totalHp}</b>HP
+              </span>
+              <span>
+                <b>{stage.startingBalls}</b>
+                {ar ? "كرة" : "balls"}
+              </span>
             </div>
           </div>
-          <div className="editor-history"><button onClick={undo} disabled={!undoRef.current.length}>â†¶ {ar?"ØªØ±Ø§Ø¬Ø¹":"Undo"}</button><button onClick={redo} disabled={!redoRef.current.length}>â†· {ar?"Ø¥Ø¹Ø§Ø¯Ø©":"Redo"}</button><button onClick={clearGrid} className="danger">{ar?"Ù…Ø³Ø­ Ø§Ù„Ù„ÙˆØ­Ø©":"Clear board"}</button><span>{ar?"Ø§Ù†Ù‚Ø± Ø¨Ø§Ù„Ø²Ø± Ø§Ù„Ø£ÙŠÙ…Ù† Ù„Ù…Ø³Ø­ Ø¨Ø±ÙŠÙƒ Ø¨Ø³Ø±Ø¹Ø©":"Right-click a cell to erase quickly"}</span></div>
+          <div className="editor-board-comparison">
+            <aside className="editor-reference-card">
+              <div className="editor-reference-heading">
+                <small>{ar ? "صورة مرجعية" : "REFERENCE IMAGE"}</small>
+                <b>{ar ? "مرجع الشكل الهندسي" : "GEOMETRY REFERENCE"}</b>
+              </div>
+              <img
+                src={stage.referenceAsset}
+                alt={
+                  ar
+                    ? `مرجع تشكيل المرحلة ${stage.stage} من العالم ${stage.world}`
+                    : `Formation reference for world ${stage.world}, stage ${stage.stage}`
+                }
+                draggable={false}
+              />
+              <p>
+                {ar
+                  ? "المرجع للشكل الهندسي وترتيب القراميد فقط؛ خلفية اللوحة مأخوذة من عالم ومرحلة اللعبة الفعلية."
+                  : "This image guides brick geometry and arrangement only; the board keeps the selected game's actual world and stage background."}
+              </p>
+            </aside>
+            <div
+              className="editor-board"
+              style={{
+                backgroundImage: `linear-gradient(rgba(2,5,10,.28),rgba(2,5,10,.62)),url("${stage.backgroundAsset}")`,
+              }}
+            >
+              <div className="danger-line">
+                <span>{ar ? "خط الخطر" : "DANGER LINE"}</span>
+              </div>
+              <div className="editor-pickups" aria-hidden="true">
+                {stage.pickups.map((pickup, i) => (
+                  <span
+                    key={i}
+                    title={pickup.type}
+                    style={{
+                      left: `${(38 + 824 * (pickup.x / 9)) / 9}%`,
+                      top: `${(232 + pickup.y * 70) / 16}%`,
+                    }}
+                  >
+                    {pickup.type === "BALL"
+                      ? `+${pickup.amount}`
+                      : pickup.type.slice(0, 2)}
+                  </span>
+                ))}
+              </div>
+              <img
+                className="editor-cannon"
+                src={stage.cannonAsset}
+                alt=""
+                draggable={false}
+              />
+              <div className="editor-grid">
+                {stage.cells.map((row, r) =>
+                  row.map((brick, c) => (
+                    <button
+                      key={`${r}-${c}`}
+                      style={{
+                        left: `${(38 + c * gridColumnPitch) / 9}%`,
+                        top: `${(236 + r * 70) / 16}%`,
+                        width: `${gridBrickWidth / 9}%`,
+                        height: `${66 / 16}%`,
+                      }}
+                      aria-label={`${r + 1}, ${c + 1}`}
+                      className={`editor-cell ${brick ? "filled" : ""} ${selected?.row === r && selected.column === c ? "selected" : ""}`}
+                      onClick={() => activateCell(r, c)}
+                      onContextMenu={(event) => {
+                        event.preventDefault();
+                        setSelected({ row: r, column: c });
+                        commit((d) => {
+                          d.cells[r][c] = null;
+                        });
+                      }}
+                    >
+                      {brick && (
+                        <span
+                          className="editor-brick"
+                          style={brickStyle(brick)}
+                        >
+                          <AtlasSprite
+                            type={brick.type}
+                            sheet={
+                              world === 5
+                                ? stage.spritesheetAsset
+                                : stage.atlasAsset.replace(/\.json$/i, ".png")
+                            }
+                            slices={atlasSlices}
+                            spriteName={brick.atlasSprite}
+                          />
+                          <b>{brick.hp >= 999 ? "∞" : brick.hp}</b>
+                          <small>{shortName(brick.type)}</small>
+                        </span>
+                      )}
+                    </button>
+                  )),
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="editor-history">
+            <button onClick={undo} disabled={!undoRef.current.length}>
+              ↶ {ar ? "تراجع" : "Undo"}
+            </button>
+            <button onClick={redo} disabled={!redoRef.current.length}>
+              ↷ {ar ? "إعادة" : "Redo"}
+            </button>
+            <button onClick={clearGrid} className="danger">
+              {ar ? "مسح اللوحة" : "Clear board"}
+            </button>
+            <span>
+              {ar
+                ? "انقر بزر الفأرة الأيمن لمسح طوبة بسرعة"
+                : "Right-click a cell to erase quickly"}
+            </span>
+          </div>
         </main>
 
         <aside className="editor-panel editor-inspector">
-          <div className="editor-panel-title"><div><small>{ar ? "Ø®ØµØ§Ø¦Øµ Ø§Ù„Ø¹Ù†ØµØ±" : "INSPECTOR"}</small><h2>{ar ? "Ø§Ù„Ø¨Ø±ÙŠÙƒ Ø§Ù„Ù…Ø­Ø¯Ø¯" : "Selected Brick"}</h2></div>{selected&&<b>{selected.row+1}:{selected.column+1}</b>}</div>
-          {!selectedBrick ? <div className="empty-inspector"><span>â—‡</span><p>{ar ? "Ø§Ø®ØªØ± Ø¨Ø±ÙŠÙƒ Ù…Ù† Ø§Ù„Ø´Ø¨ÙƒØ© Ù„ØªØºÙŠÙŠØ± Ù†ÙˆØ¹Ù‡ ÙˆHP ÙˆØ´ÙƒÙ„Ù‡ ÙˆÙ…Ø¬Ù…ÙˆØ¹ØªÙ‡." : "Select a brick to change its type, HP, shape and group."}</p></div> : <div className="inspector-fields">
-            <label><span>{ar?"Ø§Ù„Ù†ÙˆØ¹":"TYPE"}</span><select value={selectedBrick.type} onChange={e=>updateSelected({type:e.target.value as VolleyBrickType})}>{BRICK_TYPES.map(type=><option key={type}>{type}</option>)}</select></label>
-            <label><span>{ar?"Ø§Ù„Ø­ÙŠØ§Ø© HP":"HEALTH / HP"}</span><input type="number" min="1" max="999" value={selectedBrick.hp} onChange={e=>updateSelected({hp:Math.max(1,Math.min(999,Number(e.target.value)||1))})}/></label>
-            <div className="hp-steps">{[-10,-1,1,10].map(amount=><button key={amount} onClick={()=>updateSelected({hp:Math.max(1,Math.min(999,selectedBrick.hp+amount))})}>{amount>0?"+":""}{amount}</button>)}</div>
-            {selected && <div className="coordinate-readout"><span>X <b>{(38+selected.column*92).toFixed(2)}</b></span><span>Y <b>{(1368-(selected.row+1)*70).toFixed(2)}</b></span><span>W <b>88.00</b></span><span>H <b>66.00</b></span></div>}
-            <label><span>{ar?"Ø§Ù„Ø´ÙƒÙ„":"SHAPE"}</span><select value={selectedBrick.shape} onChange={e=>updateSelected({shape:e.target.value as VolleyShape})}>{shapeOptions.map(shape=><option key={shape}>{shape}</option>)}</select></label>
-            <label><span>{ar?"Ø±Ù‚Ù… Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹Ø©":"GROUP ID"}</span><input type="number" min="0" value={selectedBrick.groupId} onChange={e=>updateSelected({groupId:Math.max(0,Number(e.target.value)||0)})}/></label>
-            <label className="check-field"><input type="checkbox" checked={selectedBrick.countsForClear} onChange={e=>updateSelected({countsForClear:e.target.checked})}/><span>{ar?"ÙŠÙØ­ØªØ³Ø¨ Ù„Ø¥Ù†Ù‡Ø§Ø¡ Ø§Ù„Ù…Ø±Ø­Ù„Ø©":"Counts for stage clear"}</span></label>
-            <button className="delete-brick" onClick={()=>selected&&commit(d=>{d.cells[selected.row][selected.column]=null;})}>{ar?"Ø­Ø°Ù Ø§Ù„Ø¨Ø±ÙŠÙƒ":"Delete brick"}</button>
-          </div>}
-          <div className="stage-settings"><h3>{ar?"Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ù…Ø±Ø­Ù„Ø©":"Stage Settings"}</h3><label><span>Base HP</span><input type="number" min="1" max="999" value={stage.baseHp} onChange={e=>commit(d=>{d.baseHp=Math.max(1,Number(e.target.value)||1);})}/></label><label><span>{ar?"ÙƒØ±Ø§Øª Ø§Ù„Ø¨Ø¯Ø§ÙŠØ©":"Starting balls"}</span><input type="number" min="1" max="160" value={stage.startingBalls} onChange={e=>commit(d=>{d.startingBalls=Math.max(1,Math.min(160,Number(e.target.value)||1));})}/></label></div>
-          <div className="export-panel"><button onClick={copyJson}>{ar?"Ù†Ø³Ø® JSON":"Copy JSON"}</button><button onClick={download} className="primary">{ar?"ØªØ­Ù…ÙŠÙ„ Ù…Ù„Ù Ø§Ù„Ù…Ø±Ø­Ù„Ø©":"Download stage file"}</button></div>
+          <div className="editor-panel-title">
+            <div>
+              <small>{ar ? "خصائص العنصر" : "INSPECTOR"}</small>
+              <h2>{ar ? "الطوبة المحددة" : "Selected Brick"}</h2>
+            </div>
+            {selected && (
+              <b>
+                {selected.row + 1}:{selected.column + 1}
+              </b>
+            )}
+          </div>
+          {!selectedBrick ? (
+            <div className="empty-inspector">
+              <span>◇</span>
+              <p>
+                {ar
+                  ? "اختر طوبة من الشبكة لتغيير نوعها ونقاط صحتها وشكلها ومجموعتها."
+                  : "Select a brick to change its type, HP, shape and group."}
+              </p>
+            </div>
+          ) : (
+            <div className="inspector-fields">
+              <label>
+                <span>{ar ? "النوع" : "TYPE"}</span>
+                <select
+                  value={selectedBrick.type}
+                  onChange={(e) =>
+                    updateSelected({ type: e.target.value as VolleyBrickType })
+                  }
+                >
+                  {BRICK_TYPES.map((type) => (
+                    <option key={type}>{type}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>{ar ? "الصحة HP" : "HEALTH / HP"}</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="999"
+                  value={selectedBrick.hp}
+                  onChange={(e) =>
+                    updateSelected({
+                      hp: Math.max(
+                        1,
+                        Math.min(999, Number(e.target.value) || 1),
+                      ),
+                    })
+                  }
+                />
+              </label>
+              <div className="hp-steps">
+                {[-10, -1, 1, 10].map((amount) => (
+                  <button
+                    key={amount}
+                    onClick={() =>
+                      updateSelected({
+                        hp: Math.max(
+                          1,
+                          Math.min(999, selectedBrick.hp + amount),
+                        ),
+                      })
+                    }
+                  >
+                    {amount > 0 ? "+" : ""}
+                    {amount}
+                  </button>
+                ))}
+              </div>
+              {selected && (
+                <div className="coordinate-readout">
+                  <span>
+                    X <b>{(38 + selected.column * 92).toFixed(2)}</b>
+                  </span>
+                  <span>
+                    Y <b>{(1368 - (selected.row + 1) * 70).toFixed(2)}</b>
+                  </span>
+                  <span>
+                    W <b>88.00</b>
+                  </span>
+                  <span>
+                    H <b>66.00</b>
+                  </span>
+                </div>
+              )}
+              <label>
+                <span>{ar ? "الشكل" : "SHAPE"}</span>
+                <select
+                  value={selectedBrick.shape}
+                  onChange={(e) =>
+                    updateSelected({ shape: e.target.value as VolleyShape })
+                  }
+                >
+                  {shapeOptions.map((shape) => (
+                    <option key={shape}>{shape}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>{ar ? "رقم المجموعة" : "GROUP ID"}</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={selectedBrick.groupId}
+                  onChange={(e) =>
+                    updateSelected({
+                      groupId: Math.max(0, Number(e.target.value) || 0),
+                    })
+                  }
+                />
+              </label>
+              <label className="check-field">
+                <input
+                  type="checkbox"
+                  checked={selectedBrick.countsForClear}
+                  onChange={(e) =>
+                    updateSelected({ countsForClear: e.target.checked })
+                  }
+                />
+                <span>
+                  {ar
+                    ? "يُحتسب لإنهاء المرحلة"
+                    : "Counts for stage clear"}
+                </span>
+              </label>
+              <button
+                className="delete-brick"
+                onClick={() =>
+                  selected &&
+                  commit((d) => {
+                    d.cells[selected.row][selected.column] = null;
+                  })
+                }
+              >
+                {ar ? "حذف الطوبة" : "Delete brick"}
+              </button>
+            </div>
+          )}
+          <div className="stage-settings">
+            <h3>{ar ? "إعدادات المرحلة" : "Stage Settings"}</h3>
+            <label>
+              <span>Base HP</span>
+              <input
+                type="number"
+                min="1"
+                max="999"
+                value={stage.baseHp}
+                onChange={(e) =>
+                  commit((d) => {
+                    d.baseHp = Math.max(1, Number(e.target.value) || 1);
+                  })
+                }
+              />
+            </label>
+            <label>
+              <span>{ar ? "كرات البداية" : "Starting balls"}</span>
+              <input
+                type="number"
+                min="1"
+                max="160"
+                value={stage.startingBalls}
+                onChange={(e) =>
+                  commit((d) => {
+                    d.startingBalls = Math.max(
+                      1,
+                      Math.min(160, Number(e.target.value) || 1),
+                    );
+                  })
+                }
+              />
+            </label>
+          </div>
+          <div className="export-panel">
+            <button onClick={copyJson}>
+              {ar ? "نسخ JSON" : "Copy JSON"}
+            </button>
+            <button onClick={download} className="primary">
+              {ar ? "تنزيل ملف المرحلة" : "Download stage file"}
+            </button>
+          </div>
         </aside>
       </div>
-      {message&&<div className="editor-toast" role="status">âœ“ {message}</div>}
+      {message && (
+        <div className="editor-toast" role="status">
+          ✓ {message}
+        </div>
+      )}
     </div>
   );
 }
-
