@@ -34,7 +34,6 @@ export default function HomePage({ lang }: { lang: Lang }) {
               <div className="mt-9 flex flex-wrap gap-3">
                 <a href={GOOGLE_PLAY_URL} target="_blank" rel="noreferrer" className="store-button group"><StoreIcon /><span><small>ANDROID</small>{c.googlePlay}</span></a>
                 <a href={YOUTUBE_URL} target="_blank" rel="noreferrer" className="secondary-button"><span className="play-dot">▶</span>{c.watchGameplay}</a>
-                <Link href={`/${lang}/editor`} className="secondary-button editor-entry-button"><span className="editor-entry-icon">▦</span>{ar ? "محرر مراحل الفولي" : "VOLLEY LEVEL EDITOR"}</Link>
               </div>
             </div>
           </div>
@@ -72,7 +71,6 @@ export default function HomePage({ lang }: { lang: Lang }) {
                     <ul className="mt-7 space-y-3">{mode.points.map(point => <li key={point} className="feature-line"><span>✦</span>{point}</li>)}</ul>
                     <div className="flex flex-wrap gap-3">
                       <Link href={`/${lang}/play${accent === "volley" ? "#volley" : ""}`} className="mode-play-button">{ar ? `جرّب مرحلة ${mode.label}` : `PLAY A ${mode.label} STAGE`} <span>↗</span></Link>
-                      {accent === "volley" && <Link href={`/${lang}/editor`} className="mode-play-button editor-mode-button">▦ {ar ? "افتح محرر المراحل" : "OPEN LEVEL EDITOR"}</Link>}
                     </div>
                   </div>
                 </article>

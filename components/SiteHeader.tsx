@@ -40,7 +40,6 @@ export default function SiteHeader({ lang }: { lang: Lang }) {
           <Link className="nav-link" href={`${home}#modes`}>{c.nav.modes}</Link>
           <Link className="nav-link" href={`${home}#bosses`}>{c.nav.bosses}</Link>
           <Link className="nav-link" href={`${home}/play`}>{c.nav.gameplay}</Link>
-          <Link className="nav-link" href={`${home}/editor`}>{lang === "ar" ? "محرر المراحل" : "Level editor"}</Link>
           <Link className="nav-link" href={`${home}#gallery`}>{c.nav.gallery}</Link>
           <Link className="nav-link" href={`${home}/rules`}>{c.nav.rules}</Link>
         </nav>
@@ -50,7 +49,7 @@ export default function SiteHeader({ lang }: { lang: Lang }) {
         <button className="mobile-menu-button lg:hidden" aria-expanded={menuOpen} aria-controls="mobile-menu" onClick={() => setMenuOpen(v => !v)}><span /><span /><span /></button>
       </div>
       <nav id="mobile-menu" className={`mobile-menu lg:hidden ${menuOpen ? "open" : ""}`} aria-label="Mobile navigation">
-        <Link onClick={() => setMenuOpen(false)} href={home}>{c.nav.home}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}#modes`}>{c.nav.modes}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}#bosses`}>{c.nav.bosses}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}/play`}>{c.nav.gameplay}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}/editor`}>{lang === "ar" ? "محرر المراحل" : "Level editor"}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}#gallery`}>{c.nav.gallery}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}/rules`}>{c.nav.rules}</Link>
+        <Link onClick={() => setMenuOpen(false)} href={home}>{c.nav.home}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}#modes`}>{c.nav.modes}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}#bosses`}>{c.nav.bosses}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}/play`}>{c.nav.gameplay}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}#gallery`}>{c.nav.gallery}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}/rules`}>{c.nav.rules}</Link>
       </nav>
       <div className="scroll-progress" style={{ width: `${progress}%` }} />
     </header>

@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import SpriteSheetCutter, { type CustomEditorSprite } from "@/components/SpriteSheetCutter";
 import {
   BRICK_TYPES,
   EDITOR_COLUMNS,
@@ -170,11 +171,13 @@ function AtlasSprite({
   sheet,
   slices,
   spriteName,
+  customSource,
 }: {
   type: VolleyBrickType;
   sheet: string;
   slices: AtlasSlice[];
   spriteName?: string;
+  customSource?: string;
 }) {
   const slice =
     (spriteName && slices.find((item) => item.name === spriteName)) ||
@@ -182,7 +185,7 @@ function AtlasSprite({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !slice || !sheet) return;
+    if (!canvas || !slice || !sheet || customSource) return;
     const image = new Image();
     image.onload = () => {
       const context = canvas.getContext("2d");
@@ -206,7 +209,9 @@ function AtlasSprite({
     return () => {
       image.onload = null;
     };
-  }, [sheet, slice?.name, slice?.x, slice?.y, slice?.width, slice?.height]);
+  }, [customSource, sheet, slice?.name, slice?.x, slice?.y, slice?.width, slice?.height]);
+  if (customSource)
+    return <img src={customSource} className="atlas-sprite" alt="" aria-hidden="true" />;
   if (!slice)
     return (
       <span
@@ -265,6 +270,8 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
   const [brushType, setBrushType] = useState<VolleyBrickType>("CRYSTAL_BLUE");
   const [brushHp, setBrushHp] = useState(3);
   const [brushSprite, setBrushSprite] = useState<string | undefined>();
+  const [brushCustomSprite, setBrushCustomSprite] = useState<CustomEditorSprite | null>(null);
+  const [workspace, setWorkspace] = useState<"editor" | "sprites">("editor");
   const [message, setMessage] = useState("");
   const [atlasSlices, setAtlasSlices] = useState<AtlasSlice[]>([]);
   const undoRef = useRef<EditorStage[]>([]);
@@ -398,7 +405,14 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
       commit((draft) => {
         draft.cells[row][column] = {
           type: brushType,
-          ...(brushSprite ? { atlasSprite: brushSprite } : {}),
+          ...(brushCustomSprite
+            ? {
+                customSpriteDataUrl: brushCustomSprite.dataUrl,
+                customSpriteName: brushCustomSprite.name,
+              }
+            : brushSprite
+              ? { atlasSprite: brushSprite }
+              : {}),
           hp: brushHp,
           shape: "RECTANGLE",
           groupId: 0,
@@ -448,6 +462,8 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
                 shieldLock: Boolean(brick.shieldLock),
                 hazardKind: brick.hazardKind ?? null,
                 atlasSprite: brick.atlasSprite ?? null,
+                customSpriteDataUrl: brick.customSpriteDataUrl ?? null,
+                customSpriteName: brick.customSpriteName ?? null,
               },
             ]
           : [],
@@ -626,6 +642,26 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
         </div>
       </header>
 
+      <nav className="editor-workspace-tabs" aria-label={ar ? "أدوات الأدمن" : "Admin tools"}>
+        <button className={workspace === "editor" ? "active" : ""} onClick={() => setWorkspace("editor")}>▦ {ar ? "محرر المراحل" : "Level editor"}</button>
+        <button className={workspace === "sprites" ? "active" : ""} onClick={() => setWorkspace("sprites")}>✂ {ar ? "تقطيع Sprite Sheet" : "Sprite sheet cutter"}</button>
+      </nav>
+
+      {workspace === "sprites" ? (
+        <SpriteSheetCutter
+          lang={lang}
+          onUseSprite={(sprite) => {
+            setBrushCustomSprite(sprite);
+            setBrushSprite(undefined);
+            setBrushType("CRYSTAL_GREEN");
+            setTool("draw");
+            setWorkspace("editor");
+            flash(ar ? `تم اختيار ${sprite.name} للرسم` : `${sprite.name} is ready to draw`);
+          }}
+        />
+      ) : (
+      <>
+
       <section className="editor-sourcebar">
         <label>
           <span>{ar ? "العالم" : "World"}</span>
@@ -719,6 +755,13 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
               }
             />
           </label>
+          {brushCustomSprite && (
+            <div className="custom-brush-preview">
+              <img src={brushCustomSprite.dataUrl} alt="" />
+              <span><b>{ar ? "قطعة مخصصة جاهزة" : "Custom sprite ready"}</b><small>{brushCustomSprite.name}</small></span>
+              <button onClick={() => setBrushCustomSprite(null)}>×</button>
+            </div>
+          )}
           <div className="atlas-palette-caption">
             {ar
               ? `كل ${atlasSlices.length} إطارًا من أطلس العالم ${world} • اختر الصورة ثم ارسم`
@@ -732,6 +775,7 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
                 className={brushSprite === slice.name ? "active" : ""}
                 onClick={() => {
                   setBrushSprite(slice.name);
+                  setBrushCustomSprite(null);
                   setBrushType("CRYSTAL_GREEN");
                   setTool("draw");
                 }}
@@ -873,6 +917,7 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
                             }
                             slices={atlasSlices}
                             spriteName={brick.atlasSprite}
+                            customSource={brick.customSpriteDataUrl}
                           />
                           <b>{brick.hp >= 999 ? "∞" : brick.hp}</b>
                           <small>{shortName(brick.type)}</small>
@@ -1086,6 +1131,8 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
           </div>
         </aside>
       </div>
+      </>
+      )}
       {message && (
         <div className="editor-toast" role="status">
           ✓ {message}
