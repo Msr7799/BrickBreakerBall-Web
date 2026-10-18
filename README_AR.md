@@ -39,8 +39,11 @@
 ---
 
 <p>
+
 <img src="public/game/volley-Bosses/1.png" alt="زعيم الغابة الغامضة في الفولي" width="190" />
+
 <img src="public/game/volley-Bosses/9.png" alt="زعيم الكسوف الأخير في الفولي" width="190" />
+
 </p>
 
 <p>
