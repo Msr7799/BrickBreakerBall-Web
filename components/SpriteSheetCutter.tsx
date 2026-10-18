@@ -257,6 +257,7 @@ export default function SpriteSheetCutter({
   const [selectedPoint, setSelectedPoint] = useState<number | null>(null);
   const [settings, setSettings] = useState<Settings>(defaults);
   const [busy, setBusy] = useState(false);
+  const [exportingZip, setExportingZip] = useState(false);
   const [error, setError] = useState("");
   const [gridColumns, setGridColumns] = useState(8);
   const [gridRows, setGridRows] = useState(8);
@@ -676,6 +677,56 @@ export default function SpriteSheetCutter({
     anchor.click();
   };
 
+  const deleteRegion = (id: string) => {
+    setRegions((current) => current.filter((region) => region.id !== id));
+    if (selectedId === id) {
+      setSelectedId(null);
+      setSelectedPoint(null);
+    }
+  };
+
+  const downloadZip = async () => {
+    if (!sheet || exportingZip) return;
+    setExportingZip(true);
+    setError("");
+    try {
+      const { default: JSZip } = await import("jszip");
+      const zip = new JSZip();
+      const imageType = /^data:image\/(png|jpeg|webp);base64,/.exec(sheet.url)?.[1];
+      if (!imageType) throw new Error(ar ? "تعذر قراءة الصورة للتصدير." : "Could not read the image for export.");
+      const baseName = sheet.name.replace(/\.[^.]+$/, "").replace(/[^\p{L}\p{N}._-]+/gu, "_") || "sprite-sheet";
+      const imageName = `${baseName}.${imageType === "jpeg" ? "jpg" : imageType}`;
+      zip.file(imageName, sheet.url.slice(sheet.url.indexOf(",") + 1), { base64: true });
+      zip.file(`${baseName}.json`, JSON.stringify({
+        version: 1,
+        image: { file: imageName, width: sheet.width, height: sheet.height },
+        coordinates: "pixels from top-left of original image",
+        sprites: regions.map((region, index) => ({
+          index: index + 1,
+          id: region.id,
+          x: region.x,
+          y: region.y,
+          width: region.w,
+          height: region.h,
+          ...(region.points ? { points: region.points } : {}),
+        })),
+      }, null, 2));
+      const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `${baseName}.zip`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : String(caught));
+    } finally {
+      setExportingZip(false);
+    }
+  };
+
   const draft = dragStart && dragEnd ? {
     x: Math.min(dragStart.x, dragEnd.x),
     y: Math.min(dragStart.y, dragEnd.y),
@@ -705,6 +756,9 @@ export default function SpriteSheetCutter({
           </button>
           <button disabled={cloudStatus === "loading"} onClick={() => void restoreCloudWorkspace(true)}>
             {ar ? "استعادة" : "Restore"}
+          </button>
+          <button disabled={!sheet || exportingZip} onClick={() => void downloadZip()}>
+            {exportingZip ? (ar ? "جارٍ تجهيز ZIP…" : "Preparing ZIP…") : (ar ? "تنزيل ZIP (الصورة + JSON)" : "Download ZIP (image + JSON)")}
           </button>
           <button className="primary" onClick={() => fileRef.current?.click()}>{ar ? "رفع Sprite Sheet" : "Upload sprite sheet"}</button>
         </div>
@@ -824,7 +878,7 @@ export default function SpriteSheetCutter({
                   <span dir="ltr">{selected.points ? `${selected.points.length} POINTS` : `X ${selected.x} · Y ${selected.y} · ${selected.w}×${selected.h}`}</span>
                   {!selected.points && <><button onClick={() => splitSelected("x")}>{ar ? "قسم يمين/يسار" : "Split left/right"}</button><button onClick={() => splitSelected("y")}>{ar ? "قسم أعلى/أسفل" : "Split top/bottom"}</button><button onClick={convertToPolygon}>{ar ? "تحويل إلى نقاط" : "Convert to path"}</button></>}
                   {selected.points && <button disabled={selectedPoint === null || selected.points.length <= 3} onClick={deleteSelectedPoint}>{ar ? "حذف النقطة" : "Delete point"}</button>}
-                  <button onClick={() => { setRegions((current) => current.filter((region) => region.id !== selected.id)); setSelectedId(null); setSelectedPoint(null); }}>{ar ? "حذف الشكل" : "Delete shape"}</button>
+                  <button onClick={() => deleteRegion(selected.id)}>{ar ? "حذف المكوّن" : "Delete sprite"}</button>
                   <button onClick={downloadSelected}>{ar ? "تنزيل PNG" : "Download PNG"}</button>
                   <button className="primary" onClick={useSelected}>{ar ? "استخدامها في المحرر" : "Use in editor"}</button>
                 </div>
@@ -834,7 +888,7 @@ export default function SpriteSheetCutter({
 
           <aside className="sprite-results">
             <div><h3>{ar ? "القطع المستخرجة" : "Extracted sprites"}</h3><b>{regions.length}</b></div>
-            <div className="sprite-results-grid">{previews.map(({ region, index, dataUrl }) => <button key={region.id} className={selectedId === region.id ? "active" : ""} onClick={() => { setSelectedId(region.id); setSelectedPoint(null); setTool("select"); }}><img src={dataUrl} alt={`Sprite ${index + 1}`} /><span>{index + 1}</span></button>)}</div>
+            <div className="sprite-results-grid">{previews.map(({ region, index, dataUrl }) => <div className="sprite-result-item" key={region.id}><button className={`sprite-result-select ${selectedId === region.id ? "active" : ""}`} aria-label={ar ? `تحديد المكوّن ${index + 1}` : `Select sprite ${index + 1}`} onClick={() => { setSelectedId(region.id); setSelectedPoint(null); setTool("select"); }}><img src={dataUrl} alt="" /><span>{index + 1}</span></button><button className="sprite-result-delete" aria-label={ar ? `حذف المكوّن ${index + 1}` : `Delete sprite ${index + 1}`} title={ar ? "حذف المكوّن" : "Delete sprite"} onClick={() => deleteRegion(region.id)}>×</button></div>)}</div>
           </aside>
         </div>
       )}

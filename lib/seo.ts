@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://bricks-breaker-ball.vercel.app";
 export const SITE_NAME = "Brick Breaker Ball";
 export const DEFAULT_DESCRIPTION =
-  "Discover Brick Breaker Ball, a fantasy Android arcade adventure featuring Classic and Volley modes, 185 stages, nine Volley worlds, and epic boss battles.";
+  "Discover Brick Breaker Ball for Android: aim volleys through 90 stages across nine worlds and face a boss at the end of each world.";
 
 type Locale = "en" | "ar";
 
@@ -12,7 +12,7 @@ export function localizedMetadata({
   description,
   locale,
   path,
-  image = "/game/site/marketing/landscape-promo.png",
+  image = "/game/volley-Bosses/9.png",
 }: {
   title: string;
   description: string;
@@ -41,7 +41,7 @@ export function localizedMetadata({
       url: canonical,
       locale: locale === "ar" ? "ar_BH" : "en_US",
       alternateLocale: locale === "ar" ? ["en_US"] : ["ar_BH"],
-      images: [{ url: image, width: 1536, height: 1024, alt: "Brick Breaker Ball game artwork" }],
+      images: [{ url: image, alt: "Brick Breaker Ball Volley boss artwork" }],
     },
     twitter: {
       card: "summary_large_image",

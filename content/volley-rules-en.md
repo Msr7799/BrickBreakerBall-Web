@@ -8,7 +8,7 @@
 - Every numbered brick shows its remaining **HP**. Each normal hit removes one HP unless an active effect changes the damage.
 - Destroy every brick that counts as a stage objective to win. Permanent obstacles do not normally need to be destroyed.
 - You lose if a live objective brick or indestructible obstacle crosses the **danger line** after a turn, unless a Rescue Ward saves the run.
-- Volley does not use the moving paddle found in Classic mode.
+- Aim from the cannon at the bottom of the arena; there is no moving paddle.
 
 ## 2. Aim and Launch
 
@@ -54,7 +54,7 @@
 ![Bag, Items, 3X Speed, Recall and Pause controls](assets/volley-guide/06_game_controls.jpg)
 
 - **Bag:** view owned charms and prepare a compatible effect when permitted.
-- **Items:** opens compatible items from the shared game inventory. These are Classic items adapted by the game for use between volleys, not Volley-exclusive charms.
+- **Items:** opens compatible items from your game inventory for use between volleys.
 - **3X Speed:** press and hold while balls are in flight; release to return to normal speed.
 - **Recall:** ends the current volley early. It still consumes the turn and the wall still descends.
 - **Pause / Settings:** pause the attempt, adjust options or resume the run.
@@ -95,16 +95,16 @@
 
 ![The nine Volley worlds in campaign order](assets/volley-guide/11_nine_worlds.jpg)
 
-- **Mystery Forest:** 7 stages.
+- **Mystery Forest:** 10 stages.
 - **Venom Wilds:** 10 stages.
-- **Aqua Vortex:** 6 stages.
+- **Aqua Vortex:** 10 stages.
 - **Desert Spirits:** 10 stages.
 - **Ice Grave:** 10 stages.
 - **Tormented Souls:** 10 stages.
-- **Moon Light:** 8 stages.
+- **Moon Light:** 10 stages.
 - **Infernal Gates:** 10 stages.
 - **Final Eclipse:** 10 stages.
-- The current asset-driven campaign contains **81 Volley stages across 9 worlds**. Classic and Volley progression are tracked separately.
+- The current asset-driven campaign contains **90 Volley stages across 9 worlds**, with 10 stages in each world.
 
 ## 11. Win, Loss and Useful Tips
 

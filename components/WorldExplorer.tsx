@@ -29,7 +29,7 @@ export default function WorldExplorer({ lang }: { lang: Lang }) {
           <div className="world-modal-card">
             <button className="modal-close" onClick={() => setSelected(null)} aria-label={ar ? "إغلاق" : "Close"}>×</button>
             <div className="world-modal-image"><img src={`/game/volley-Bosses/${selected.id}.png`} alt={ar ? selected.ar : selected.en} /></div>
-            <div className="world-modal-copy"><p className="eyebrow text-[#9ae672]">VOLLEY WORLD 0{selected.id}</p><h2>{ar ? selected.ar : selected.en}</h2><p>{ar ? selected.arSub : selected.enSub}</p><div className="world-facts"><span><b>{selected.stages}</b>{ar ? "مراحل فعلية" : "authored stages"}</span><span><b>1</b>{ar ? "معركة زعيم نهائية" : "final boss battle"}</span></div><a href={`/${lang}/play#volley`} className="header-cta inline-flex">{ar ? "جرّب VOLLEY" : "PLAY VOLLEY TRIAL"}</a></div>
+            <div className="world-modal-copy"><p className="eyebrow text-[#9ae672]">VOLLEY WORLD 0{selected.id}</p><h2>{ar ? selected.ar : selected.en}</h2><p>{ar ? selected.arSub : selected.enSub}</p><div className="world-facts"><span><b>{selected.stages}</b>{ar ? "مراحل" : "stages"}</span><span><b>1</b>{ar ? "معركة زعيم نهائية" : "final boss battle"}</span></div><a href={`/${lang}/play#volley`} className="header-cta inline-flex">{ar ? "جرّب VOLLEY" : "PLAY VOLLEY TRIAL"}</a></div>
           </div>
         </div>
       )}

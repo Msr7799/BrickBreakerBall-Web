@@ -2,7 +2,7 @@
 
 [![Read in Arabic](https://img.shields.io/badge/Read_in_Arabic-README--AR.md-0f766e?style=for-the-badge)](README_AR.md)
 
-A bilingual website and playable HTML5 browser edition for **Brick Breaker Ball**. It includes the landing pages, world gallery, rules and privacy pages, plus a responsive Canvas-based game.
+A bilingual website for the Volley-only **Brick Breaker Ball** Android game. It includes a nine-world gallery, rules and privacy pages, a small playable Volley preview, and an admin stage editor.
 
 English is available at `/en` and Arabic is available at `/ar`.
 
@@ -22,32 +22,29 @@ English is available at `/en` and Arabic is available at `/ar`.
 
 ## Overview
 
-The site uses the Next.js App Router and presents the game's content and assets across desktop, tablet and mobile layouts. The play page uses HTML5 Canvas for paddle movement, ball physics, brick collisions, stages, lives, power-ups and special bricks.
+The site uses the Next.js App Router and presents the game's content and assets across desktop, tablet and mobile layouts. The play page has a small HTML5 Canvas preview of Volley aiming, ball volleys and brick collisions.
 
-This is a web adaptation rather than a direct runtime of the original LibGDX Android game. It reuses the supplied campaign structure, artwork, sounds, videos and sprite metadata in a browser-friendly implementation.
+The preview is a browser adaptation, not the LibGDX Android runtime. The Android project defines the playable 90-stage campaign; the site uses its Volley artwork and world structure.
 
 ## Features
 
 - English and Arabic interfaces with separate routes.
-- 90 campaign stages across 13 worlds.
-- Animated world backgrounds from `public/game/worlds`.
-- 60 selectable ball cosmetics from `balls_set`.
-- 36 paddle style sets, each containing `Normal`, `Weapon` and `Sticky` variants.
-- Sprite-sheet paddle rendering based on the supplied JSON frame metadata.
-- Mouse, touch, arrow-key and `A`/`D` controls.
-- Local progress and loadout persistence through `localStorage`.
+- 90 Volley campaign stages across nine worlds, with ten stages and one boss encounter per world.
+- Volley boss artwork, gameplay screenshots and stage backgrounds from the Android project.
+- Mouse and touch aiming in the small browser preview.
+- Admin Volley stage editor and sprite-sheet cutter.
 - Separate rules and privacy pages in both languages.
 - Responsive styling built with Tailwind CSS.
 
 ---
 
 <p>
-<img src="public/game/assets/sprites/spritesheet.png" alt="Brick Breaker Ball spritesheet" width="390" />
-<img src="public/game/assets/sprites/paddles-sprites/paddle-group3.png" alt="paddles" width="390" />
+<img src="public/game/volley-Bosses/1.png" alt="Mystery Forest Volley boss" width="190" />
+<img src="public/game/volley-Bosses/9.png" alt="Final Eclipse Volley boss" width="190" />
 </p>
 
 <p>
-<img src="public\game\assets\sprites\balls-sprites\balls_set\balls-sheet.png" alt="balls" width="500" />
+<img src="public/game/site/screens/volley-tormented-souls.png" alt="Volley gameplay" width="220" />
 </p>
 
 ## Routes
@@ -72,7 +69,7 @@ BrickBreakerBall-Web/
 │   ├── en/                     # English routes
 │   └── ar/                     # Arabic routes
 ├── components/                 # Site and game components
-│   ├── GameCanvas.tsx          # Canvas game, physics and loadouts
+│   ├── PlayableVolleyDemo.tsx  # Small Volley browser preview
 │   ├── PlayPage.tsx            # Play page
 │   ├── HomePage.tsx            # Home page
 │   ├── PageShell.tsx           # Shared wrapper and language direction
@@ -84,10 +81,9 @@ BrickBreakerBall-Web/
 ├── content/                   # Rules and ball metadata
 ├── lib/site.ts                # Copy, languages, worlds and links
 ├── public/game/               # Images, audio, sprites and videos
-│   ├── assets/                # Bricks, effects, power-ups and UI
-│   ├── audio/                 # Sound effects
-│   ├── sprites/               # Ball and paddle sprite sheets
-│   └── worlds/                # World videos 1.mp4 through 13.mp4
+│   ├── volley-world/          # Numbered campaign backgrounds and atlases
+│   ├── volley-Bosses/         # World boss artwork
+│   └── site/                  # Site branding and screenshots
 ├── next.config.ts             # Next.js configuration
 ├── package.json               # Scripts and dependencies
 └── pnpm-lock.yaml             # Locked dependency versions
@@ -99,11 +95,10 @@ BrickBreakerBall-Web/
 - **React 19:** component composition and interactive state.
 - **TypeScript:** typed application and asset data.
 - **Tailwind CSS 4:** responsive UI styling.
-- **HTML5 Canvas:** board, bricks, ball, paddle and HUD rendering.
+- **HTML5 Canvas:** Volley preview board, bricks, balls and HUD rendering.
 - **`requestAnimationFrame`:** game loop and physics updates.
 - **Web Audio:** brick, wall, power-up and explosion sounds.
 - **Pointer Events:** shared mouse and touch controls.
-- **`localStorage`:** stage progress and selected cosmetics.
 
 ## Local Development
 
@@ -139,10 +134,10 @@ pnpm dev
 
 ## Deployment
 
-Import the repository into Vercel and use the default Next.js settings. Add `NEXT_PUBLIC_SITE_URL` with the production URL. No database or API server is required by the current web edition.
+Import the repository into Vercel and use the default Next.js settings. Add `NEXT_PUBLIC_SITE_URL` with the production URL. The public pages are static; the admin editor uses Firebase for sign-in and cloud saves.
 
 ## Privacy and Scope
 
-The project does not include accounts, payments, advertising or third-party analytics by default. The game stores the unlocked stage, selected ball and selected paddle style in browser `localStorage`.
+Public pages do not require a player account. The admin editor uses Google sign-in through Firebase and can save stage and sprite workspace data to the configured database.
 
-The web edition supports all 90 campaign stages and uses the supplied structure and assets, but it is not intended to reproduce every native LibGDX mechanic one-to-one.
+The site presents all 90 campaign stages and offers an editable stage workspace. The playable browser preview is a small Volley demonstration; the full campaign runs in the Android app.

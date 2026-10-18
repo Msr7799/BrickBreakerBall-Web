@@ -133,7 +133,7 @@ const cannonFiles = [
   "Final_Eclipse_Cannon.png",
 ];
 
-const imageNumbers = [
+const previousImageNumbers = [
   [1, 2, 3, 4, 5, 6, 7],
   [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
   [1, 2, 3, 4, 5, 6],
@@ -144,15 +144,17 @@ const imageNumbers = [
   [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
   [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
 ];
+const imageNumbers = Array.from({ length: 9 }, () => Array.from({ length: 10 }, (_, index) => index + 1));
+const addedStages = [[1, 8], [1, 9], [1, 10], [3, 7], [3, 8], [3, 9], [3, 10], [7, 8], [7, 9]];
 
 export const EDITOR_WORLDS = [
-  { id: 1, en: "Mystery Forest", ar: "الغابة الغامضة", stages: 7 },
+  { id: 1, en: "Mystery Forest", ar: "الغابة الغامضة", stages: 10 },
   { id: 2, en: "Venom Wilds", ar: "براري السموم", stages: 10 },
-  { id: 3, en: "Aqua Vortex", ar: "دوامة المياه", stages: 6 },
+  { id: 3, en: "Aqua Vortex", ar: "دوامة المياه", stages: 10 },
   { id: 4, en: "Desert Spirits", ar: "أرواح الصحراء", stages: 10 },
   { id: 5, en: "Ice Grave", ar: "قبر الجليد", stages: 10 },
   { id: 6, en: "Tormented Souls", ar: "الأرواح المعذبة", stages: 10 },
-  { id: 7, en: "Moon Light", ar: "ضوء القمر", stages: 8 },
+  { id: 7, en: "Moon Light", ar: "ضوء القمر", stages: 10 },
   { id: 8, en: "Infernal Gates", ar: "بوابات الجحيم", stages: 10 },
   { id: 9, en: "Final Eclipse", ar: "الكسوف الأخير", stages: 10 },
 ] as const;
@@ -301,6 +303,14 @@ function levelIdFor(world: number, stage: number) {
   );
 }
 
+function formationIndexFor(world: number, stage: number) {
+  const previousPosition = previousImageNumbers[world - 1].indexOf(stage);
+  if (previousPosition >= 0) {
+    return previousImageNumbers.slice(0, world - 1).reduce((sum, values) => sum + values.length, 0) + previousPosition;
+  }
+  return 81 + addedStages.findIndex(([addedWorld, addedStage]) => addedWorld === world && addedStage === stage);
+}
+
 export function createVolleyStage(world: number, stage: number): EditorStage {
   world = Math.max(1, Math.min(9, world));
   stage = Math.max(1, Math.min(imageNumbers[world - 1].length, stage));
@@ -310,7 +320,7 @@ export function createVolleyStage(world: number, stage: number): EditorStage {
   const startingBalls =
     18 + Math.floor(((levelId - 1) * 26) / Math.max(1, totalLevels - 1));
   const bossStage = stage === imageNumbers[world - 1].length;
-  const formation = formationData[levelId - 1] ?? formationData[0];
+  const formation = formationData[formationIndexFor(world, stage)];
   const grid: Array<
     Array<{
       type: VolleyBrickType;
@@ -964,7 +974,7 @@ export function createVolleyStage(world: number, stage: number): EditorStage {
     name: `${EDITOR_WORLDS[world - 1].en} • ${bossStage ? "CORE" : labels[(stage - 1) % labels.length]}`,
     rows: EDITOR_ROWS,
     columns: EDITOR_COLUMNS,
-    backgroundAsset: `/game/volley-world/${folder}/${image}.jpg`,
+    backgroundAsset: `/game/volley-world/${folder}/${image}.webp`,
     spritesheetAsset: `/game/volley-world/${folder}/spritesheet.png`,
     atlasAsset: `/game/volley-world/${folder}/atlas.json`,
     expectedSourceSheet: expectedSourceSheets[world - 1],

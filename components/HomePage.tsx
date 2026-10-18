@@ -23,7 +23,11 @@ export default function HomePage({ lang }: { lang: Lang }) {
     <PageShell lang={lang}>
       <main>
         <section className="hero-stage relative isolate min-h-[calc(100svh-72px)] overflow-hidden">
-          <img src="/game/site/marketing/landscape-promo.png" alt="Brick Breaker Ball Classic and Volley" className="absolute inset-0 -z-30 h-full w-full object-cover object-center" />
+          <div className="hero-volley-art absolute inset-0 -z-30" aria-hidden="true">
+            <img src="/game/volley-Bosses/1.png" alt="" />
+            <img src="/game/volley-Bosses/6.png" alt="" />
+            <img src="/game/volley-Bosses/9.png" alt="" />
+          </div>
           <div className="hero-cinematic absolute inset-0 -z-20" />
           <div className="absolute inset-x-0 bottom-0 -z-10 h-56 bg-gradient-to-t from-[#06070a] to-transparent" />
           <div className="mx-auto flex min-h-[calc(100svh-72px)] max-w-[1480px] items-end px-5 pb-20 pt-32 sm:px-8 lg:items-center lg:pb-24 lg:pt-28 xl:px-12">
@@ -57,24 +61,19 @@ export default function HomePage({ lang }: { lang: Lang }) {
         <section id="modes" className="border-y border-white/8 bg-[#090c12] px-5 py-24 sm:px-8 lg:py-32">
           <div className="mx-auto max-w-[1480px]">
             <div className="mx-auto max-w-4xl text-center"><p className="eyebrow text-[#74cfff]">{c.modesKicker}</p><h2 className="section-title mt-5">{c.modesTitle}</h2></div>
-            <div className="mt-14 grid gap-6 lg:grid-cols-2">
-              {[
-                { mode: c.classic, image: "/game/site/screens/classic-formation.png", accent: "classic", num: "01" },
-                { mode: c.volley, image: "/game/site/screens/volley-tormented-souls.png", accent: "volley", num: "02" }
-              ].map(({ mode, image, accent, num }) => (
-                <article key={mode.label} className={`mode-card mode-${accent}`}>
-                  <div className="mode-shot"><img src={image} alt={mode.label} className="h-full w-full object-cover object-top" /><div className="mode-fade" /><div className="mode-number">{num}</div></div>
+            <div className="mt-14">
+                <article className="mode-card mode-volley mx-auto grid max-w-5xl lg:grid-cols-2">
+                  <div className="mode-shot"><img src="/game/site/screens/volley-tormented-souls.png" alt={ar ? "مرحلة فولي من عالم الأرواح المعذبة" : "Volley gameplay in Tormented Souls"} className="h-full w-full object-cover object-top" /><div className="mode-fade" /></div>
                   <div className="relative p-7 sm:p-10">
-                    <p className="eyebrow mode-label">{mode.label}</p>
-                    <h3 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">{mode.title}</h3>
-                    <p className="mt-5 text-[15px] leading-8 text-white/58">{mode.body}</p>
-                    <ul className="mt-7 space-y-3">{mode.points.map(point => <li key={point} className="feature-line"><span>✦</span>{point}</li>)}</ul>
+                    <p className="eyebrow mode-label">{c.volley.label}</p>
+                    <h3 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">{c.volley.title}</h3>
+                    <p className="mt-5 text-[15px] leading-8 text-white/58">{c.volley.body}</p>
+                    <ul className="mt-7 space-y-3">{c.volley.points.map(point => <li key={point} className="feature-line"><span>✦</span>{point}</li>)}</ul>
                     <div className="flex flex-wrap gap-3">
-                      <Link href={`/${lang}/play${accent === "volley" ? "#volley" : ""}`} className="mode-play-button">{ar ? `جرّب مرحلة ${mode.label}` : `PLAY A ${mode.label} STAGE`} <span>↗</span></Link>
+                      <Link href={`/${lang}/play#volley`} className="mode-play-button">{ar ? "جرّب مرحلة فولي" : "PLAY A VOLLEY STAGE"} <span>↗</span></Link>
                     </div>
                   </div>
                 </article>
-              ))}
             </div>
           </div>
         </section>
@@ -84,7 +83,7 @@ export default function HomePage({ lang }: { lang: Lang }) {
             <div className="max-w-4xl"><p className="eyebrow text-[#c785ff]">{ar ? "داخل اللعبة" : "BUILT INTO THE ADVENTURE"}</p><h2 className="section-title mt-5">{ar ? "أكثر من طريقة لكسر كل تحدٍ." : "More than one way to break every challenge."}</h2></div>
             <div className="feature-bento mt-14">
               {[
-                ["◉", ar ? "تحكم Classic" : "Classic Control", ar ? "مضرب سريع، زوايا دقيقة وقوى تغيّر إيقاع المرحلة." : "Responsive paddle control, precise angles and run-changing power-ups.", "orange"],
+                ["◉", ar ? "تصويب دقيق" : "Precision Aiming", ar ? "اختر زاوية الإطلاق للوصول إلى القراميد المحمية." : "Choose a launch angle to reach guarded bricks.", "orange"],
                 ["✦", ar ? "استراتيجية Volley" : "Volley Strategy", ar ? "صوّب مجموعة كرات كاملة وابحث عن أطول مسار ارتداد." : "Aim a complete ball volley and search for the longest ricochet route.", "violet"],
                 ["九", ar ? "تسعة عوالم خيالية" : "Nine Fantasy Worlds", ar ? "حملة Volley من الغابة الغامضة حتى الكسوف الأخير." : "A Volley campaign from Mystery Forest to the Final Eclipse.", "green"],
                 ["♛", ar ? "معارك زعماء" : "Epic Boss Battles", ar ? "نواة محمية ومواجهة أخيرة فعلية في نهاية كل عالم." : "Guarded cores and a real final encounter at the end of every world.", "red"],
@@ -102,7 +101,6 @@ export default function HomePage({ lang }: { lang: Lang }) {
             </div>
           </div>
           <WorldExplorer lang={lang} />
-          <div className="mx-auto mt-10 max-w-7xl px-5 sm:px-8"><div className="overflow-hidden rounded-[2rem] border border-white/10 bg-black/30 shadow-2xl"><img src="/game/volley-Bosses/10.png" alt="Nine epic Volley boss worlds" loading="lazy" className="h-auto w-full" /></div></div>
         </section>
 
         <GalleryLightbox lang={lang} />
@@ -110,7 +108,7 @@ export default function HomePage({ lang }: { lang: Lang }) {
         <section className="relative overflow-hidden px-5 py-24 sm:px-8 lg:py-32">
           <div className="final-glow absolute inset-0 -z-10" />
           <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.7fr_1.3fr] lg:items-center">
-            <div className="mx-auto w-full max-w-[360px] overflow-hidden rounded-[2rem] border border-white/12 bg-black/30 p-2 shadow-[0_35px_100px_rgba(0,0,0,.65)]"><img src="/game/site/marketing/portrait-promo.jpeg" alt="Brick Breaker Ball on Google Play" loading="lazy" className="h-auto w-full rounded-[1.5rem]" /></div>
+            <div className="mx-auto w-full max-w-[360px] overflow-hidden rounded-[2rem] border border-white/12 bg-black/30 p-2 shadow-[0_35px_100px_rgba(0,0,0,.65)]"><img src="/game/volley-Bosses/9.png" alt={ar ? "زعيم عالم الكسوف الأخير في لعبة الفولي" : "Final Eclipse Volley boss"} loading="lazy" className="h-auto w-full rounded-[1.5rem]" /></div>
             <div className="text-center lg:text-start">
               <p className="eyebrow text-[#74cfff]">{c.finalKicker}</p><h2 className="section-title mt-5">{c.finalTitle}</h2><p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-white/58 lg:mx-0">{c.finalBody}</p>
               <div className="mt-9 flex flex-wrap justify-center gap-3 lg:justify-start"><a href={GOOGLE_PLAY_URL} target="_blank" rel="noreferrer" className="store-button"><StoreIcon /><span><small>ANDROID</small>{c.googlePlay}</span></a><Link href={`/${lang}/rules`} className="secondary-button">{c.nav.rules}</Link></div>

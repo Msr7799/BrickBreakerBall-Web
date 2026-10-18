@@ -1,4 +1,4 @@
 import RulesPage from "@/components/RulesPage";
 import { localizedMetadata } from "@/lib/seo";
-export const metadata = localizedMetadata({ title: "Game Rules: Classic and Volley", description: "Read the rules, controls, objectives, and special mechanics for both Classic and Volley modes in Brick Breaker Ball.", locale: "en", path: "/rules" });
+export const metadata = localizedMetadata({ title: "Volley Game Rules", description: "Read Brick Breaker Ball's Volley controls, objectives, special bricks, boss battles and 90-stage campaign guide.", locale: "en", path: "/rules" });
 export default function Page() { return <RulesPage lang="en" />; }
