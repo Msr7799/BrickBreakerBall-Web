@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   },
   applicationName: SITE_NAME,
   description: DEFAULT_DESCRIPTION,
+  verification: {
+    google: "tedQd55zrvYnRtg8uOcxm7sTuI3AZhKVSyQU-2Gq9pg",
+  },
   category: "games",
   robots: {
     index: true,
