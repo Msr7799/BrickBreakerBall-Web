@@ -8,8 +8,6 @@ import {
   type ChangeEvent,
   type PointerEvent,
 } from "react";
-import { get, ref, serverTimestamp, set } from "firebase/database";
-import { firebaseAuth, firebaseDatabase } from "@/lib/firebase";
 import type { Lang } from "@/lib/site";
 
 export type CustomEditorSprite = {
@@ -50,22 +48,10 @@ type Settings = {
   cropMode: "exact" | "box";
 };
 type Tool = "select" | "rectangle" | "polygon";
-type CloudStatus = "loading" | "saving" | "saved" | "idle" | "error";
 type BoxHandle = "move" | "n" | "ne" | "e" | "se" | "s" | "sw" | "w" | "nw";
 type Transform =
   | { kind: "box"; region: Region; start: Point; handle: BoxHandle }
   | { kind: "vertex"; region: Region; pointIndex: number };
-type SpriteWorkspaceRecord = {
-  version: 1;
-  sheet: { name: string; dataUrl: string; width: number; height: number };
-  regions: Region[];
-  settings: Settings;
-  gridColumns: number;
-  gridRows: number;
-  selectedId: string | null;
-  updatedAt?: number;
-  updatedBy?: string;
-};
 
 const defaults: Settings = {
   alphaThreshold: 26,
@@ -89,11 +75,6 @@ function fileToDataUrl(file: File) {
     reader.onerror = () => reject(reader.error ?? new Error("Could not read image"));
     reader.readAsDataURL(file);
   });
-}
-
-function spriteWorkspacePath() {
-  const uid = firebaseAuth?.currentUser?.uid;
-  return uid ? `adminEditor/spriteWorkspaces/${uid}` : null;
 }
 
 function polygonArea(points: Point[]) {
@@ -265,13 +246,9 @@ export default function SpriteSheetCutter({
   const [dragStart, setDragStart] = useState<Point | null>(null);
   const [dragEnd, setDragEnd] = useState<Point | null>(null);
   const [polygonDraft, setPolygonDraft] = useState<Point[]>([]);
-  const [cloudStatus, setCloudStatus] = useState<CloudStatus>("loading");
-  const [cloudError, setCloudError] = useState("");
   const boardRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const transformRef = useRef<Transform | null>(null);
-  const cloudReadyRef = useRef(false);
-  const cloudSaveTimerRef = useRef<number | null>(null);
 
   const ratio = sheet ? Math.min(1, 920 / sheet.width, 600 / sheet.height) : 1;
   const selected = regions.find((region) => region.id === selectedId) ?? null;
@@ -286,108 +263,6 @@ export default function SpriteSheetCutter({
 
   const replaceRegion = (next: Region) =>
     setRegions((current) => current.map((region) => (region.id === next.id ? next : region)));
-
-  const restoreCloudWorkspace = async (announce = false) => {
-    const path = spriteWorkspacePath();
-    if (!firebaseDatabase || !path) {
-      setCloudStatus("error");
-      setCloudError(ar ? "جلسة Firebase غير متاحة" : "Firebase session is unavailable");
-      return;
-    }
-    cloudReadyRef.current = false;
-    setCloudStatus("loading");
-    setCloudError("");
-    try {
-      const snapshot = await get(ref(firebaseDatabase, path));
-      if (!snapshot.exists()) {
-        setCloudStatus("idle");
-        if (announce) setError(ar ? "لا يوجد مشروع قص محفوظ بعد." : "No saved cutter project yet.");
-        return;
-      }
-      const saved = snapshot.val() as SpriteWorkspaceRecord;
-      if (saved.version !== 1 || !saved.sheet?.dataUrl || !Array.isArray(saved.regions))
-        throw new Error(ar ? "بيانات المشروع السحابي غير صالحة." : "Cloud workspace data is invalid.");
-      const image = new Image();
-      image.src = saved.sheet.dataUrl;
-      await image.decode();
-      setSheet({
-        name: saved.sheet.name,
-        url: saved.sheet.dataUrl,
-        image,
-        width: saved.sheet.width,
-        height: saved.sheet.height,
-      });
-      setRegions(saved.regions);
-      setSettings({ ...defaults, ...saved.settings });
-      setGridColumns(saved.gridColumns || 8);
-      setGridRows(saved.gridRows || 8);
-      setSelectedId(saved.selectedId && saved.regions.some((region) => region.id === saved.selectedId) ? saved.selectedId : saved.regions[0]?.id ?? null);
-      setSelectedPoint(null);
-      setLabels(null);
-      setPolygonDraft([]);
-      setTool("select");
-      setCloudStatus("saved");
-      if (announce) setError("");
-    } catch (caught) {
-      const detail = caught instanceof Error ? caught.message : String(caught);
-      setCloudStatus("error");
-      setCloudError(detail);
-      if (announce) setError(detail);
-    } finally {
-      cloudReadyRef.current = true;
-    }
-  };
-
-  const saveCloudWorkspace = async (announce = false) => {
-    const path = spriteWorkspacePath();
-    const currentUser = firebaseAuth?.currentUser;
-    if (!firebaseDatabase || !path || !currentUser || !sheet) return;
-    setCloudStatus("saving");
-    setCloudError("");
-    const record: SpriteWorkspaceRecord = {
-      version: 1,
-      sheet: { name: sheet.name, dataUrl: sheet.url, width: sheet.width, height: sheet.height },
-      regions,
-      settings,
-      gridColumns,
-      gridRows,
-      selectedId,
-      updatedBy: currentUser.email ?? currentUser.uid,
-    };
-    try {
-      const payload = JSON.parse(JSON.stringify(record)) as SpriteWorkspaceRecord;
-      await set(ref(firebaseDatabase, path), { ...payload, updatedAt: serverTimestamp() });
-      try {
-        localStorage.setItem("bbb-sprite-cutter-workspace", JSON.stringify(record));
-      } catch {
-        // Firebase remains the source of truth when a large sheet exceeds localStorage.
-      }
-      setCloudStatus("saved");
-      if (announce) setError("");
-    } catch (caught) {
-      const detail = caught instanceof Error ? caught.message : String(caught);
-      setCloudStatus("error");
-      setCloudError(detail);
-      if (announce) setError(detail);
-    }
-  };
-
-  useEffect(() => {
-    void restoreCloudWorkspace();
-    // The authenticated admin identity is fixed while this component is mounted.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (!cloudReadyRef.current || !sheet) return;
-    if (cloudSaveTimerRef.current) window.clearTimeout(cloudSaveTimerRef.current);
-    setCloudStatus("saving");
-    cloudSaveTimerRef.current = window.setTimeout(() => void saveCloudWorkspace(), 1200);
-    return () => {
-      if (cloudSaveTimerRef.current) window.clearTimeout(cloudSaveTimerRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gridColumns, gridRows, regions, selectedId, settings, sheet?.name, sheet?.url]);
 
   const point = (event: PointerEvent<HTMLElement>): Point => {
     const bounds = boardRef.current!.getBoundingClientRect();
@@ -743,20 +618,12 @@ export default function SpriteSheetCutter({
           <p>{ar ? "ارسم مستطيلات أو مسارات نقطية دقيقة. تتم المعالجة محليًا داخل المتصفح." : "Draw rectangles or precise point paths. Images are processed locally in your browser."}</p>
         </div>
         <div className="sprite-project-actions">
-          <span className={`sprite-project-status ${cloudStatus}`} title={cloudError || undefined}>
+          <span className="sprite-project-status" role="status">
             <i />
-            {cloudStatus === "loading" && (ar ? "استعادة المشروع…" : "Restoring…")}
-            {cloudStatus === "saving" && (ar ? "حفظ تلقائي…" : "Auto-saving…")}
-            {cloudStatus === "saved" && (ar ? "محفوظ في السحابة" : "Saved to cloud")}
-            {cloudStatus === "idle" && (ar ? "جاهز للحفظ" : "Ready to save")}
-            {cloudStatus === "error" && (ar ? "تعذرت المزامنة" : "Sync failed")}
+            {ar
+              ? "معالجة محلية فقط — نزّل ZIP للاحتفاظ بالمشروع"
+              : "Local processing only — download ZIP to keep the project"}
           </span>
-          <button disabled={!sheet || cloudStatus === "saving"} onClick={() => void saveCloudWorkspace(true)}>
-            {ar ? "حفظ الآن" : "Save now"}
-          </button>
-          <button disabled={cloudStatus === "loading"} onClick={() => void restoreCloudWorkspace(true)}>
-            {ar ? "استعادة" : "Restore"}
-          </button>
           <button disabled={!sheet || exportingZip} onClick={() => void downloadZip()}>
             {exportingZip ? (ar ? "جارٍ تجهيز ZIP…" : "Preparing ZIP…") : (ar ? "تنزيل ZIP (الصورة + JSON)" : "Download ZIP (image + JSON)")}
           </button>

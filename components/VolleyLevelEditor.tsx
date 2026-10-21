@@ -1,9 +1,7 @@
 ﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { get, ref, serverTimestamp, set } from "firebase/database";
 import SpriteSheetCutter, { type CustomEditorSprite } from "@/components/SpriteSheetCutter";
-import { firebaseAuth, firebaseDatabase } from "@/lib/firebase";
 import {
   BRICK_TYPES,
   EDITOR_COLUMNS,
@@ -20,7 +18,6 @@ import type { Lang } from "@/lib/site";
 
 type Tool = "select" | "draw" | "erase";
 type Point = { row: number; column: number } | null;
-type CloudStatus = "loading" | "saving" | "saved" | "idle" | "error";
 type AtlasSlice = {
   name: string;
   sourceSheet: string;
@@ -332,10 +329,6 @@ function hydrateEditorStage(
   };
 }
 
-function cloudStagePath(world: number, stageNumber: number) {
-  return `adminEditor/stages/world-${world}/stage-${stageNumber}`;
-}
-
 export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
   const ar = lang === "ar";
   const [world, setWorld] = useState(1);
@@ -352,13 +345,9 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
   const [workspace, setWorkspace] = useState<"editor" | "sprites">("editor");
   const [message, setMessage] = useState("");
   const [atlasSlices, setAtlasSlices] = useState<AtlasSlice[]>([]);
-  const [cloudStatus, setCloudStatus] = useState<CloudStatus>("loading");
-  const [cloudError, setCloudError] = useState("");
   const undoRef = useRef<EditorStage[]>([]);
   const redoRef = useRef<EditorStage[]>([]);
   const importRef = useRef<HTMLInputElement>(null);
-  const cloudReadyRef = useRef(false);
-  const cloudRequestRef = useRef(0);
 
   const flash = useCallback((value: string) => {
     setMessage(value);
@@ -385,108 +374,6 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
     },
     [stageNumber, world],
   );
-
-  const loadCloud = useCallback(
-    async (announce = false) => {
-      if (!firebaseDatabase || !firebaseAuth?.currentUser) {
-        setCloudStatus("error");
-        setCloudError(ar ? "Firebase غير متصل" : "Firebase is not connected");
-        return;
-      }
-      const requestId = ++cloudRequestRef.current;
-      cloudReadyRef.current = false;
-      setCloudStatus("loading");
-      setCloudError("");
-      try {
-        const snapshot = await get(
-          ref(firebaseDatabase, cloudStagePath(world, stageNumber)),
-        );
-        if (requestId !== cloudRequestRef.current) return;
-        if (snapshot.exists()) {
-          const record = snapshot.val() as {
-            stage?: EditorStage & { formationAsset?: unknown };
-          } & EditorStage;
-          const saved = record.stage ?? record;
-          setStage(hydrateEditorStage(saved, world, stageNumber));
-          setSelected(null);
-          undoRef.current = [];
-          redoRef.current = [];
-          if (announce)
-            flash(ar ? "تم تحميل الحفظ السحابي" : "Cloud save loaded");
-          setCloudStatus("saved");
-        } else {
-          setCloudStatus("idle");
-          if (announce)
-            flash(ar ? "لا يوجد حفظ سحابي لهذه المرحلة" : "No cloud save for this stage");
-        }
-      } catch (caught) {
-        if (requestId !== cloudRequestRef.current) return;
-        const detail = caught instanceof Error ? caught.message : String(caught);
-        setCloudStatus("error");
-        setCloudError(detail);
-        if (announce)
-          flash(ar ? "تعذر تحميل الحفظ السحابي" : "Could not load cloud save");
-      } finally {
-        if (requestId === cloudRequestRef.current) cloudReadyRef.current = true;
-      }
-    },
-    [ar, flash, stageNumber, world],
-  );
-
-  const saveCloud = useCallback(
-    async (announce = false) => {
-      const currentUser = firebaseAuth?.currentUser;
-      if (!firebaseDatabase || !currentUser) {
-        setCloudStatus("error");
-        setCloudError(ar ? "انتهت جلسة الأدمن" : "The admin session has ended");
-        return;
-      }
-      setCloudStatus("saving");
-      setCloudError("");
-      try {
-        const serializableStage = JSON.parse(JSON.stringify(stage)) as EditorStage;
-        await set(ref(firebaseDatabase, cloudStagePath(world, stageNumber)), {
-          stage: serializableStage,
-          updatedAt: serverTimestamp(),
-          updatedBy: currentUser.email ?? currentUser.uid,
-        });
-        try {
-          localStorage.setItem(
-            `bbb-volley-editor-${world}-${stageNumber}`,
-            JSON.stringify(serializableStage),
-          );
-        } catch {
-          // The Firebase save already succeeded; large embedded sprites can exceed localStorage.
-        }
-        setCloudStatus("saved");
-        if (announce)
-          flash(ar ? "تم الحفظ في Firebase" : "Saved to Firebase");
-      } catch (caught) {
-        const detail = caught instanceof Error ? caught.message : String(caught);
-        setCloudStatus("error");
-        setCloudError(detail);
-        if (announce)
-          flash(ar ? "فشل الحفظ في Firebase" : "Firebase save failed");
-      }
-    },
-    [ar, flash, stage, stageNumber, world],
-  );
-
-  useEffect(() => {
-    void loadCloud();
-    return () => {
-      cloudRequestRef.current += 1;
-      cloudReadyRef.current = false;
-    };
-  }, [loadCloud]);
-
-  useEffect(() => {
-    if (!cloudReadyRef.current || !firebaseDatabase || !firebaseAuth?.currentUser)
-      return;
-    setCloudStatus("saving");
-    const timer = window.setTimeout(() => void saveCloud(), 900);
-    return () => window.clearTimeout(timer);
-  }, [saveCloud]);
 
   const undo = useCallback(() => {
     const prior = undoRef.current.pop();
@@ -738,10 +625,6 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
         : "JSON with coordinates copied",
     );
   };
-  const saveAndDownload = async () => {
-    await saveCloud(true);
-    download();
-  };
   const saveLocal = () => {
     localStorage.setItem(
       `bbb-volley-editor-${world}-${stageNumber}`,
@@ -820,32 +703,18 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
           </span>
         </div>
         <div className="editor-hero-actions">
-          <div
-            className={`editor-cloud-status ${cloudStatus}`}
-            title={cloudError || undefined}
-            role="status"
-          >
-            <i aria-hidden="true" />
-            {cloudStatus === "loading"
-              ? ar ? "تحميل Firebase…" : "Loading Firebase…"
-              : cloudStatus === "saving"
-                ? ar ? "جارٍ الحفظ…" : "Saving…"
-                : cloudStatus === "saved"
-                  ? ar ? "محفوظ في Firebase" : "Saved to Firebase"
-                  : cloudStatus === "error"
-                    ? ar ? "خطأ في Firebase" : "Firebase error"
-                    : ar ? "جاهز للحفظ" : "Ready to save"}
+          <div className="editor-public-notice" role="status">
+            {ar
+              ? "الحفظ في Firebase معطّل؛ استخدم النسخة المحلية أو نزّل JSON."
+              : "Firebase saving is disabled; use a browser backup or download JSON."}
           </div>
-          <button onClick={() => void saveCloud(true)}>
-            {ar ? "حفظ سحابي" : "Save to cloud"}
-          </button>
-          <button onClick={() => void saveAndDownload()} className="primary">
-            {ar ? "حفظ + تنزيل JSON للـAI" : "Save + download AI JSON"}
+          <button onClick={download} className="primary">
+            {ar ? "تنزيل JSON للـAI" : "Download AI JSON"}
           </button>
         </div>
       </header>
 
-      <nav className="editor-workspace-tabs" aria-label={ar ? "أدوات الأدمن" : "Admin tools"}>
+      <nav className="editor-workspace-tabs" aria-label={ar ? "أدوات المحرر" : "Editor tools"}>
         <button className={workspace === "editor" ? "active" : ""} onClick={() => setWorkspace("editor")}>▦ {ar ? "محرر المراحل" : "Level editor"}</button>
         <button className={workspace === "sprites" ? "active" : ""} onClick={() => setWorkspace("sprites")}>✂ {ar ? "تقطيع Sprite Sheet" : "Sprite sheet cutter"}</button>
       </nav>
@@ -901,9 +770,6 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
           </button>
           <button onClick={restoreLocal}>
             {ar ? "نسخة المتصفح" : "Browser backup"}
-          </button>
-          <button onClick={() => void loadCloud(true)}>
-            {ar ? "تحميل من Firebase" : "Load from Firebase"}
           </button>
           <button onClick={saveLocal}>
             {ar ? "حفظ احتياطي" : "Local backup"}
@@ -1339,11 +1205,8 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
             <button onClick={copyJson}>
               {ar ? "نسخ JSON للـAI" : "Copy AI JSON"}
             </button>
-            <button onClick={() => void saveCloud(true)}>
-              {ar ? "حفظ في Firebase" : "Save to Firebase"}
-            </button>
-            <button onClick={() => void saveAndDownload()} className="primary">
-              {ar ? "حفظ + تنزيل JSON" : "Save + download JSON"}
+            <button onClick={download} className="primary">
+              {ar ? "تنزيل JSON" : "Download JSON"}
             </button>
           </div>
         </aside>

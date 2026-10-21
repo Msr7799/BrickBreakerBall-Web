@@ -2,7 +2,7 @@
 
 [![Read in Arabic](https://img.shields.io/badge/Read_in_Arabic-README--AR.md-0f766e?style=for-the-badge)](README_AR.md)
 
-A bilingual website for the Volley-only **Brick Breaker Ball** Android game. It includes a nine-world gallery, rules and privacy pages, a small playable Volley preview, and an admin stage editor.
+A bilingual website for the Volley-only **Brick Breaker Ball** Android game. It includes a nine-world gallery, rules and privacy pages, a small playable Volley preview, and a public stage editor.
 
 English is available at `/en` and Arabic is available at `/ar`.
 
@@ -32,7 +32,7 @@ The preview is a browser adaptation, not the LibGDX Android runtime. The Android
 - 90 Volley campaign stages across nine worlds, with ten stages and one boss encounter per world.
 - Volley boss artwork, gameplay screenshots and stage backgrounds from the Android project.
 - Mouse and touch aiming in the small browser preview.
-- Admin Volley stage editor and sprite-sheet cutter.
+- Public Volley stage editor and sprite-sheet cutter.
 - Separate rules and privacy pages in both languages.
 - Responsive styling built with Tailwind CSS.
 
@@ -134,10 +134,10 @@ pnpm dev
 
 ## Deployment
 
-Import the repository into Vercel and use the default Next.js settings. Add `NEXT_PUBLIC_SITE_URL` with the production URL. The public pages are static; the admin editor uses Firebase for sign-in and cloud saves.
+Import the repository into Vercel and use the default Next.js settings. Add `NEXT_PUBLIC_SITE_URL` with the production URL. The editor is available publicly at `/en/editor` and `/ar/editor`. Changes can be saved locally in the browser or exported as JSON; the public editor does not read or write editor data in Firebase.
 
 ## Privacy and Scope
 
-Public pages do not require a player account. The admin editor uses Google sign-in through Firebase and can save stage and sprite workspace data to the configured database.
+Public pages and the editor do not require sign-in. The editor runs locally in the browser and does not write to Firebase. Firebase Realtime Database rules continue to restrict editor data access to the configured administrator.
 
 The site presents all 90 campaign stages and offers an editable stage workspace. The playable browser preview is a small Volley demonstration; the full campaign runs in the Android app.

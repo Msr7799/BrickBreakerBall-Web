@@ -10,6 +10,8 @@ const routes = [
   { path: "/ar/rules", priority: 0.65 },
   { path: "/en/privacy", priority: 0.3 },
   { path: "/ar/privacy", priority: 0.3 },
+  { path: "/en/editor", priority: 0.4 },
+  { path: "/ar/editor", priority: 0.4 },
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
