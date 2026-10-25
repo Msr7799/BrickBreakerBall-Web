@@ -122,15 +122,15 @@ const expectedSourceSheets = [
   "8.png",
 ];
 const cannonFiles = [
-  "Mystery_Forest_Cannon.png",
-  "Venom_Wilds_Cannon.png",
-  "Aqua_Vortex_Cannon.png",
-  "Desert_Spirits_Cannon.png",
-  "Ice_Grave_Cannon.png",
-  "Tormented_Souls_Cannon.png",
-  "Moon_Light_Cannon.png",
-  "Infernal_Gates_Cannon.png",
-  "Final_Eclipse_Cannon.png",
+  "Mystery_Forest_Cannon.webp",
+  "Venom_Wilds_Cannon.webp",
+  "Aqua_Vortex_Cannon.webp",
+  "Desert_Spirits_Cannon.webp",
+  "Ice_Grave_Cannon.webp",
+  "Tormented_Souls_Cannon.webp",
+  "Moon_Light_Cannon.webp",
+  "Infernal_Gates_Cannon.webp",
+  "Final_Eclipse_Cannon.webp",
 ];
 
 const previousImageNumbers = [
@@ -975,7 +975,7 @@ export function createVolleyStage(world: number, stage: number): EditorStage {
     rows: EDITOR_ROWS,
     columns: EDITOR_COLUMNS,
     backgroundAsset: `/game/volley-world/${folder}/${image}.webp`,
-    spritesheetAsset: `/game/volley-world/${folder}/spritesheet.png`,
+    spritesheetAsset: `/game/volley-world/${folder}/spritesheet.webp`,
     atlasAsset: `/game/volley-world/${folder}/atlas.json`,
     expectedSourceSheet: expectedSourceSheets[world - 1],
     cannonAsset: `/game/volley-world/${folder}/${cannonFiles[world - 1]}`,

@@ -19,18 +19,18 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
   },
-  icons: { icon: "/game/site/branding/app-icon.png" },
+  icons: { icon: "/game/site/optimized/branding/app-icon-192.webp" },
   openGraph: {
     title: `${SITE_NAME} — Volley Android Game`,
     description: DEFAULT_DESCRIPTION,
     siteName: SITE_NAME,
     url: "/en",
-    images: [{ url: "/game/volley-Bosses/9.png", alt: "Brick Breaker Ball Volley boss artwork" }],
+    images: [{ url: "/game/site/optimized/bosses/9.webp", alt: "Brick Breaker Ball Volley boss artwork" }],
     type: "website",
     locale: "en_US",
     alternateLocale: ["ar_BH"],
   },
-  twitter: { card: "summary_large_image", title: SITE_NAME, description: DEFAULT_DESCRIPTION, images: ["/game/volley-Bosses/9.png"] },
+  twitter: { card: "summary_large_image", title: SITE_NAME, description: DEFAULT_DESCRIPTION, images: ["/game/site/optimized/bosses/9.webp"] },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

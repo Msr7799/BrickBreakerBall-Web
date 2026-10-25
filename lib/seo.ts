@@ -12,7 +12,7 @@ export function localizedMetadata({
   description,
   locale,
   path,
-  image = "/game/volley-Bosses/9.png",
+  image = "/game/site/optimized/bosses/9.webp",
 }: {
   title: string;
   description: string;

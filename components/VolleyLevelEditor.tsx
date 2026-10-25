@@ -861,7 +861,7 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
                     sheet={
                       world === 5
                         ? stage.spritesheetAsset
-                        : stage.atlasAsset.replace(/\.json$/i, ".png")
+                        : stage.atlasAsset.replace(/\.json$/i, ".webp")
                     }
                     slices={atlasSlices}
                     spriteName={slice.name}
@@ -988,7 +988,7 @@ export default function VolleyLevelEditor({ lang }: { lang: Lang }) {
                             sheet={
                               world === 5
                                 ? stage.spritesheetAsset
-                                : stage.atlasAsset.replace(/\.json$/i, ".png")
+                                : stage.atlasAsset.replace(/\.json$/i, ".webp")
                             }
                             slices={atlasSlices}
                             spriteName={brick.atlasSprite}

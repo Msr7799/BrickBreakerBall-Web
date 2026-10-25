@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "reference": "/game/editor-references/stage-001.jpg",
+    "reference": "/game/editor-references/stage-001.webp",
     "rows": [
       "#.3####4#",
       ".########",
@@ -25,7 +25,7 @@
   },
   {
     "id": 2,
-    "reference": "/game/editor-references/stage-002.jpg",
+    "reference": "/game/editor-references/stage-002.webp",
     "rows": [
       "##......#",
       "#.4##441#",
@@ -49,7 +49,7 @@
   },
   {
     "id": 3,
-    "reference": "/game/editor-references/stage-003.jpg",
+    "reference": "/game/editor-references/stage-003.webp",
     "rows": [
       "#2.##....",
       "#3233#...",
@@ -73,7 +73,7 @@
   },
   {
     "id": 4,
-    "reference": "/game/editor-references/stage-004.jpg",
+    "reference": "/game/editor-references/stage-004.webp",
     "rows": [
       "#########",
       ".........",
@@ -97,7 +97,7 @@
   },
   {
     "id": 5,
-    "reference": "/game/editor-references/stage-005.jpg",
+    "reference": "/game/editor-references/stage-005.webp",
     "rows": [
       "#......2#",
       "......24#",
@@ -121,7 +121,7 @@
   },
   {
     "id": 6,
-    "reference": "/game/editor-references/stage-006.jpg",
+    "reference": "/game/editor-references/stage-006.webp",
     "rows": [
       "23###.###",
       ".##3#.###",
@@ -145,7 +145,7 @@
   },
   {
     "id": 7,
-    "reference": "/game/editor-references/stage-007.jpg",
+    "reference": "/game/editor-references/stage-007.webp",
     "rows": [
       "#########",
       "#########",
@@ -169,7 +169,7 @@
   },
   {
     "id": 8,
-    "reference": "/game/editor-references/stage-008.jpg",
+    "reference": "/game/editor-references/stage-008.webp",
     "rows": [
       "###3..2##",
       "##3####3#",
@@ -193,7 +193,7 @@
   },
   {
     "id": 9,
-    "reference": "/game/editor-references/stage-009.jpg",
+    "reference": "/game/editor-references/stage-009.webp",
     "rows": [
       "..2####1.",
       "..#1#32#.",
@@ -217,7 +217,7 @@
   },
   {
     "id": 10,
-    "reference": "/game/editor-references/stage-010.jpg",
+    "reference": "/game/editor-references/stage-010.webp",
     "rows": [
       "#########",
       "..#####1.",
@@ -241,7 +241,7 @@
   },
   {
     "id": 11,
-    "reference": "/game/editor-references/stage-011.jpg",
+    "reference": "/game/editor-references/stage-011.webp",
     "rows": [
       "#.......#",
       "....##...",
@@ -265,7 +265,7 @@
   },
   {
     "id": 12,
-    "reference": "/game/editor-references/stage-012.jpg",
+    "reference": "/game/editor-references/stage-012.webp",
     "rows": [
       "##.####2#",
       "....2....",
@@ -289,7 +289,7 @@
   },
   {
     "id": 13,
-    "reference": "/game/editor-references/stage-013.jpg",
+    "reference": "/game/editor-references/stage-013.webp",
     "rows": [
       "1..######",
       "#1..#####",
@@ -313,7 +313,7 @@
   },
   {
     "id": 14,
-    "reference": "/game/editor-references/stage-014.jpg",
+    "reference": "/game/editor-references/stage-014.webp",
     "rows": [
       "..#####.#",
       "...2###..",
@@ -337,7 +337,7 @@
   },
   {
     "id": 15,
-    "reference": "/game/editor-references/stage-015.jpg",
+    "reference": "/game/editor-references/stage-015.webp",
     "rows": [
       "..3.##.#.",
       "#########",
@@ -361,7 +361,7 @@
   },
   {
     "id": 16,
-    "reference": "/game/editor-references/stage-016.jpg",
+    "reference": "/game/editor-references/stage-016.webp",
     "rows": [
       ".##.4####",
       ".########",
@@ -385,7 +385,7 @@
   },
   {
     "id": 17,
-    "reference": "/game/editor-references/stage-017.jpg",
+    "reference": "/game/editor-references/stage-017.webp",
     "rows": [
       "##...#..#",
       "###....##",
@@ -409,7 +409,7 @@
   },
   {
     "id": 18,
-    "reference": "/game/editor-references/stage-018.jpg",
+    "reference": "/game/editor-references/stage-018.webp",
     "rows": [
       "....#####",
       "#1..####3",
@@ -433,7 +433,7 @@
   },
   {
     "id": 19,
-    "reference": "/game/editor-references/stage-019.jpg",
+    "reference": "/game/editor-references/stage-019.webp",
     "rows": [
       "#######.#",
       "#########",
@@ -457,7 +457,7 @@
   },
   {
     "id": 20,
-    "reference": "/game/editor-references/stage-020.jpg",
+    "reference": "/game/editor-references/stage-020.webp",
     "rows": [
       "#####.#..",
       "#####..##",
@@ -481,7 +481,7 @@
   },
   {
     "id": 21,
-    "reference": "/game/editor-references/stage-021.jpg",
+    "reference": "/game/editor-references/stage-021.webp",
     "rows": [
       "#########",
       ".........",
@@ -505,7 +505,7 @@
   },
   {
     "id": 22,
-    "reference": "/game/editor-references/stage-022.jpg",
+    "reference": "/game/editor-references/stage-022.webp",
     "rows": [
       "#########",
       "#########",
@@ -529,7 +529,7 @@
   },
   {
     "id": 23,
-    "reference": "/game/editor-references/stage-023.jpg",
+    "reference": "/game/editor-references/stage-023.webp",
     "rows": [
       "##..#1..#",
       "....##...",
@@ -553,7 +553,7 @@
   },
   {
     "id": 24,
-    "reference": "/game/editor-references/stage-024.jpg",
+    "reference": "/game/editor-references/stage-024.webp",
     "rows": [
       "#########",
       "#########",
@@ -577,7 +577,7 @@
   },
   {
     "id": 25,
-    "reference": "/game/editor-references/stage-025.jpg",
+    "reference": "/game/editor-references/stage-025.webp",
     "rows": [
       "4##.#33##",
       "#3.##.1#3",
@@ -601,7 +601,7 @@
   },
   {
     "id": 26,
-    "reference": "/game/editor-references/stage-026.jpg",
+    "reference": "/game/editor-references/stage-026.webp",
     "rows": [
       "##......#",
       "#####4#4#",
@@ -625,7 +625,7 @@
   },
   {
     "id": 27,
-    "reference": "/game/editor-references/stage-027.jpg",
+    "reference": "/game/editor-references/stage-027.webp",
     "rows": [
       "#########",
       "...#####.",
@@ -649,7 +649,7 @@
   },
   {
     "id": 28,
-    "reference": "/game/editor-references/stage-028.jpg",
+    "reference": "/game/editor-references/stage-028.webp",
     "rows": [
       "4.3.313##",
       "#.#.##.##",
@@ -673,7 +673,7 @@
   },
   {
     "id": 29,
-    "reference": "/game/editor-references/stage-029.jpg",
+    "reference": "/game/editor-references/stage-029.webp",
     "rows": [
       ".....1###",
       "#########",
@@ -697,7 +697,7 @@
   },
   {
     "id": 30,
-    "reference": "/game/editor-references/stage-030.jpg",
+    "reference": "/game/editor-references/stage-030.webp",
     "rows": [
       ".........",
       "....2....",
@@ -721,7 +721,7 @@
   },
   {
     "id": 31,
-    "reference": "/game/editor-references/stage-031.jpg",
+    "reference": "/game/editor-references/stage-031.webp",
     "rows": [
       "......3.2",
       "....#...#",
@@ -745,7 +745,7 @@
   },
   {
     "id": 32,
-    "reference": "/game/editor-references/stage-032.jpg",
+    "reference": "/game/editor-references/stage-032.webp",
     "rows": [
       ".........",
       "...#..4..",
@@ -769,7 +769,7 @@
   },
   {
     "id": 33,
-    "reference": "/game/editor-references/stage-033.jpg",
+    "reference": "/game/editor-references/stage-033.webp",
     "rows": [
       ".#.3#.1.3",
       "##.####.#",
@@ -793,7 +793,7 @@
   },
   {
     "id": 34,
-    "reference": "/game/editor-references/stage-034.jpg",
+    "reference": "/game/editor-references/stage-034.webp",
     "rows": [
       "###...32#",
       "#3..##..#",
@@ -817,7 +817,7 @@
   },
   {
     "id": 35,
-    "reference": "/game/editor-references/stage-035.jpg",
+    "reference": "/game/editor-references/stage-035.webp",
     "rows": [
       "...##.#.#",
       ".........",
@@ -841,7 +841,7 @@
   },
   {
     "id": 36,
-    "reference": "/game/editor-references/stage-036.jpg",
+    "reference": "/game/editor-references/stage-036.webp",
     "rows": [
       "###....##",
       "###.1..##",
@@ -865,7 +865,7 @@
   },
   {
     "id": 37,
-    "reference": "/game/editor-references/stage-037.jpg",
+    "reference": "/game/editor-references/stage-037.webp",
     "rows": [
       "##.3###.#",
       "3.##32#1#",
@@ -889,7 +889,7 @@
   },
   {
     "id": 38,
-    "reference": "/game/editor-references/stage-038.jpg",
+    "reference": "/game/editor-references/stage-038.webp",
     "rows": [
       ".........",
       ".........",
@@ -913,7 +913,7 @@
   },
   {
     "id": 39,
-    "reference": "/game/editor-references/stage-039.jpg",
+    "reference": "/game/editor-references/stage-039.webp",
     "rows": [
       "##1.#...1",
       "###4#4#.#",
@@ -937,7 +937,7 @@
   },
   {
     "id": 40,
-    "reference": "/game/editor-references/stage-040.jpg",
+    "reference": "/game/editor-references/stage-040.webp",
     "rows": [
       "###2#13..",
       "3.2###1..",
@@ -961,7 +961,7 @@
   },
   {
     "id": 41,
-    "reference": "/game/editor-references/stage-041.jpg",
+    "reference": "/game/editor-references/stage-041.webp",
     "rows": [
       "#####....",
       ".....4#.#",
@@ -985,7 +985,7 @@
   },
   {
     "id": 42,
-    "reference": "/game/editor-references/stage-042.jpg",
+    "reference": "/game/editor-references/stage-042.webp",
     "rows": [
       "#2#.#####",
       "#.#.#2###",
@@ -1009,7 +1009,7 @@
   },
   {
     "id": 43,
-    "reference": "/game/editor-references/stage-043.jpg",
+    "reference": "/game/editor-references/stage-043.webp",
     "rows": [
       ".....#3..",
       "....#####",
@@ -1033,7 +1033,7 @@
   },
   {
     "id": 44,
-    "reference": "/game/editor-references/stage-044.jpg",
+    "reference": "/game/editor-references/stage-044.webp",
     "rows": [
       "###.##.##",
       "###.##.##",
@@ -1057,7 +1057,7 @@
   },
   {
     "id": 45,
-    "reference": "/game/editor-references/stage-045.jpg",
+    "reference": "/game/editor-references/stage-045.webp",
     "rows": [
       "....#....",
       "1........",
@@ -1081,7 +1081,7 @@
   },
   {
     "id": 46,
-    "reference": "/game/editor-references/stage-046.jpg",
+    "reference": "/game/editor-references/stage-046.webp",
     "rows": [
       "....#.3..",
       "##..#...#",
@@ -1105,7 +1105,7 @@
   },
   {
     "id": 47,
-    "reference": "/game/editor-references/stage-047.jpg",
+    "reference": "/game/editor-references/stage-047.webp",
     "rows": [
       "###3##2##",
       "#########",
@@ -1129,7 +1129,7 @@
   },
   {
     "id": 48,
-    "reference": "/game/editor-references/stage-048.jpg",
+    "reference": "/game/editor-references/stage-048.webp",
     "rows": [
       "#########",
       "3.321.323",
@@ -1153,7 +1153,7 @@
   },
   {
     "id": 49,
-    "reference": "/game/editor-references/stage-049.jpg",
+    "reference": "/game/editor-references/stage-049.webp",
     "rows": [
       "4...3#..1",
       "34#1##4##",
@@ -1177,7 +1177,7 @@
   },
   {
     "id": 50,
-    "reference": "/game/editor-references/stage-050.jpg",
+    "reference": "/game/editor-references/stage-050.webp",
     "rows": [
       "######4##",
       "#####44##",
@@ -1201,7 +1201,7 @@
   },
   {
     "id": 51,
-    "reference": "/game/editor-references/stage-051.jpg",
+    "reference": "/game/editor-references/stage-051.webp",
     "rows": [
       "....2#34#",
       "....#34#3",
@@ -1225,7 +1225,7 @@
   },
   {
     "id": 52,
-    "reference": "/game/editor-references/stage-052.jpg",
+    "reference": "/game/editor-references/stage-052.webp",
     "rows": [
       "#########",
       "#########",
@@ -1249,7 +1249,7 @@
   },
   {
     "id": 53,
-    "reference": "/game/editor-references/stage-053.jpg",
+    "reference": "/game/editor-references/stage-053.webp",
     "rows": [
       "3..2#41.2",
       "#3.####.#",
@@ -1273,7 +1273,7 @@
   },
   {
     "id": 54,
-    "reference": "/game/editor-references/stage-054.jpg",
+    "reference": "/game/editor-references/stage-054.webp",
     "rows": [
       "#####...#",
       "#####...#",
@@ -1297,7 +1297,7 @@
   },
   {
     "id": 55,
-    "reference": "/game/editor-references/stage-055.jpg",
+    "reference": "/game/editor-references/stage-055.webp",
     "rows": [
       ".....####",
       "....##...",
@@ -1321,7 +1321,7 @@
   },
   {
     "id": 56,
-    "reference": "/game/editor-references/stage-056.jpg",
+    "reference": "/game/editor-references/stage-056.webp",
     "rows": [
       "####..###",
       "##3.##.2#",
@@ -1345,7 +1345,7 @@
   },
   {
     "id": 57,
-    "reference": "/game/editor-references/stage-057.jpg",
+    "reference": "/game/editor-references/stage-057.webp",
     "rows": [
       "1.3#2..##",
       "#......2#",
@@ -1369,7 +1369,7 @@
   },
   {
     "id": 58,
-    "reference": "/game/editor-references/stage-058.jpg",
+    "reference": "/game/editor-references/stage-058.webp",
     "rows": [
       "#.....2#.",
       "###.####.",
@@ -1393,7 +1393,7 @@
   },
   {
     "id": 59,
-    "reference": "/game/editor-references/stage-059.jpg",
+    "reference": "/game/editor-references/stage-059.webp",
     "rows": [
       "#....#4##",
       "......###",
@@ -1417,7 +1417,7 @@
   },
   {
     "id": 60,
-    "reference": "/game/editor-references/stage-060.jpg",
+    "reference": "/game/editor-references/stage-060.webp",
     "rows": [
       "#2#######",
       ".........",
@@ -1441,7 +1441,7 @@
   },
   {
     "id": 61,
-    "reference": "/game/editor-references/stage-061.jpg",
+    "reference": "/game/editor-references/stage-061.webp",
     "rows": [
       "#3##.####",
       "####1####",
@@ -1465,7 +1465,7 @@
   },
   {
     "id": 62,
-    "reference": "/game/editor-references/stage-062.jpg",
+    "reference": "/game/editor-references/stage-062.webp",
     "rows": [
       "#########",
       ".####..4#",
@@ -1489,7 +1489,7 @@
   },
   {
     "id": 63,
-    "reference": "/game/editor-references/stage-063.jpg",
+    "reference": "/game/editor-references/stage-063.webp",
     "rows": [
       ".##.....#",
       "3##.###.#",
@@ -1513,7 +1513,7 @@
   },
   {
     "id": 64,
-    "reference": "/game/editor-references/stage-064.jpg",
+    "reference": "/game/editor-references/stage-064.webp",
     "rows": [
       "#22#####.",
       "##2######",
@@ -1537,7 +1537,7 @@
   },
   {
     "id": 65,
-    "reference": "/game/editor-references/stage-065.jpg",
+    "reference": "/game/editor-references/stage-065.webp",
     "rows": [
       "#####4###",
       "####3244#",
@@ -1561,7 +1561,7 @@
   },
   {
     "id": 66,
-    "reference": "/game/editor-references/stage-066.jpg",
+    "reference": "/game/editor-references/stage-066.webp",
     "rows": [
       "...####.#",
       "1.2####14",
@@ -1585,7 +1585,7 @@
   },
   {
     "id": 67,
-    "reference": "/game/editor-references/stage-067.jpg",
+    "reference": "/game/editor-references/stage-067.webp",
     "rows": [
       "###3###2#",
       "#####.2##",
@@ -1609,7 +1609,7 @@
   },
   {
     "id": 68,
-    "reference": "/game/editor-references/stage-068.jpg",
+    "reference": "/game/editor-references/stage-068.webp",
     "rows": [
       "#########",
       ".########",
@@ -1633,7 +1633,7 @@
   },
   {
     "id": 69,
-    "reference": "/game/editor-references/stage-069.jpg",
+    "reference": "/game/editor-references/stage-069.webp",
     "rows": [
       "2##2##2##",
       ".########",
@@ -1657,7 +1657,7 @@
   },
   {
     "id": 70,
-    "reference": "/game/editor-references/stage-070.jpg",
+    "reference": "/game/editor-references/stage-070.webp",
     "rows": [
       ".....2#..",
       "##..#....",
@@ -1681,7 +1681,7 @@
   },
   {
     "id": 71,
-    "reference": "/game/editor-references/stage-071.jpg",
+    "reference": "/game/editor-references/stage-071.webp",
     "rows": [
       "######3..",
       "#####3#..",
@@ -1705,7 +1705,7 @@
   },
   {
     "id": 72,
-    "reference": "/game/editor-references/stage-072.jpg",
+    "reference": "/game/editor-references/stage-072.webp",
     "rows": [
       ".....4##3",
       "...4###3.",
@@ -1729,7 +1729,7 @@
   },
   {
     "id": 73,
-    "reference": "/game/editor-references/stage-073.jpg",
+    "reference": "/game/editor-references/stage-073.webp",
     "rows": [
       "#########",
       ".....####",
@@ -1753,7 +1753,7 @@
   },
   {
     "id": 74,
-    "reference": "/game/editor-references/stage-074.jpg",
+    "reference": "/game/editor-references/stage-074.webp",
     "rows": [
       ".........",
       "..##..#..",
@@ -1777,7 +1777,7 @@
   },
   {
     "id": 75,
-    "reference": "/game/editor-references/stage-075.jpg",
+    "reference": "/game/editor-references/stage-075.webp",
     "rows": [
       ".2#....#3",
       "4##....##",
@@ -1801,7 +1801,7 @@
   },
   {
     "id": 76,
-    "reference": "/game/editor-references/stage-076.jpg",
+    "reference": "/game/editor-references/stage-076.webp",
     "rows": [
       "###.#332#",
       "#34##4#1#",
@@ -1825,7 +1825,7 @@
   },
   {
     "id": 77,
-    "reference": "/game/editor-references/stage-077.jpg",
+    "reference": "/game/editor-references/stage-077.webp",
     "rows": [
       "#####41..",
       ".##.21..#",
@@ -1849,7 +1849,7 @@
   },
   {
     "id": 78,
-    "reference": "/game/editor-references/stage-078.jpg",
+    "reference": "/game/editor-references/stage-078.webp",
     "rows": [
       "#...#1..#",
       "..4####1.",
@@ -1873,7 +1873,7 @@
   },
   {
     "id": 79,
-    "reference": "/game/editor-references/stage-079.jpg",
+    "reference": "/game/editor-references/stage-079.webp",
     "rows": [
       "2########",
       "#########",
@@ -1897,7 +1897,7 @@
   },
   {
     "id": 80,
-    "reference": "/game/editor-references/stage-080.jpg",
+    "reference": "/game/editor-references/stage-080.webp",
     "rows": [
       "#########",
       "#####4###",
@@ -1921,7 +1921,7 @@
   },
   {
     "id": 81,
-    "reference": "/game/editor-references/stage-081.jpg",
+    "reference": "/game/editor-references/stage-081.webp",
     "rows": [
       ".412##343",
       "423.#3.2#",

@@ -2,7 +2,7 @@
 
 ## 1. Goal of Volley Mode
 
-![Volley arena with numbered bricks, cannon and danger line](assets/volley-guide/01_volley_arena.jpg)
+![Volley arena with numbered bricks, cannon and danger line](assets/volley-guide/01_volley_arena.webp)
 
 - Launch a complete volley of balls from the cannon at the bottom of the arena.
 - Every numbered brick shows its remaining **HP**. Each normal hit removes one HP unless an active effect changes the damage.
@@ -12,7 +12,7 @@
 
 ## 2. Aim and Launch
 
-![Aim upward and release to launch the volley](assets/volley-guide/02_aim_launch.jpg)
+![Aim upward and release to launch the volley](assets/volley-guide/02_aim_launch.webp)
 
 - Drag upward inside the arena to set the firing direction, then release to launch.
 - Balls leave the cannon one after another along the selected path.
@@ -22,7 +22,7 @@
 
 ## 3. Bricks, HP and Ricochets
 
-![Numbered bricks and angled collision surfaces](assets/volley-guide/03_hp_and_bounces.jpg)
+![Numbered bricks and angled collision surfaces](assets/volley-guide/03_hp_and_bounces.webp)
 
 - The number on a brick is its remaining HP.
 - Triangular bricks have real angled collision surfaces and deflect balls differently from rectangular bricks.
@@ -32,7 +32,7 @@
 
 ## 4. First Return and the Next Launch
 
-![The first returning ball selects the next launch position](assets/volley-guide/04_first_return.jpg)
+![The first returning ball selects the next launch position](assets/volley-guide/04_first_return.webp)
 
 - The first ball that returns naturally to the floor records its horizontal position.
 - After all balls return, that point normally becomes the next launch position.
@@ -41,7 +41,7 @@
 
 ## 5. Turns, Descent and the Danger Line
 
-![The wall descends after a completed turn](assets/volley-guide/05_wall_descends.jpg)
+![The wall descends after a completed turn](assets/volley-guide/05_wall_descends.webp)
 
 - Every completed or recalled volley consumes one turn.
 - After the volley resolves, surviving bricks, rails and live bonus nodes descend by one row.
@@ -51,7 +51,7 @@
 
 ## 6. Controls
 
-![Bag, Items, 3X Speed, Recall and Pause controls](assets/volley-guide/06_game_controls.jpg)
+![Bag, Items, 3X Speed, Recall and Pause controls](assets/volley-guide/06_game_controls.webp)
 
 - **Bag:** view owned charms and prepare a compatible effect when permitted.
 - **Items:** opens compatible items from your game inventory for use between volleys.
@@ -61,7 +61,7 @@
 
 ## 7. Bonus Nodes and Pickups
 
-![Extra-ball, coin and shield bonus nodes](assets/volley-guide/07_bonus_nodes.jpg)
+![Extra-ball, coin and shield bonus nodes](assets/volley-guide/07_bonus_nodes.webp)
 
 - **+BALL:** permanently adds the displayed number of balls to later volleys in the current attempt.
 - **Carrier bricks:** may release extra balls or a positive item when destroyed.
@@ -71,7 +71,7 @@
 
 ## 8. Special Bricks
 
-![Special brick types used by Volley stages](assets/volley-guide/08_special_bricks.jpg)
+![Special brick types used by Volley stages](assets/volley-guide/08_special_bricks.webp)
 
 - **Armored:** requires sustained hits; stronger variants have greater durability.
 - **Regenerating:** restores HP between turns up to its original value.
@@ -84,7 +84,7 @@
 
 ## 9. Boss Battles
 
-![Boss portrait and four guards protecting the boss core](assets/volley-guide/10_boss_core.jpg)
+![Boss portrait and four guards protecting the boss core](assets/volley-guide/10_boss_core.webp)
 
 - The final playable stage of every world is a boss encounter.
 - Four shield guards protect the central Boss Core.
@@ -93,7 +93,7 @@
 
 ## 10. Worlds and Progression
 
-![The nine Volley worlds in campaign order](assets/volley-guide/11_nine_worlds.jpg)
+![The nine Volley worlds in campaign order](assets/volley-guide/11_nine_worlds.webp)
 
 - **Mystery Forest:** 10 stages.
 - **Venom Wilds:** 10 stages.
@@ -108,7 +108,7 @@
 
 ## 11. Win, Loss and Useful Tips
 
-![Stage-clear and danger-line-failure outcomes](assets/volley-guide/12_clear_or_fail.jpg)
+![Stage-clear and danger-line-failure outcomes](assets/volley-guide/12_clear_or_fail.webp)
 
 - **Stage Clear:** destroy all required objective bricks, even if unbreakable obstacles remain.
 - **Wall Breached:** a required or indestructible brick reaches the danger line without an available Rescue Ward.

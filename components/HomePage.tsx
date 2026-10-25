@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import GalleryLightbox from "@/components/GalleryLightbox";
 import PageShell from "@/components/PageShell";
 import WorldExplorer from "@/components/WorldExplorer";
@@ -24,9 +25,9 @@ export default function HomePage({ lang }: { lang: Lang }) {
       <main>
         <section className="hero-stage relative isolate min-h-[calc(100svh-72px)] overflow-hidden">
           <div className="hero-volley-art absolute inset-0 -z-30" aria-hidden="true">
-            <img src="/game/volley-Bosses/1.png" alt="" />
-            <img src="/game/volley-Bosses/6.png" alt="" />
-            <img src="/game/volley-Bosses/9.png" alt="" />
+            <Image src="/game/site/optimized/bosses/1.webp" alt="" width={941} height={1672} sizes="(max-width: 767px) 100vw, 33vw" priority fetchPriority="high" />
+            <Image src="/game/site/optimized/bosses/6.webp" alt="" width={941} height={1672} sizes="33vw" loading="lazy" />
+            <Image src="/game/site/optimized/bosses/9.webp" alt="" width={941} height={1672} sizes="33vw" loading="lazy" />
           </div>
           <div className="hero-cinematic absolute inset-0 -z-20" />
           <div className="absolute inset-x-0 bottom-0 -z-10 h-56 bg-gradient-to-t from-[#06070a] to-transparent" />
@@ -41,7 +42,7 @@ export default function HomePage({ lang }: { lang: Lang }) {
               </div>
             </div>
           </div>
-          <a href="#story" className="absolute bottom-7 left-1/2 hidden -translate-x-1/2 items-center gap-3 text-[10px] font-black tracking-[.25em] text-white/45 lg:flex"><span className="scroll-line" />{c.scroll}</a>
+          <a href="#story" className="absolute bottom-7 left-1/2 hidden -translate-x-1/2 items-center gap-3 text-[10px] font-black tracking-[.25em] text-white/70 lg:flex"><span className="scroll-line" />{c.scroll}</a>
         </section>
 
         <section id="story" className="relative overflow-hidden px-5 py-24 sm:px-8 lg:py-32">
@@ -53,7 +54,7 @@ export default function HomePage({ lang }: { lang: Lang }) {
               <p className="mt-7 max-w-3xl text-base leading-8 text-white/58 sm:text-lg">{c.introBody}</p>
             </div>
             <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[2rem] border border-white/10 bg-white/10">
-              {c.stats.map(([value, label]) => <div key={label} className="stat-card bg-[#0c1018] p-6 sm:p-8"><div className="display-title text-4xl text-white sm:text-6xl">{value}</div><div className="mt-2 text-[10px] font-black uppercase tracking-[.18em] text-white/40 sm:text-xs">{label}</div></div>)}
+              {c.stats.map(([value, label]) => <div key={label} className="stat-card bg-[#0c1018] p-6 sm:p-8"><div className="display-title text-4xl text-white sm:text-6xl">{value}</div><div className="mt-2 text-[10px] font-black uppercase tracking-[.18em] text-white/70 sm:text-xs">{label}</div></div>)}
             </div>
           </div>
         </section>
@@ -63,7 +64,7 @@ export default function HomePage({ lang }: { lang: Lang }) {
             <div className="mx-auto max-w-4xl text-center"><p className="eyebrow text-[#74cfff]">{c.modesKicker}</p><h2 className="section-title mt-5">{c.modesTitle}</h2></div>
             <div className="mt-14">
                 <article className="mode-card mode-volley mx-auto grid max-w-5xl lg:grid-cols-2">
-                  <div className="mode-shot"><img src="/game/site/screens/volley-tormented-souls.png" alt={ar ? "مرحلة فولي من عالم الأرواح المعذبة" : "Volley gameplay in Tormented Souls"} className="h-full w-full object-cover object-top" /><div className="mode-fade" /></div>
+                  <div className="mode-shot"><Image src="/game/site/optimized/screens/volley-tormented-souls.webp" alt={ar ? "مرحلة فولي من عالم الأرواح المعذبة" : "Volley gameplay in Tormented Souls"} width={513} height={1018} sizes="(max-width: 1023px) 100vw, 500px" loading="lazy" className="h-full w-full object-cover object-top" /><div className="mode-fade" /></div>
                   <div className="relative p-7 sm:p-10">
                     <p className="eyebrow mode-label">{c.volley.label}</p>
                     <h3 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">{c.volley.title}</h3>
@@ -108,7 +109,7 @@ export default function HomePage({ lang }: { lang: Lang }) {
         <section className="relative overflow-hidden px-5 py-24 sm:px-8 lg:py-32">
           <div className="final-glow absolute inset-0 -z-10" />
           <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.7fr_1.3fr] lg:items-center">
-            <div className="mx-auto w-full max-w-[360px] overflow-hidden rounded-[2rem] border border-white/12 bg-black/30 p-2 shadow-[0_35px_100px_rgba(0,0,0,.65)]"><img src="/game/volley-Bosses/9.png" alt={ar ? "زعيم عالم الكسوف الأخير في لعبة الفولي" : "Final Eclipse Volley boss"} loading="lazy" className="h-auto w-full rounded-[1.5rem]" /></div>
+            <div className="mx-auto w-full max-w-[360px] overflow-hidden rounded-[2rem] border border-white/12 bg-black/30 p-2 shadow-[0_35px_100px_rgba(0,0,0,.65)]"><Image src="/game/site/optimized/bosses/9.webp" alt={ar ? "زعيم عالم الكسوف الأخير في لعبة الفولي" : "Final Eclipse Volley boss"} width={941} height={1672} sizes="360px" loading="lazy" className="h-auto w-full rounded-[1.5rem]" /></div>
             <div className="text-center lg:text-start">
               <p className="eyebrow text-[#74cfff]">{c.finalKicker}</p><h2 className="section-title mt-5">{c.finalTitle}</h2><p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-white/58 lg:mx-0">{c.finalBody}</p>
               <div className="mt-9 flex flex-wrap justify-center gap-3 lg:justify-start"><a href={GOOGLE_PLAY_URL} target="_blank" rel="noreferrer" className="store-button"><StoreIcon /><span><small>ANDROID</small>{c.googlePlay}</span></a><Link href={`/${lang}/rules`} className="secondary-button">{c.nav.rules}</Link></div>

@@ -20,7 +20,7 @@
         "h": 124
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1073,
         "y": 71,
         "w": 166,
@@ -47,7 +47,7 @@
         "h": 124
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1258,
         "y": 71,
         "w": 159,
@@ -74,7 +74,7 @@
         "h": 113
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 518,
         "y": 72,
         "w": 117,
@@ -101,7 +101,7 @@
         "h": 113
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 646,
         "y": 72,
         "w": 128,
@@ -128,7 +128,7 @@
         "h": 113
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 786,
         "y": 72,
         "w": 110,
@@ -155,7 +155,7 @@
         "h": 113
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 908,
         "y": 72,
         "w": 124,
@@ -182,7 +182,7 @@
         "h": 111
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 271,
         "y": 73,
         "w": 115,
@@ -209,7 +209,7 @@
         "h": 112
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 398,
         "y": 73,
         "w": 109,
@@ -236,7 +236,7 @@
         "h": 111
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 149,
         "y": 74,
         "w": 110,
@@ -263,7 +263,7 @@
         "h": 110
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 32,
         "y": 75,
         "w": 106,
@@ -290,7 +290,7 @@
         "h": 86
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 32,
         "y": 215,
         "w": 164,
@@ -317,7 +317,7 @@
         "h": 86
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 209,
         "y": 215,
         "w": 197,
@@ -344,7 +344,7 @@
         "h": 86
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 419,
         "y": 215,
         "w": 149,
@@ -371,7 +371,7 @@
         "h": 87
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 580,
         "y": 215,
         "w": 163,
@@ -398,7 +398,7 @@
         "h": 95
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 958,
         "y": 215,
         "w": 224,
@@ -425,7 +425,7 @@
         "h": 87
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 759,
         "y": 216,
         "w": 181,
@@ -452,7 +452,7 @@
         "h": 94
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1200,
         "y": 216,
         "w": 218,
@@ -479,7 +479,7 @@
         "h": 106
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 294,
         "y": 317,
         "w": 102,
@@ -506,7 +506,7 @@
         "h": 106
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 415,
         "y": 317,
         "w": 190,
@@ -533,7 +533,7 @@
         "h": 106
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 972,
         "y": 318,
         "w": 106,
@@ -560,7 +560,7 @@
         "h": 106
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1138,
         "y": 318,
         "w": 108,
@@ -587,7 +587,7 @@
         "h": 105
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 160,
         "y": 319,
         "w": 102,
@@ -614,7 +614,7 @@
         "h": 105
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 633,
         "y": 319,
         "w": 107,
@@ -641,7 +641,7 @@
         "h": 104
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1277,
         "y": 320,
         "w": 106,
@@ -668,7 +668,7 @@
         "h": 104
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 33,
         "y": 321,
         "w": 108,
@@ -695,7 +695,7 @@
         "h": 103
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 824,
         "y": 321,
         "w": 100,
@@ -722,7 +722,7 @@
         "h": 121
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 314,
         "y": 448,
         "w": 109,
@@ -749,7 +749,7 @@
         "h": 118
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 432,
         "y": 448,
         "w": 176,
@@ -776,7 +776,7 @@
         "h": 115
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 32,
         "y": 449,
         "w": 97,
@@ -803,7 +803,7 @@
         "h": 107
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 141,
         "y": 449,
         "w": 70,
@@ -830,7 +830,7 @@
         "h": 112
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 595,
         "y": 449,
         "w": 93,
@@ -857,7 +857,7 @@
         "h": 113
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 697,
         "y": 449,
         "w": 157,
@@ -884,7 +884,7 @@
         "h": 116
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 847,
         "y": 449,
         "w": 94,
@@ -911,7 +911,7 @@
         "h": 166
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 954,
         "y": 449,
         "w": 114,
@@ -938,7 +938,7 @@
         "h": 133
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1165,
         "y": 449,
         "w": 121,
@@ -965,7 +965,7 @@
         "h": 172
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1300,
         "y": 449,
         "w": 118,
@@ -992,7 +992,7 @@
         "h": 89
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1079,
         "y": 450,
         "w": 89,
@@ -1019,7 +1019,7 @@
         "h": 103
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 225,
         "y": 453,
         "w": 96,
@@ -1046,7 +1046,7 @@
         "h": 93
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 33,
         "y": 581,
         "w": 86,
@@ -1073,7 +1073,7 @@
         "h": 94
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 239,
         "y": 581,
         "w": 84,
@@ -1100,7 +1100,7 @@
         "h": 109
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1045,
         "y": 581,
         "w": 85,
@@ -1127,7 +1127,7 @@
         "h": 169
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1142,
         "y": 581,
         "w": 69,
@@ -1154,7 +1154,7 @@
         "h": 177
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 348,
         "y": 582,
         "w": 190,
@@ -1181,7 +1181,7 @@
         "h": 124
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 724,
         "y": 595,
         "w": 139,
@@ -1208,7 +1208,7 @@
         "h": 122
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 568,
         "y": 597,
         "w": 124,
@@ -1235,7 +1235,7 @@
         "h": 113
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 889,
         "y": 645,
         "w": 145,
@@ -1262,7 +1262,7 @@
         "h": 103
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1252,
         "y": 645,
         "w": 90,
@@ -1289,7 +1289,7 @@
         "h": 103
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1350,
         "y": 645,
         "w": 70,
@@ -1316,7 +1316,7 @@
         "h": 98
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 178,
         "y": 648,
         "w": 89,
@@ -1343,7 +1343,7 @@
         "h": 97
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 79,
         "y": 649,
         "w": 86,
@@ -1370,7 +1370,7 @@
         "h": 110
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 510,
         "y": 775,
         "w": 108,
@@ -1397,7 +1397,7 @@
         "h": 110
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 638,
         "y": 775,
         "w": 113,
@@ -1424,7 +1424,7 @@
         "h": 110
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 770,
         "y": 775,
         "w": 113,
@@ -1451,7 +1451,7 @@
         "h": 110
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1300,
         "y": 775,
         "w": 118,
@@ -1478,7 +1478,7 @@
         "h": 109
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 30,
         "y": 776,
         "w": 97,
@@ -1505,7 +1505,7 @@
         "h": 108
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 140,
         "y": 776,
         "w": 94,
@@ -1532,7 +1532,7 @@
         "h": 108
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 249,
         "y": 776,
         "w": 111,
@@ -1559,7 +1559,7 @@
         "h": 108
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 378,
         "y": 776,
         "w": 113,
@@ -1586,7 +1586,7 @@
         "h": 109
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 902,
         "y": 776,
         "w": 113,
@@ -1613,7 +1613,7 @@
         "h": 109
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1035,
         "y": 776,
         "w": 117,
@@ -1640,7 +1640,7 @@
         "h": 109
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1171,
         "y": 776,
         "w": 108,
@@ -1667,7 +1667,7 @@
         "h": 110
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 30,
         "y": 911,
         "w": 208,
@@ -1694,7 +1694,7 @@
         "h": 110
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 255,
         "y": 911,
         "w": 109,
@@ -1721,7 +1721,7 @@
         "h": 109
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 379,
         "y": 912,
         "w": 106,
@@ -1748,7 +1748,7 @@
         "h": 109
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 499,
         "y": 912,
         "w": 101,
@@ -1775,7 +1775,7 @@
         "h": 109
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 612,
         "y": 912,
         "w": 101,
@@ -1802,7 +1802,7 @@
         "h": 109
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 725,
         "y": 912,
         "w": 103,
@@ -1829,7 +1829,7 @@
         "h": 109
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 955,
         "y": 912,
         "w": 114,
@@ -1856,7 +1856,7 @@
         "h": 108
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 841,
         "y": 913,
         "w": 98,
@@ -1883,7 +1883,7 @@
         "h": 108
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1088,
         "y": 913,
         "w": 105,
@@ -1910,7 +1910,7 @@
         "h": 108
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1206,
         "y": 913,
         "w": 97,
@@ -1937,7 +1937,7 @@
         "h": 108
       },
       "origin": {
-        "sheet": "spritesheet.png",
+        "sheet": "spritesheet.webp",
         "x": 1316,
         "y": 913,
         "w": 102,
@@ -1948,7 +1948,7 @@
   "meta": {
     "app": "SpriteForge Studio",
     "version": "1.0.0",
-    "image": "atlas.png",
+    "image": "atlas.webp",
     "format": "RGBA8888",
     "size": {
       "w": 1024,
