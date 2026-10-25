@@ -1,0 +1,18 @@
+/* Game rules */
+.prose-game h1 { font-size: clamp(2rem,5vw,3.6rem); font-weight: 900; margin-bottom: 1.25rem; letter-spacing: -.03em; }
+.prose-game h2 { font-size: clamp(1.45rem,3vw,2.1rem); font-weight: 850; margin: 2.6rem 0 1rem; color: #fff; }
+.prose-game h3 { font-size: 1.15rem; font-weight: 800; margin: 1.75rem 0 .7rem; color: #ffd7cc; }
+.prose-game h4 { font-size: 1rem; font-weight: 750; margin: 1.25rem 0 .55rem; color: #e7edf6; }
+.prose-game p { color: #c3ccd8; line-height: 1.9; margin: .75rem 0; }
+.prose-game ul { margin: .6rem 0 1.15rem; padding-inline-start: 1.4rem; }
+.prose-game li { color: #c3ccd8; line-height: 1.8; margin: .3rem 0; }
+.prose-game li::marker { color: #f25d22; } .prose-game strong { color: #fff; }
+.prose-game img { display: block; width: min(100%,440px); max-height: 280px; object-fit: contain; margin: 1rem auto 1.25rem; border-radius: 1.25rem; background: radial-gradient(circle,rgba(255,255,255,.07),transparent 65%); padding: 1rem; }
+.rules-mode-link { display:inline-flex; min-height:46px; align-items:center; justify-content:center; border-radius:999px; border:1px solid rgba(255,135,65,.38); background:rgba(242,93,34,.12); padding:.7rem 1.15rem; color:#fff; font-size:.88rem; font-weight:850; transition:transform .2s ease,background .2s ease,border-color .2s ease; }
+.rules-mode-link:hover { transform:translateY(-2px); background:rgba(242,93,34,.22); border-color:rgba(255,135,65,.7); }
+.rules-mode-link-volley { border-color:rgba(34,211,238,.35); background:rgba(34,211,238,.09); }
+.rules-mode-link-volley:hover { border-color:rgba(34,211,238,.65); background:rgba(34,211,238,.17); }
+.rules-section-kicker { display:inline-flex; border-radius:999px; background:rgba(242,93,34,.14); padding:.45rem .8rem; color:#ffb18e; font-size:.68rem; font-weight:900; letter-spacing:.16em; }
+.rules-section-kicker-volley { background:rgba(34,211,238,.1); color:#70e8ff; }
+.prose-game > h1:first-of-type { margin-top:1rem; }
+.rtl-prose { direction: rtl; text-align: right; } .rtl-prose ul { padding-inline-start: 0; padding-inline-end: 1.4rem; }

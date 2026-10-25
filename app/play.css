@@ -1,0 +1,13 @@
+/* Browser gameplay preview */
+.playable-demo { margin-inline: auto; max-width: 920px; }
+.demo-frame { position: relative; width: min(100%,720px); aspect-ratio: 3/4; margin-inline: auto; overflow: hidden; border: 1px solid rgba(255,255,255,.14); border-radius: 1.6rem; background: #07101c; box-shadow: 0 35px 100px rgba(0,0,0,.55); transition: box-shadow .35s, border-color .35s; }
+.demo-volley { border-color: rgba(198,76,255,.35); box-shadow: 0 35px 100px rgba(0,0,0,.55),0 0 55px rgba(183,55,234,.1); }
+.demo-frame canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+.demo-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; max-width: 720px; min-height: 66px; margin: .8rem auto 0; border: 1px solid rgba(255,255,255,.08); border-radius: 1rem; background: rgba(12,16,24,.88); padding: .75rem 1rem; }
+.demo-toolbar p { margin: 0; font-size: .78rem; font-weight: 800; color: rgba(255,255,255,.68); }
+.demo-toolbar button { flex: none; cursor: pointer; border: 1px solid rgba(255,255,255,.12); border-radius: .65rem; background: rgba(255,255,255,.07); padding: .7rem .85rem; color: white; font-size: .65rem; font-weight: 900; letter-spacing: .08em; }
+.demo-help { margin-top: .8rem; text-align: center; font-size: .72rem; color: rgba(255,255,255,.35); }
+.demo-note { display: flex; gap: 1rem; border: 1px solid rgba(255,255,255,.08); border-radius: 1.25rem; background: rgba(12,16,24,.75); padding: 1.25rem; }
+.demo-note>span { display: grid; width: 46px; height: 46px; flex: none; place-items: center; border-radius: .7rem; font-weight: 950; color: white; }
+.demo-note.volley>span { background: linear-gradient(135deg,#7746dc,#b127be); }
+.demo-note h2 { font-size: 1rem; font-weight: 950; letter-spacing: .12em; }.demo-note p { margin-top: .35rem; font-size: .8rem; line-height: 1.6; color: rgba(255,255,255,.48); }
