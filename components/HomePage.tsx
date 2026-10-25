@@ -25,7 +25,7 @@ export default function HomePage({ lang }: { lang: Lang }) {
       <main>
         <section className="hero-stage relative isolate min-h-[calc(100svh-72px)] overflow-hidden">
           <div className="hero-volley-art absolute inset-0 -z-30" aria-hidden="true">
-            <Image src="/game/site/optimized/bosses/1.webp" alt="" width={941} height={1672} sizes="(max-width: 767px) 100vw, 33vw" priority fetchPriority="high" />
+            <Image src="/game/site/optimized/bosses/1.webp" alt="" width={941} height={1672} sizes="(max-width: 767px) 100vw, 33vw" quality={60} priority fetchPriority="high" />
             <Image src="/game/site/optimized/bosses/6.webp" alt="" width={941} height={1672} sizes="33vw" loading="lazy" />
             <Image src="/game/site/optimized/bosses/9.webp" alt="" width={941} height={1672} sizes="33vw" loading="lazy" />
           </div>
@@ -64,7 +64,7 @@ export default function HomePage({ lang }: { lang: Lang }) {
             <div className="mx-auto max-w-4xl text-center"><p className="eyebrow text-[#74cfff]">{c.modesKicker}</p><h2 className="section-title mt-5">{c.modesTitle}</h2></div>
             <div className="mt-14">
                 <article className="mode-card mode-volley mx-auto grid max-w-5xl lg:grid-cols-2">
-                  <div className="mode-shot"><Image src="/game/site/optimized/screens/volley-tormented-souls.webp" alt={ar ? "مرحلة فولي من عالم الأرواح المعذبة" : "Volley gameplay in Tormented Souls"} width={513} height={1018} sizes="(max-width: 1023px) 100vw, 500px" loading="lazy" className="h-full w-full object-cover object-top" /><div className="mode-fade" /></div>
+                  <div className="mode-shot"><Image src="/game/site/optimized/screens/volley-tormented-souls.webp" alt={ar ? "مرحلة فولي من عالم الأرواح المعذبة" : "Volley gameplay in Tormented Souls"} width={513} height={1018} sizes="(max-width: 1023px) 100vw, 500px" quality={65} loading="lazy" className="h-full w-full object-cover object-top" /><div className="mode-fade" /></div>
                   <div className="relative p-7 sm:p-10">
                     <p className="eyebrow mode-label">{c.volley.label}</p>
                     <h3 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">{c.volley.title}</h3>
