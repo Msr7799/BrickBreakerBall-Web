@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import GalleryLightbox from "@/components/GalleryLightbox";
+import AdSenseBanner from "@/components/AdSenseBanner";
 import PageShell from "@/components/PageShell";
 import WorldExplorer from "@/components/WorldExplorer";
 import { copy, GOOGLE_PLAY_URL, YOUTUBE_URL, type Lang } from "@/lib/site";
@@ -58,6 +59,8 @@ export default function HomePage({ lang }: { lang: Lang }) {
             </div>
           </div>
         </section>
+
+        <AdSenseBanner lang={lang} />
 
         <section id="modes" className="border-y border-white/8 bg-[#090c12] px-5 py-24 sm:px-8 lg:py-32">
           <div className="mx-auto max-w-[1480px]">
