@@ -17,7 +17,7 @@ export default function SiteFooter({ lang }: { lang: Lang }) {
         </div>
         <div>
           <div className="footer-heading">{c.legal}</div>
-          <div className="mt-4 grid gap-3 text-sm text-white/50"><Link href={`/${lang}/rules`}>{c.nav.rules}</Link><Link href={`/${lang}/privacy`}>{c.nav.privacy}</Link><a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a></div>
+          <div className="mt-4 grid gap-3 text-sm text-white/50"><Link href={`/${lang}/rules`}>{c.nav.rules}</Link><Link href={`/${lang}/privacy`}>{c.nav.privacy}</Link><Link href={`/${lang}/terms`}>{c.nav.terms}</Link><a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a></div>
         </div>
       </div>
       <div className="border-t border-white/6 px-5 py-5 text-center text-[10px] font-bold tracking-[.14em] text-white/70">© 2026 FORGE PULSE GAMES · BRICK BREAKER BALL</div>
