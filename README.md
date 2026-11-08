@@ -56,10 +56,13 @@ The preview is a browser adaptation, not the LibGDX Android runtime. The Android
 | `/en/play` | English browser game |
 | `/en/rules` | English rules |
 | `/en/privacy` | English privacy page |
+| `/terms` | Public Terms of Service URL (English) |
+| `/en/terms` | English Terms of Service |
 | `/ar` | Arabic home page |
 | `/ar/play` | Arabic browser game |
 | `/ar/rules` | Arabic rules |
 | `/ar/privacy` | Arabic privacy page |
+| `/ar/terms` | Arabic Terms of Service |
 
 ## Project Structure
 

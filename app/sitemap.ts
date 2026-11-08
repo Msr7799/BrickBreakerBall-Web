@@ -10,6 +10,8 @@ const routes = [
   { path: "/ar/rules", priority: 0.65 },
   { path: "/en/privacy", priority: 0.3 },
   { path: "/ar/privacy", priority: 0.3 },
+  { path: "/en/terms", priority: 0.3 },
+  { path: "/ar/terms", priority: 0.3 },
   { path: "/en/editor", priority: 0.4 },
   { path: "/ar/editor", priority: 0.4 },
 ] as const;
@@ -19,7 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return routes.map(({ path, priority }) => ({
     url: `${SITE_URL}${path}`,
     lastModified,
-    changeFrequency: path.endsWith("/privacy") ? "yearly" : "monthly",
+    changeFrequency: (path.endsWith("/privacy") || path.endsWith("/terms")) ? "yearly" : "monthly",
     priority,
   }));
 }

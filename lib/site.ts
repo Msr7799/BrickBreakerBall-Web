@@ -20,7 +20,7 @@ export const volleyWorlds = [
 
 export const copy = {
   en: {
-    nav: { home: "Home", modes: "Volley", bosses: "Worlds", gameplay: "Gameplay", gallery: "Gallery", rules: "Rules", privacy: "Privacy", download: "Get the game" },
+    nav: { home: "Home", modes: "Volley", bosses: "Worlds", gameplay: "Gameplay", gallery: "Gallery", rules: "Rules", privacy: "Privacy", terms: "Terms of Service", download: "Get the game" },
     heroKicker: "FORGE PULSE GAMES PRESENTS",
     heroTitle: "AIM. LAUNCH. BREAK THE WORLD.",
     heroBody: "Aim a growing volley of balls through spectacular worlds, clear dangerous brick formations and face a boss at the end of every world.",
@@ -49,7 +49,7 @@ export const copy = {
     legal: "Legal"
   },
   ar: {
-    nav: { home: "الرئيسية", modes: "الفولي", bosses: "العوالم", gameplay: "تجربة اللعب", gallery: "المعرض", rules: "القوانين", privacy: "الخصوصية", download: "حمّل اللعبة" },
+    nav: { home: "الرئيسية", modes: "الفولي", bosses: "العوالم", gameplay: "تجربة اللعب", gallery: "المعرض", rules: "القوانين", privacy: "الخصوصية", terms: "شروط الاستخدام", download: "حمّل اللعبة" },
     heroKicker: "FORGE PULSE GAMES تقدم",
     heroTitle: "صوّب. أطلق. واكسر العالم.",
     heroBody: "صوّب وابلًا متزايدًا من الكرات عبر عوالم مذهلة، وحطّم تشكيلات القراميد وواجه زعيمًا في نهاية كل عالم.",
