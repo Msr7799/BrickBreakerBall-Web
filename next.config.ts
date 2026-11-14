@@ -17,6 +17,12 @@ export default function nextConfig(phase: string): NextConfig {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
         ],
+      }, {
+        source: "/volley/stage-gallery.html",
+        headers: [{ key: "Cache-Control", value: "no-store" }],
+      }, {
+        source: "/volley/sync-manifest.json",
+        headers: [{ key: "Cache-Control", value: "no-store" }],
       }];
     },
   };

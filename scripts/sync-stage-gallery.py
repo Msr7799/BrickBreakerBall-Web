@@ -39,11 +39,17 @@ def sync(source):
         target.write_bytes(data)
         hashes[relative] = hashlib.sha256(data).hexdigest()
 
-    for relative in sorted(files):
+    for relative in sorted(files - {"stage-gallery.html"}):
         raw = (gallery / relative).read_bytes()
         if relative in ("gallery/catalog.js", "stage-gallery-data.json"):
             raw = raw.replace(index["assetBase"].encode(), b"/volley/assets/")
         write(relative, raw)
+    # Version every dependency so a previously opened Stage Lab cannot combine
+    # an old catalog/renderer with a new deployment. Stage chunks already carry
+    # their own content hash in the filename.
+    html = re.sub(r'((?:src|href)=")(gallery/[^"?]+\.(?:js|css))(?:\?[^" ]*)?(")',
+                  lambda match: match.group(1) + match.group(2) + "?v=" + hashes[match.group(2)][:16] + match.group(3), html)
+    write("stage-gallery.html", html.encode())
     for relative in sorted(referenced_art):
         assert (assets / relative).resolve().is_relative_to(assets.resolve())
         write("assets/" + relative, (assets / relative).read_bytes())
@@ -56,6 +62,7 @@ def sync(source):
             if relative not in hashes and target.is_file():
                 target.unlink()
     summary = dict(schema=1, stages=160, balls=len(balls["balls"]), images=len(referenced_art),
+                   viewerRevision=hashes["stage-gallery.html"][:16],
                    sourceSha256=index["sourceSha256"], runtimeSha256=index["runtimeSha256"], files=hashes)
     write("sync-manifest.json", (json.dumps(summary, indent=2) + "\n").encode())
     print(f"STAGE_GALLERY_SYNC_OK: {summary['stages']} stages, {summary['balls']} balls, {summary['images']} referenced images, {len(hashes)} files")

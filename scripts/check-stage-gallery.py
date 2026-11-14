@@ -46,10 +46,13 @@ for path in index["images"]:
     assert (PUBLIC / "assets" / path).is_file()
 html = (PUBLIC / "stage-gallery.html").read_text(encoding="utf-8")
 assert "ball-picker-trigger" in html and "camera-pan" in html
-for path in re.findall(r'(?:src|href)="(gallery/[^"?]+\.(?:js|css))"', html):
-    assert (PUBLIC / path).is_file(), path
+assert manifest["viewerRevision"] == hashlib.sha256((PUBLIC / "stage-gallery.html").read_bytes()).hexdigest()[:16]
+dependencies = re.findall(r'(?:src|href)="(gallery/[^"?]+\.(?:js|css))(?:\?v=([a-f0-9]+))?"', html)
+assert len(dependencies) == 13
+for path, version in dependencies:
+    assert (PUBLIC / path).is_file() and version == manifest["files"][path][:16], path
 assert "../../app/src/main/assets/" not in (PUBLIC / "gallery/catalog.js").read_text()
-assert 'src="/volley/stage-gallery.html"' in (ROOT / "components/StageGalleryPage.tsx").read_text()
+assert 'stage-gallery.html?v=${stageLabManifest.viewerRevision}' in (ROOT / "components/StageGalleryPage.tsx").read_text()
 for lang in ("en", "ar"):
     page = (ROOT / f"app/{lang}/editor/page.tsx").read_text(encoding="utf-8")
     assert "StageGalleryPage" in page and "VolleyLevelEditor" not in page
