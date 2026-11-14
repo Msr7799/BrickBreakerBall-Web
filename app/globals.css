@@ -110,3 +110,9 @@ footer a { transition: color .2s; } footer a:hover { color: white; }
 @media (max-width: 520px) { .brand-copy { display: none; }.site-header>div:first-child { gap: .55rem; }.header-cta { margin-inline-start: auto; } }
 @media (max-width:640px) { .admin-login-button b { display:none; }.admin-login-button { width:38px; justify-content:center; padding:.4rem; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *,*::before,*::after { animation-duration: .01ms!important; animation-iteration-count: 1!important; transition-duration: .01ms!important; } .reveal-section { opacity: 1; transform: none; } }
+
+/* The campaign viewer owns its viewport and independent panels. */
+.stage-lab-page {height:100dvh; display:flex; flex-direction:column; overflow:hidden;}
+.stage-lab-page > header {flex:none;}
+.stage-lab-workspace {flex:1; min-height:0;}
+.stage-lab-frame {display:block; width:100%; height:100%; border:0; background:#101820;}

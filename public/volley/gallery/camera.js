@@ -1,0 +1,181 @@
+"use strict";
+// View coordinates only: never move bricks or change the simulation's ceiling.
+class VolleyCamera {
+  constructor() {
+    this.reset();
+  }
+  reset(top = 0, entire = false) {
+    this.top = Math.min(0, top);
+    this.baseHeight = entire ? 1720 - this.top : 1720;
+    this.zoom = 1;
+    this.x = 450;
+    this.y = entire ? (1720 + this.top) / 2 : 860;
+    this.clamp();
+  }
+  get width() {
+    return 900 / this.zoom;
+  }
+  get height() {
+    return this.baseHeight / this.zoom;
+  }
+  clamp() {
+    this.x = Math.max(this.width / 2, Math.min(900 - this.width / 2, this.x));
+    if (this.width >= 900) this.x = 450;
+    this.y = Math.max(
+      this.top + this.height / 2,
+      Math.min(1720 - this.height / 2, this.y),
+    );
+    if (this.height > 1720 - this.top) this.y = (1720 + this.top) / 2;
+  }
+  setZoom(value) {
+    this.zoom = Math.max(0.5, Math.min(4, value));
+    this.clamp();
+  }
+  pan(dx, dy) {
+    this.x += dx;
+    this.y += dy;
+    this.clamp();
+  }
+  get box() {
+    return [
+      this.x - this.width / 2,
+      this.y - this.height / 2,
+      this.width,
+      this.height,
+    ];
+  }
+}
+if (typeof module !== "undefined" && module.exports)
+  module.exports = VolleyCamera;
+if (typeof document !== "undefined") {
+  const stageCamera = new VolleyCamera();
+  window.stageCamera = stageCamera;
+  stageCamera.mode = "pan";
+  stageCamera.key = null;
+  stageCamera.drag = null;
+  stageCamera.suppressClickUntil = 0;
+  stageCamera.scale = () => {
+    const rect = $("board").getBoundingClientRect?.() || {
+      width: 900,
+      height: 1720,
+    };
+    return Math.max(
+      0.01,
+      Math.min(
+        rect.width / stageCamera.width,
+        rect.height / stageCamera.height,
+      ),
+    );
+  };
+  stageCamera.apply = () => {
+    $("board").setAttribute("viewBox", stageCamera.box.join(" "));
+    const percent = Math.round(stageCamera.zoom * 100);
+    $("zoom").value = percent;
+    $("zoom-label").textContent = percent + "%";
+    $("camera-zoom").textContent = percent + "%";
+    $("zoom-out").disabled = percent <= 50;
+    $("zoom-in").disabled = percent >= 400;
+    const scale = stageCamera.scale();
+    for (const hp of $("board").querySelectorAll(".hp")) {
+      hp.style.fontSize = Math.max(24, 14 / scale) + "px";
+      hp.style.strokeWidth = 2.5 / scale + "px";
+    }
+  };
+  stageCamera.configure = (stage, top, entire) => {
+    const key = stage.id + ":" + entire;
+    if (key !== stageCamera.key) {
+      stageCamera.reset(top, entire);
+      stageCamera.key = key;
+    } else {
+      stageCamera.top = top;
+      stageCamera.clamp();
+    }
+    stageCamera.apply();
+  };
+  stageCamera.changeZoom = (value) => {
+    stageCamera.setZoom(value);
+    stageCamera.apply();
+  };
+  stageCamera.setMode = (mode) => {
+    stageCamera.mode = mode;
+    stageCamera.drag = null;
+    for (const name of ["pan", "aim"])
+      $("camera-" + name).setAttribute("aria-pressed", String(name === mode));
+    $("board").style.cursor = mode === "pan" ? "grab" : "crosshair";
+    $("camera-help").textContent =
+      mode === "pan"
+        ? "Drag or swipe to explore. Scroll to see higher rows."
+        : "Drag to aim; release to fire. Use Pan to explore.";
+  };
+  $("zoom-in").addEventListener("click", () =>
+    stageCamera.changeZoom(stageCamera.zoom + 0.25),
+  );
+  $("zoom-out").addEventListener("click", () =>
+    stageCamera.changeZoom(stageCamera.zoom - 0.25),
+  );
+  $("camera-fit").addEventListener("click", () => {
+    stageCamera.reset(stageCamera.top, $("view").value === "all");
+    stageCamera.apply();
+  });
+  $("camera-pan").addEventListener("click", () => stageCamera.setMode("pan"));
+  $("camera-aim").addEventListener("click", () => stageCamera.setMode("aim"));
+  $("zoom").addEventListener("input", () =>
+    stageCamera.changeZoom(Number($("zoom").value) / 100),
+  );
+  $("board").addEventListener(
+    "wheel",
+    (event) => {
+      event.preventDefault();
+      if (event.ctrlKey || event.metaKey)
+        stageCamera.changeZoom(
+          stageCamera.zoom * Math.exp(-event.deltaY * 0.002),
+        );
+      else {
+        const scale = stageCamera.scale();
+        stageCamera.pan(event.deltaX / scale, event.deltaY / scale);
+        stageCamera.apply();
+      }
+    },
+    { passive: false },
+  );
+  $("board").addEventListener("pointerdown", (event) => {
+    if (stageCamera.mode !== "pan" || event.button !== 0 || stageCamera.drag)
+      return;
+    event.preventDefault();
+    stageCamera.drag = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      distance: 0,
+    };
+  });
+  $("board").addEventListener("pointermove", (event) => {
+    const drag = stageCamera.drag;
+    if (!drag || drag.id !== event.pointerId) return;
+    event.preventDefault();
+    const dx = drag.x - event.clientX,
+      dy = drag.y - event.clientY,
+      scale = stageCamera.scale();
+    drag.distance += Math.abs(dx) + Math.abs(dy);
+    // Capture only a real drag; a stationary tap must still select its brick.
+    if (drag.distance > 5 && !drag.captured) {
+      $("board").setPointerCapture(event.pointerId);
+      drag.captured = true;
+    }
+    stageCamera.pan(dx / scale, dy / scale);
+    drag.x = event.clientX;
+    drag.y = event.clientY;
+    stageCamera.apply();
+  });
+  const finish = (event) => {
+    if (stageCamera.drag?.id !== event.pointerId) return;
+    if (stageCamera.drag.distance > 5)
+      stageCamera.suppressClickUntil = Date.now() + 300;
+    stageCamera.drag = null;
+  };
+  $("board").addEventListener("pointerup", finish);
+  $("board").addEventListener("pointercancel", finish);
+  if (typeof ResizeObserver !== "undefined")
+    new ResizeObserver(() => stageCamera.apply()).observe($("frame"));
+  stageCamera.setMode("pan");
+}

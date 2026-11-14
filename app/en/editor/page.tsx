@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import VolleyEditorPage from "@/components/VolleyEditorPage";
-import "@/app/editor.css";
-export const metadata: Metadata = { title: "Volley Level Editor" };
-export default function Page() { return <VolleyEditorPage lang="en" />; }
+import StageGalleryPage from "@/components/StageGalleryPage";
+export const metadata: Metadata = { title: "Stage Lab — 160 Stages", description: "Explore and playtest all 160 current campaign stages with the game's real ball artwork and strength profiles." };
+export default function Page() { return <StageGalleryPage lang="en" />; }

@@ -45,15 +45,15 @@ export default function SiteHeader({ lang }: { lang: Lang }) {
           <Link className="nav-link" href={`${home}/rules`}>{c.nav.rules}</Link>
         </nav>
 
-        <Link href={`${home}/editor`} className="admin-login-button" aria-label={lang === "ar" ? "دخول الإدارة" : "Admin sign in"}>
-          <span aria-hidden="true">🔐</span><b>{lang === "ar" ? "دخول الإدارة" : "Admin"}</b>
+        <Link href={`${home}/editor`} className="admin-login-button" aria-label={lang === "ar" ? "تجربة المراحل" : "Stage Lab"}>
+          <span aria-hidden="true">▶</span><b>{lang === "ar" ? "تجربة المراحل" : "Stage Lab"}</b>
         </Link>
         <Link href={otherPath} className="language-button" aria-label={lang === "en" ? "العربية" : "English"}>{lang === "en" ? "ع" : "EN"}</Link>
         <a href={GOOGLE_PLAY_URL} target="_blank" rel="noreferrer" className="header-cta"><span className="hidden sm:inline">{c.nav.download}</span><span className="sm:hidden">↓</span></a>
         <button type="button" className="mobile-menu-button lg:hidden" aria-label={menuOpen ? (lang === "ar" ? "إغلاق القائمة" : "Close menu") : (lang === "ar" ? "فتح القائمة" : "Open menu")} aria-expanded={menuOpen} aria-controls="mobile-menu" onClick={() => setMenuOpen(v => !v)}><span /><span /><span /></button>
       </div>
       <nav id="mobile-menu" className={`mobile-menu lg:hidden ${menuOpen ? "open" : ""}`} aria-label="Mobile navigation">
-        <Link onClick={() => setMenuOpen(false)} href={home}>{c.nav.home}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}#modes`}>{c.nav.modes}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}#bosses`}>{c.nav.bosses}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}/play`}>{c.nav.gameplay}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}#gallery`}>{c.nav.gallery}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}/rules`}>{c.nav.rules}</Link><Link className="mobile-admin-login" onClick={() => setMenuOpen(false)} href={`${home}/editor`}>🔐 {lang === "ar" ? "دخول الإدارة" : "Admin sign in"}</Link>
+        <Link onClick={() => setMenuOpen(false)} href={home}>{c.nav.home}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}#modes`}>{c.nav.modes}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}#bosses`}>{c.nav.bosses}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}/play`}>{c.nav.gameplay}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}#gallery`}>{c.nav.gallery}</Link><Link onClick={() => setMenuOpen(false)} href={`${home}/rules`}>{c.nav.rules}</Link><Link className="mobile-admin-login" onClick={() => setMenuOpen(false)} href={`${home}/editor`}>▶ {lang === "ar" ? "تجربة المراحل" : "Stage Lab"}</Link>
       </nav>
       <div className="scroll-progress" style={{ width: `${progress}%` }} />
     </header>

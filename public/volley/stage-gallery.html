@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Brick Breaker Ball - Current 160 Stages</title>
+    <link rel="stylesheet" href="gallery/gallery.css" />
+  </head>
+  <body>
+    <header>
+      <h1>
+        BRICK BREAKER BALL
+        <span class="tag">CURRENT CAMPAIGN / 160 STAGES</span>
+      </h1>
+      <p>
+        Real source positions, sprite layers, world colors, gates and the nine
+        world bosses. Offline review; no server required.
+      </p>
+      <p class="muted">
+        Inspect stages or play them in the local browser sandbox. The sandbox
+        follows the base Volley rules; it does not replace Android playtesting.
+      </p>
+    </header>
+    <main class="shell">
+      <aside class="panel">
+        <h2>Campaign</h2>
+        <label for="world">World</label
+        ><select id="world">
+          <option value="all">All 9 worlds</option>
+        </select>
+        <div class="inline" style="margin-top: 12px">
+          <label for="jump">Stage</label
+          ><input id="jump" type="number" min="1" max="160" value="1" /><button
+            id="jump-go"
+          >
+            Go
+          </button>
+        </div>
+        <div class="inline" style="margin-top: 10px">
+          <button id="prev">&larr; Previous</button
+          ><button id="next">Next &rarr;</button>
+        </div>
+        <div id="stage-list" class="stage-list"></div>
+      </aside>
+      <section class="panel viewer-panel">
+        <div class="viewer-head">
+          <div>
+            <h2 id="title"></h2>
+            <div id="stats" class="stats"></div>
+          </div>
+          <span id="count" class="badge"></span
+          ><button id="quick-play" class="play-primary" disabled>
+            Play stage
+          </button>
+        </div>
+        <div class="badges" id="badges"></div>
+
+        <div
+          id="load-status"
+          class="loading-status"
+          role="status"
+          aria-live="polite"
+        >
+          Loading campaign index...
+        </div>
+        <button id="retry" hidden>Retry stage</button
+        ><noscript>Enable JavaScript to view the stages.</noscript>
+        <div class="camera-toolbar" role="group" aria-label="Board view">
+          <button id="zoom-out" aria-label="Zoom out">−</button>
+          <output id="camera-zoom" aria-live="polite">100%</output>
+          <button id="zoom-in" aria-label="Zoom in">+</button>
+          <button id="camera-fit">Fit</button>
+          <button id="camera-pan" aria-pressed="true">✋ Pan</button>
+          <button id="camera-aim" aria-pressed="false">➤ Aim</button>
+          <span id="camera-help"
+            >Drag or swipe to explore. Scroll to see higher rows.</span
+          >
+        </div>
+        <div class="frame" id="frame">
+          <svg
+            id="board"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 900 1720"
+            role="img"
+            aria-label="Current stage"
+            tabindex="0"
+          ></svg>
+        </div>
+        <div id="image-errors" role="status"></div>
+        <p class="muted">
+          Blue line = actual danger boundary (Y 300). Pale line = return
+          boundary (Y 118). Turn preview moves the formation only; spells,
+          slider motion and rotation are animated in Play stage. Browser spell
+          timing and effects can differ from Android.
+        </p>
+      </section>
+      <aside class="panel details-panel">
+        <h2>Play & inspect</h2>
+        <section class="play-panel" aria-label="Stage playtest">
+          <div class="ball-choice">
+            <div class="ball-picker" id="ball-picker">
+              <label id="ball-picker-label">Game ball</label>
+              <select
+                id="play-ball"
+                hidden
+                aria-hidden="true"
+                tabindex="-1"
+              ></select>
+              <button
+                type="button"
+                id="ball-picker-trigger"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-controls="ball-picker-options"
+                aria-labelledby="ball-picker-label ball-picker-name"
+              >
+                <svg
+                  id="play-ball-preview"
+                  viewBox="0 0 60 60"
+                  width="42"
+                  height="42"
+                  aria-hidden="true"
+                ></svg>
+                <span id="ball-picker-name"></span
+                ><span aria-hidden="true">▾</span>
+              </button>
+              <div id="ball-picker-popup" class="ball-picker-popup" hidden>
+                <input
+                  id="ball-picker-search"
+                  type="search"
+                  role="combobox"
+                  placeholder="Find a ball…"
+                  aria-label="Find a ball"
+                  aria-controls="ball-picker-options"
+                  aria-expanded="true"
+                  aria-autocomplete="list"
+                  autocomplete="off"
+                />
+                <div
+                  id="ball-picker-options"
+                  role="listbox"
+                  aria-labelledby="ball-picker-label"
+                ></div>
+                <p id="ball-picker-empty" hidden>No matching balls.</p>
+              </div>
+            </div>
+            <label
+              >Launch<select id="play-pattern">
+                <option value="straight">Straight</option>
+                <option value="shotgun">Shotgun</option>
+              </select></label
+            >
+          </div>
+          <div id="play-ball-stats" class="stats"></div>
+          <div class="inline">
+            <button id="play-stage" class="play-primary" disabled>
+              ▶ Play stage
+            </button>
+            <button id="play-fire" hidden>Fire volley</button>
+            <button id="play-pause" hidden>Pause</button>
+            <button id="play-recall" hidden>Recall balls</button>
+            <button id="play-restart" hidden>Restart</button>
+            <button id="play-exit" hidden>Exit test</button>
+          </div>
+          <div class="play-options">
+            <label
+              >Balls
+              <input id="play-balls" type="number" min="1" max="160" value="12"
+            /></label>
+            <label
+              >Base hit
+              <input
+                id="play-hit"
+                readonly
+                type="number"
+                min="1"
+                max="1000000"
+                value="1"
+            /></label>
+            <label
+              >Ball size
+              <select id="play-radius">
+                <option value="15">Normal</option>
+                <option value="27">Mega</option>
+              </select></label
+            >
+            <label
+              >Speed
+              <select id="play-speed">
+                <option value="1">1×</option>
+                <option value="3">3×</option>
+                <option value="10">10×</option>
+              </select></label
+            >
+          </div>
+          <details class="play-help">
+            <summary>How to play</summary>
+            <p class="muted">
+              Drag on the board and release to fire, or press Space. Restart: R.
+              Exit: Esc. Each ball uses its real base strength and stage attack
+              scaling. Changing ball restarts the test. No equipped orbs, charms
+              or saved progress.
+            </p>
+          </details>
+          <output id="play-status" aria-live="polite"
+            >Choose a stage, then press Play stage.</output
+          >
+          <div id="play-stats" class="stats"></div>
+        </section>
+        <details class="view-controls">
+          <summary>View & inspection</summary>
+          <div class="tools">
+            <div>
+              <label for="view">View</label
+              ><select id="view">
+                <option value="wave">Visible wave</option>
+                <option value="all">
+                  Entire formation (includes hidden rows)
+                </option>
+              </select>
+            </div>
+            <div>
+              <label for="difficulty">HP difficulty</label
+              ><select id="difficulty">
+                <option value="0">Normal</option>
+                <option value="1">Hard</option>
+                <option value="2">Extreme</option>
+              </select>
+            </div>
+          </div>
+          <label for="zoom"
+            >View zoom (100% = fit):
+            <strong id="zoom-label">100%</strong></label
+          ><input
+            id="zoom"
+            type="range"
+            min="50"
+            max="400"
+            step="10"
+            value="100"
+          /><label for="descent"
+            >Descent preview:
+            <strong id="descent-label">0 turns / 0 units</strong></label
+          ><input id="descent" type="range" min="0" max="40" value="0" />
+          <div class="checks">
+            <label><input id="hp" type="checkbox" checked /> HP</label
+            ><label
+              ><input id="hitboxes" type="checkbox" /> Collision shapes</label
+            ><label
+              ><input id="diagnostics" type="checkbox" checked /> Gates /
+              overlap markers</label
+            ><label
+              ><input id="special-only" type="checkbox" /> Highlight special
+              pieces</label
+            >
+          </div>
+        </details>
+        <details id="inspector-panel">
+          <summary>Brick inspector</summary>
+          <h2>Inspect a brick</h2>
+          <p class="muted">
+            Click any piece to see its original gameplay role, visual asset,
+            group and HP. Changing a world color does not change its spell or
+            damage type.
+          </p>
+          <div id="details" class="details">
+            <p>Select a piece in the stage.</p>
+          </div>
+          <h2 style="margin-top: 22px">Special pieces in this stage</h2>
+          <div id="kind-list"></div>
+          <div class="notice" id="review-status"></div>
+          <p class="muted" id="provenance"></p>
+        </details>
+      </aside>
+    </main>
+    <script defer src="gallery/catalog.js"></script>
+    <script defer src="gallery/balls-catalog.js"></script>
+    <script defer src="gallery/core.js"></script>
+    <script defer src="gallery/stage-loader.js"></script>
+    <script defer src="gallery/inspector.js"></script>
+    <script defer src="gallery/physics.js"></script>
+    <script defer src="gallery/play-engine.js"></script>
+    <script defer src="gallery/renderer.js"></script>
+    <script defer src="gallery/camera.js"></script>
+    <script defer src="gallery/playtest.js"></script>
+    <script defer src="gallery/ball-picker.js"></script>
+    <script defer src="gallery/app.js"></script>
+  </body>
+</html>
