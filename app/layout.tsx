@@ -9,6 +9,9 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`
   },
   applicationName: SITE_NAME,
+  other: {
+    "google-adsense-account": "ca-pub-2259594031936212",
+  },
   description: DEFAULT_DESCRIPTION,
   verification: {
     google: "tedQd55zrvYnRtg8uOcxm7sTuI3AZhKVSyQU-2Gq9pg",
