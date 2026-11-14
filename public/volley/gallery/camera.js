@@ -4,12 +4,12 @@ class VolleyCamera {
   constructor() {
     this.reset();
   }
-  reset(top = 0, entire = false) {
+  reset(top = 0, entire = false, viewportHeight = 1720) {
     this.top = Math.min(0, top);
-    this.baseHeight = entire ? 1720 - this.top : 1720;
+    this.baseHeight = entire ? 1720 - this.top : viewportHeight;
     this.zoom = 1;
     this.x = 450;
-    this.y = entire ? (1720 + this.top) / 2 : 860;
+    this.y = entire ? (1720 + this.top) / 2 : this.baseHeight / 2;
     this.clamp();
   }
   get width() {
@@ -54,6 +54,12 @@ if (typeof document !== "undefined") {
   stageCamera.key = null;
   stageCamera.drag = null;
   stageCamera.suppressClickUntil = 0;
+  stageCamera.showArena = false;
+  stageCamera.preferredHeight = () => {
+    if (stageCamera.showArena || (typeof playtest !== "undefined" && playtest.active)) return 1720;
+    const frame = $("frame").getBoundingClientRect();
+    return Math.max(600, Math.min(1100, 900 * frame.height / Math.max(1, frame.width)));
+  };
   stageCamera.scale = () => {
     const rect = $("board").getBoundingClientRect?.() || {
       width: 900,
@@ -67,6 +73,16 @@ if (typeof document !== "undefined") {
       ),
     );
   };
+  stageCamera.fitLabel = (hp) => {
+    const scale = stageCamera.scale();
+    const width = Number(hp.getAttribute("data-label-width")) || 60;
+    const height = Number(hp.getAttribute("data-label-height")) || 24;
+    let font = Math.min(15 / scale, height, width / Math.max(1, hp.textContent.length * .67));
+    hp.style.fontSize = font + "px";
+    const measured = hp.getComputedTextLength?.();
+    if (measured > width) { font *= width / measured; hp.style.fontSize = font + "px"; }
+    hp.style.strokeWidth = Math.min(font * .12, 1.7 / scale) + "px";
+  };
   stageCamera.apply = () => {
     $("board").setAttribute("viewBox", stageCamera.box.join(" "));
     const percent = Math.round(stageCamera.zoom * 100);
@@ -75,16 +91,28 @@ if (typeof document !== "undefined") {
     $("camera-zoom").textContent = percent + "%";
     $("zoom-out").disabled = percent <= 50;
     $("zoom-in").disabled = percent >= 400;
-    const scale = stageCamera.scale();
     for (const hp of $("board").querySelectorAll(".hp")) {
-      hp.style.fontSize = Math.max(24, 14 / scale) + "px";
-      hp.style.strokeWidth = 2.5 / scale + "px";
+      stageCamera.fitLabel(hp);
     }
   };
+  stageCamera.fit = () => {
+    stageCamera.reset(stageCamera.top, $("view").value === "all", stageCamera.preferredHeight());
+    if (currentStage) stageCamera.key = stageCamera.keyFor(currentStage, $("view").value === "all");
+    stageCamera.apply();
+  };
+  stageCamera.focusPiece = (piece) => {
+    stageCamera.x = piece.x + piece.w / 2;
+    stageCamera.y = 1720 - piece.y - piece.h / 2;
+    stageCamera.clamp(); stageCamera.apply();
+  };
+  stageCamera.keyFor = (stage, entire) => {
+    const playing = typeof playtest !== "undefined" && playtest.active;
+    return stage.id + ":" + entire + ":" + playing + ":" + stageCamera.showArena;
+  };
   stageCamera.configure = (stage, top, entire) => {
-    const key = stage.id + ":" + entire;
+    const key = stageCamera.keyFor(stage, entire);
     if (key !== stageCamera.key) {
-      stageCamera.reset(top, entire);
+      stageCamera.reset(top, entire, stageCamera.preferredHeight());
       stageCamera.key = key;
     } else {
       stageCamera.top = top;
@@ -114,8 +142,15 @@ if (typeof document !== "undefined") {
     stageCamera.changeZoom(stageCamera.zoom - 0.25),
   );
   $("camera-fit").addEventListener("click", () => {
-    stageCamera.reset(stageCamera.top, $("view").value === "all");
-    stageCamera.apply();
+    stageCamera.showArena = false; stageCamera.key = null; stageCamera.fit();
+  });
+  $("camera-arena").addEventListener("click", () => {
+    stageCamera.showArena = true; stageCamera.key = null; stageCamera.fit();
+  });
+  $("camera-boss").addEventListener("click", () => {
+    const bricks = typeof playtest !== "undefined" && playtest.active ? playtest.engine.bricks : currentStage?.bricks;
+    const boss = bricks?.find((b) => b.kind === "BOSS");
+    if (boss) stageCamera.focusPiece(boss);
   });
   $("camera-pan").addEventListener("click", () => stageCamera.setMode("pan"));
   $("camera-aim").addEventListener("click", () => stageCamera.setMode("aim"));
@@ -176,6 +211,9 @@ if (typeof document !== "undefined") {
   $("board").addEventListener("pointerup", finish);
   $("board").addEventListener("pointercancel", finish);
   if (typeof ResizeObserver !== "undefined")
-    new ResizeObserver(() => stageCamera.apply()).observe($("frame"));
+    new ResizeObserver(() => {
+      if ($("view").value !== "all") { stageCamera.baseHeight = stageCamera.preferredHeight(); stageCamera.clamp(); }
+      stageCamera.apply();
+    }).observe($("frame"));
   stageCamera.setMode("pan");
 }

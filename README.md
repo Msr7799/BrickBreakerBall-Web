@@ -139,8 +139,16 @@ pnpm dev
 
 Import the repository into Vercel and use the default Next.js settings. Add `NEXT_PUBLIC_SITE_URL` with the production URL. Stage Lab replaces the former editor at `/en/editor` and `/ar/editor`, embedding `/volley/stage-gallery.html`. It uses the current Android gallery and only its referenced sprites. Run `pnpm sync:gallery` after regenerating the Android gallery, then `pnpm check:gallery`. The former editor and sprite cutter are removed.
 
+To refresh Stage Lab without building Android or starting a server:
+
+1. In the Android checkout, run `python scripts/generate_volley_stage_gallery.py`. The static exporter mirrors the current loader's finale placement, stable brick IDs, 2/3/4 skull locks, campaign damage progression, and individual ball strengths.
+2. In this website checkout, run `pnpm sync:gallery` followed by `pnpm check:gallery` and `pnpm check`. Sync rejects an export whose runtime fingerprint no longer matches the Android loader, health rules, abilities, and ball catalog.
+3. Publish the website commit to the connected Vercel project. Each stage uses a content-addressed filename; `sync-manifest.json` records exact file hashes and the runtime fingerprint. Only referenced runtime artwork is copied.
+
+Inspection starts with a closer **Formation** view. **Arena** shows the complete play area, **Find boss** locates the finale, and Pan/zoom can reveal higher rows. HP labels are abbreviated and fitted to each square or triangle; the inspector retains exact health. In the browser sandbox, bosses are invulnerable until every skull lock is broken, and defeating a boss leaves other objectives intact. The header reports remaining locks and announces when the boss becomes vulnerable. Browser simulation remains separate from Android device validation; website play never changes Android progress or purchases.
+
 ## Privacy and Scope
 
 Public pages and Stage Lab do not require sign-in. The sandbox runs locally in the browser and does not write progress to Firebase. Firebase Realtime Database rules continue to restrict editor data access to the configured administrator.
 
-The site presents all 90 campaign stages and offers an editable stage workspace. The playable browser preview is a small Volley demonstration; the full campaign runs in the Android app.
+The site presents all 160 campaign stages with inspection and playable browser previews. The full game and saved campaign progression run in the Android app.

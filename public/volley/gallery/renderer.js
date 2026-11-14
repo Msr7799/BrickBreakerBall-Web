@@ -31,7 +31,7 @@ function badge(text, cls = "") {
 function hpText(n) {
   if (n === null) return "?";
   if (n >= 1e6) return (n / 1e6).toFixed(2).replace(/\.?0+$/, "") + "M";
-  if (n >= 1000) return (n / 1000).toFixed(2).replace(/\.?0+$/, "") + "K";
+  if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.?0+$/, "") + "K";
   return String(n);
 }
 function shapePoints(b, dy) {
@@ -77,6 +77,10 @@ function brickNode(b, dy) {
   });
   const cx = b.x + b.w / 2,
     cy = 1720 - b.y - b.h / 2 + dy;
+  if (b.kind === "BOSS" && currentStage.bossGuards > 0)
+    group.append(el("ellipse", {cx, cy, rx: b.w * .56, ry: b.h * .56,
+      class: "boss-shield", fill: "none", stroke: "#f4cc73", "stroke-width": 4,
+      "stroke-dasharray": "12 7", "pointer-events": "none"}));
   for (const layer of b.layers) {
     const x = cx + layer.x - layer.width / 2,
       y = cy - layer.y - layer.height / 2;
@@ -151,13 +155,15 @@ function brickNode(b, dy) {
           x: labelX,
           y: labelY,
           class: "hp",
+          "data-label-width": b.w * (triangle ? .43 : .80),
+          "data-label-height": b.h * (triangle ? .25 : .34),
           "dominant-baseline": triangle ? "central" : "auto",
         },
         hpText(b.hp[Number($("difficulty").value)]),
       ),
     );
   }
-  group.append(el("title", {}, `${b.kind} ? #${b.id} ? ${b.shape}`));
+  group.append(el("title", {}, `${b.kind} / #${b.id} / ${b.shape} / HP ${b.hp[Number($("difficulty").value)] ?? "indestructible"}`));
   group.addEventListener("click", () => {
     if (
       Date.now() < window.stageCamera.suppressClickUntil ||
@@ -214,9 +220,18 @@ function ballSpriteNode(ball, x, y, radius) {
   );
   return node;
 }
+function updateBossStatus(locks, alive) {
+  const status = $("boss-status");
+  status.hidden = !currentStage?.boss;
+  if (status.hidden) return;
+  const value = alive ? locks > 0 ? `Boss shielded / ${locks} locks remaining` : "All locks broken / Boss vulnerable" : "Boss defeated / Clear remaining targets";
+  if (status.textContent !== value) status.textContent = value;
+  status.dataset.state = alive && locks > 0 ? "shielded" : "exposed";
+}
 function render() {
   const st = currentStage;
   if (!st) return;
+  $("camera-boss").hidden = !st.boss;
   const board = $("board"),
     dy = Number($("descent").value) * 80;
   board.replaceChildren();

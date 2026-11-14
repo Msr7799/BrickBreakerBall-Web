@@ -98,6 +98,9 @@
     objective(b) {
       return Number.isFinite(b.initialHealth) && b.kind !== "BONUS_BALLS";
     }
+    get remainingGuards() {
+      return this.bricks.filter((b) => b.shieldLock && b.health > 0).length;
+    }
     visible(b) {
       return b.health > 0 && b.y < 1720 && b.y + b.h > RETURN;
     }
@@ -369,12 +372,16 @@
       return (
         this.baseHit +
         (this.profile
-          ? Math.floor(this.ballCount / this.profile.ballsPerDamage)
+          ? this.profile.kind === "MOMENTUM_CORE" ? Math.floor(this.ballCount / this.profile.ballsPerDamage) : 0
           : 0)
       );
     }
     applyDamage(b, amount, { fire = false, opening = false } = {}) {
       if (b.health <= 0 || !Number.isFinite(b.health)) return;
+      if (b.kind === "BOSS" && this.remainingGuards > 0) {
+        this.message = `Boss shielded: ${this.remainingGuards} locks remaining.`;
+        return;
+      }
       if (fire) {
         b.frozen = false;
         b.protected = 0;
@@ -420,11 +427,7 @@
           ? Math.max(1, Math.ceil(b.initialHealth / bossBudget))
           : !b.sourceBaseHealth || COUNTERS.has(b.kind)
             ? 1
-            : Math.max(
-                1,
-                Math.floor(this.stage.id / 4),
-                Math.ceil(b.initialHealth / 30),
-              );
+            : this.stage.campaignAttack || 1 + Math.floor((this.stage.id - 1) / 12);
       let base = this.hitPower() + this.bonus + (this.radius === 27 ? 1 : 0);
       if (triggered && ["ARMOR_BREAKER", "VOID_PHASE"].includes(profile.kind))
         base += profile.bonusDamage;
@@ -487,10 +490,10 @@
         this.volleyBreaks % this.profile.fortuneEveryBreaks === 0
       )
         this.score += this.profile.fortuneBonusScore;
-      if (b.kind === "BOSS")
-        for (const p of this.bricks) {
-          if (this.objective(p)) p.health = 0;
-        }
+      if (b.shieldLock)
+        this.message = this.remainingGuards === 0
+          ? "All locks broken - boss vulnerable!"
+          : `${this.remainingGuards} boss locks remaining.`;
       if (b.kind === "BONUS_BALLS") this.earnedBalls += b.bonusValue || 5;
       if (b.kind === "BONUS_DAMAGE")
         this.bonus += Math.max(
@@ -500,8 +503,7 @@
       if (b.kind === "DYNAMITE")
         for (const p of this.bricks) {
           if (p.health > 0 && p.bombDestroyable && p.bombGroup === b.group) {
-            p.health = 0;
-            this.destroyed++;
+            this.destroy(p, visited);
           }
         }
       if (b.kind === "SUICIDE") {

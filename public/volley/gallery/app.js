@@ -49,6 +49,7 @@ async function show(id) {
   $("frame").setAttribute("aria-busy", "true");
   $("image-errors").textContent = "";
   $("badges").replaceChildren();
+  $("boss-status").hidden = true;
   $("kind-list").replaceChildren();
   $("details").textContent = "Loading stage...";
   $("retry").hidden = true;
@@ -61,7 +62,7 @@ async function show(id) {
     );
   }
   $("provenance").textContent =
-    `Generated: ${gallery.generatedAt} - Source SHA256: ${gallery.sourceSha256}`;
+    `Generated: ${gallery.generatedAt} - Runtime: ${gallery.runtimeSha256 || gallery.sourceSha256}`;
   history.replaceState(null, "", "#stage-" + current);
   try {
     const st = await loadStage(current);
@@ -80,6 +81,7 @@ async function show(id) {
       badge(st.boss ? "WORLD BOSS" : "CAMPAIGN"),
     );
     if (st.megaFlag) $("badges").append(badge("Mega clearance review", "warn"));
+    updateBossStatus(st.bossGuards, st.boss);
     if (st.bricks.some((b) => b.overlap))
       $("badges").append(badge("Overlap priority fix", "ok"));
     $("review-status").textContent =
@@ -94,6 +96,7 @@ async function show(id) {
         selected = piece.id;
         inspect(piece);
         render();
+        window.stageCamera.focusPiece(piece);
       });
       $("kind-list").append(b);
     }

@@ -13,14 +13,33 @@ for relative, expected in manifest["files"].items():
     assert hashlib.sha256(path.read_bytes()).hexdigest() == expected, relative
 index = json.loads((PUBLIC / "stage-gallery-data.json").read_text())
 assert index["assetBase"] == "/volley/assets/"
-assert len(index["stages"]) == 160 and index["totalActiveBricks"] == 21780
+assert len(index["stages"]) == 160
+assert index["totalActiveBricks"] == sum(s["brickCount"] for s in index["stages"])
+assert index["runtimeSha256"] == manifest["runtimeSha256"]
+boss_count = 0
 for stage in index["stages"]:
     code = (PUBLIC / stage["file"]).read_text().replace("\r\n", "\n")
     encoded = code[len("window.VolleyGallery.registerStage("):-3]
     assert hashlib.sha256(encoded.encode()).hexdigest() == stage["sha256"]
-    assert len(json.loads(encoded)["bricks"]) == stage["brickCount"]
+    data = json.loads(encoded)
+    assert len(data["bricks"]) == stage["brickCount"]
+    if stage["id"] == 28:
+        stone = next(b for b in data["bricks"] if b["id"] == 6)
+        assert stone["kind"] == "BLOCKER" and not stone["gate"] and stone["hp"] == [None, None, None]
+    guards = [b for b in data["bricks"] if b["shieldLock"]]
+    bosses = [b for b in data["bricks"] if b["kind"] == "BOSS"]
+    if stage["boss"]:
+        boss_count += 1
+        expected = 2 if stage["world"] <= 3 else 3 if stage["world"] <= 6 else 4
+        assert len(bosses) == 1 and len(guards) == expected == data["bossGuards"]
+        assert bosses[0]["y"] >= max(b["y"] + b["h"] for b in data["bricks"] if b["kind"] != "BOSS") + 79.99
+    else:
+        assert not guards and not bosses
+assert boss_count == 9
 balls = json.loads((PUBLIC / "gallery/balls-catalog.js").read_text().split(" = ", 1)[1].strip().removesuffix(";"))
 assert len(balls["balls"]) == 165
+starter = next(b for b in balls["balls"] if b["id"] == "41_pearl_white")
+assert starter["rarity"] == "NORMAL" and starter["profile"]["baseHitDamage"] == 1 and starter["profile"]["startingBalls"] == 0
 for ball in balls["balls"]:
     assert (PUBLIC / "assets" / ball["path"]).is_file()
 for path in index["images"]:

@@ -19,9 +19,11 @@ function syncBallControls(resetBalls = true) {
   $("play-pattern").disabled = !profile.shotgunAvailable;
   if (!profile.shotgunAvailable) $("play-pattern").value = "straight";
   const count = Number($("play-balls").value);
+  const momentum = profile.kind === "MOMENTUM_CORE" ? Math.floor(count / profile.ballsPerDamage) : 0;
+  const attack = currentStage?.campaignAttack || 1;
   $("play-ball-preview").replaceChildren(ballSpriteNode(ball, 30, 30, 25));
   $("play-ball-stats").textContent =
-    `${ball.rarity} | +${profile.startingBalls} balls | ${count} balls / volley | ${profile.baseHitDamage + Math.floor(count / profile.ballsPerDamage)} hit | ${profile.kind.replaceAll("_", " ")}${profile.triggerEveryHits ? " / " + profile.triggerEveryHits + " hits" : ""}${profile.openingBreakerEveryVolleys ? " | Breaker every 3 volleys" : ""}`;
+    `${ball.rarity} | ${count} total balls (+${profile.startingBalls}) | ${(profile.baseHitDamage + momentum) * attack} standard hit | ${profile.kind.replaceAll("_", " ")}${profile.fortuneEveryBreaks ? " / +" + profile.fortuneBonusScore + " SCORE every " + profile.fortuneEveryBreaks + " bricks" : profile.triggerEveryHits ? " / " + profile.triggerEveryHits + " hits" : ""}`;
 }
 const playtest = {
   active: false,
@@ -155,7 +157,10 @@ const playtest = {
       if (entry.hp && entry.health !== b.health) {
         entry.hp.textContent = hpText(b.health);
         entry.health = b.health;
+        window.stageCamera.fitLabel(entry.hp);
       }
+      const shield = entry.node.querySelector(".boss-shield");
+      if (shield) shield.style.display = state.remainingGuards > 0 ? "" : "none";
       entry.node.style.filter = b.frozen
         ? "drop-shadow(0 0 7px #8beaff)"
         : b.protected > 0
@@ -225,6 +230,7 @@ const playtest = {
         }),
       );
     const status = this.paused ? "Paused" : state.message;
+    updateBossStatus(state.remainingGuards, state.bricks.some((b) => b.kind === "BOSS" && b.health > 0));
     if ($("play-status").textContent !== status)
       $("play-status").textContent = status;
     const stats = `Turn ${state.turn} · Balls ${state.ballCount} | Hit ${state.hitPower()} · In flight ${state.balls.length} · Queued ${state.pending} · Hits ${state.hits} · Damage ${state.damage} | Score ${state.score} · Targets ${state.targets}`;

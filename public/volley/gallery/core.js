@@ -30,7 +30,8 @@ const descriptions = {
   ROTATING:
     "Turns to a random 30-degree angle after a volley. Sprite and swept collider rotate together.",
   BURN: "Consumes its authored number of touching balls, then goes out. Remaining charges survive Pause / Resume.",
-  BOSS: "One physical core using this world?s own boss portrait. Destroying it clears remaining required enemies.",
+  BOSS: "The world boss waits beyond the formation. Break every skull lock before damaging it. Remaining objectives must still be cleared.",
+  BOSS_GUARD: "Skull lock protecting the boss. Break all locks to expose it: 2 in worlds 1-3, 3 in worlds 4-6, 4 in worlds 7-9.",
   VORTEX: "Periodic capture area; captured balls are removed.",
   TELEPORT: "Paired portal. The stage contains two portals.",
   SPIKE_TRAP: "Removes a ball when active; has a cooldown.",

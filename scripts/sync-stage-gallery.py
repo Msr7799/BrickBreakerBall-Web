@@ -18,6 +18,11 @@ def sync(source):
     output = ROOT / "public/volley"
     index = json.loads((gallery / "stage-gallery-data.json").read_text())
     assert len(index["stages"]) == 160
+    kotlin = source / "app/src/main/java/com/example/brick_breaker_ball"
+    runtime = hashlib.sha256(''.join((kotlin / p).read_text(encoding="utf-8") for p in
+        ["campaign/VolleySourceStageData.kt", "campaign/VolleySourceHealth.kt",
+         "cosmetics/BallAbilities.kt", "cosmetics/BallCollectionCatalog.kt"]).encode()).hexdigest()
+    assert index.get("runtimeSha256") == runtime, "Stale gallery: regenerate it with scripts/generate_volley_stage_gallery.py in the Android project"
     balls_text = (gallery / "gallery/balls-catalog.js").read_text()
     balls = json.loads(balls_text.split(" = ", 1)[1].strip().removesuffix(";"))
     files = {"stage-gallery.html", "stage-gallery-data.json"}
@@ -51,7 +56,7 @@ def sync(source):
             if relative not in hashes and target.is_file():
                 target.unlink()
     summary = dict(schema=1, stages=160, balls=len(balls["balls"]), images=len(referenced_art),
-                   sourceSha256=index["sourceSha256"], files=hashes)
+                   sourceSha256=index["sourceSha256"], runtimeSha256=index["runtimeSha256"], files=hashes)
     write("sync-manifest.json", (json.dumps(summary, indent=2) + "\n").encode())
     print(f"STAGE_GALLERY_SYNC_OK: {summary['stages']} stages, {summary['balls']} balls, {summary['images']} referenced images, {len(hashes)} files")
 

@@ -794,3 +794,42 @@ summary {
   background: #185342;
   border-color: #70e2af;
 }
+
+/* Inspection uses a closer formation view; the playable arena keeps its full height. */
+.shell { grid-template-columns: 204px minmax(0, 1fr) 310px; }
+.camera-toolbar { gap: 7px; }
+.camera-toolbar button { min-height: 38px; padding: 7px 11px; }
+.camera-toolbar > span { flex: 1 1 220px; font-size: 12px; }
+.hp { font-variant-numeric: tabular-nums; stroke-linejoin: round; }
+.boss-shield { opacity: .85; }
+.boss-status {
+  flex: none; border: 1px solid #816a3a; border-radius: 8px;
+  background: #342b19; color: #ffe3a0; padding: 8px 11px;
+  font-size: 13px; font-weight: 650; margin: 3px 0 6px;
+}
+.boss-status[data-state="exposed"] { background: #173b31; border-color: #377d62; color: #b5f6d6; }
+.boss-status[hidden] { display: none; }
+.details-panel label, .details-panel summary { font-size: 13px; }
+#play-ball-stats, #play-stats { font-size: 12px; line-height: 1.6; }
+.ball-option strong { font-size: 14px; }
+.ball-option small { font-size: 12px; }
+.stage-button small { font-size: 11px; }
+@media (max-width: 1200px) and (min-width: 1041px) {
+  .shell { grid-template-columns: 180px minmax(0, 1fr) 280px; }
+}
+@media (max-width: 1040px) and (min-width: 761px) {
+  body { height: auto; min-height: 100dvh; overflow: auto; }
+  .shell { grid-template-columns: 180px minmax(0, 1fr); flex: none; overflow: visible; }
+  .viewer-panel, .shell > aside:first-child { height: max(620px, calc(100dvh - 80px)); }
+  .details-panel { grid-column: 1 / -1; }
+}
+@media (max-width: 760px) {
+  .shell { display: flex; }
+  .shell > aside:first-child { max-height: 195px; }
+  .viewer-panel { height: max(560px, calc(100dvh - 36px)); }
+  .camera-toolbar > span { flex-basis: 100%; }
+  .camera-toolbar button { min-height: 42px; padding: 7px 9px; }
+  .stage-button { min-width: 76px; }
+  .stage-list { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); }
+  header .tag { display: none; }
+}
