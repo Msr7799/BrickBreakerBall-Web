@@ -1,4 +1,6 @@
-import PrivacyPage from "@/components/PrivacyPage";
-import { localizedMetadata } from "@/lib/seo";
-export const metadata = localizedMetadata({ title: "سياسة الخصوصية", description: "اطّلع على سياسة الخصوصية الخاصة بموقع ولعبة Brick Breaker Ball وكيفية التعامل مع المعلومات.", locale: "ar", path: "/privacy" });
-export default function Page() { return <PrivacyPage lang="ar" />; }
+import { permanentRedirect } from "next/navigation";
+
+// Preserve existing Arabic privacy-policy links without maintaining a divergent policy.
+export default function Page() {
+  permanentRedirect("/en/privacy");
+}
