@@ -16,7 +16,7 @@ const sections = {
     ["9. Children's privacy", "Brick Breaker Ball is not directed to children under age 13. Age-of-consent requirements and additional protections for younger users vary by country. The game does not provide a form for users to submit personal information directly to the developer. Advertising, consent and store settings must follow applicable child and teen privacy requirements."],
     ["10. Retention and requests to delete cloud data", "Local data remains until you clear it or uninstall the game. Game-managed MongoDB cloud checkpoints (including any retained previous checkpoint) and daily reward records can remain linked to your Firebase user ID after uninstalling or signing out.\n\nTo request deletion of your game-managed cloud data, email alromaihi2224@gmail.com with the subject \"Brick Breaker Ball - Cloud Data Deletion Request\". State that you want your game cloud records deleted and include non-sensitive details that help us locate your connected game account. We may ask you to verify that the account is yours through an appropriate secure method. Never send passwords, authentication tokens or full payment details.\n\nAfter ownership is verified, we will review and process deletion of the game-managed MongoDB progress checkpoints, daily reward history and other game account records linked to that Firebase user ID, and the associated Firebase Authentication user record where applicable, subject to legal or security retention requirements. We will contact you about the outcome. This is a manual support-request process; the game does not currently provide an automatic cloud-data deletion button. Deleting the app does not automatically delete cloud data. Records held independently by Google Play, Google or other providers are governed by their policies and may require separate requests."],
     ["11. Your choices, security and changes", "You may manage advertising preferences through your device and any in-app consent options available in your region. We use reasonable safeguards, including HTTPS connections and server-side identity verification, to help protect data we handle. No transmission or storage method can be guaranteed completely secure. We may revise this policy when the game, website or legal requirements change, and will update its effective date for material changes."],
-    ["12. Contact", "For privacy questions, requests to access or delete game-managed cloud data, or concerns about your account, contact Forge Pulse Games at alromaihi2224@gmail.com. This is the support email listed on our Google Play store page. Developer GitHub: https://github.com/msr7799 ."]
+    ["12. Contact", "For privacy questions, requests to access or delete game-managed cloud data, or concerns about your account, contact Forge Pulse Games at alromaihi2224@gmail.com. This is the support email listed on our Google Play store page. Developer Website: https://portfolio-msr-bh.vercel.app ."]
   ]
 } as const;
 
@@ -48,7 +48,10 @@ export default function PrivacyPage({ lang }: { lang: Lang }) {
                 </div>
               )}
               {index === 11 && (
-                <a href="mailto:alromaihi2224@gmail.com" className="mt-4 inline-block text-orange-300 underline underline-offset-4 hover:text-white">alromaihi2224@gmail.com</a>
+                <div className="mt-4 flex flex-wrap gap-4 text-orange-300">
+                  <a href="mailto:alromaihi2224@gmail.com" className="underline underline-offset-4 hover:text-white">alromaihi2224@gmail.com</a>
+                  <a href="https://portfolio-msr-bh.vercel.app" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-white">Developer Website</a>
+                </div>
               )}
             </section>
           ))}
