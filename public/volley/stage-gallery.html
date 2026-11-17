@@ -6,6 +6,7 @@
     <title>Brick Breaker Ball - Current 160 Stages</title>
     <link rel="stylesheet" href="gallery/gallery.css?v=8fb2f65977f6dc86" />
     <link rel="stylesheet" href="gallery/lab-evolution.css?v=7b2391bdedf66698" />
+    <link rel="stylesheet" href="gallery/rpg-brick-lab.css" />
   </head>
   <body>
     <header>
@@ -177,6 +178,24 @@
             </div>
             <output id="lab-evolution-status" aria-live="polite"></output>
           </section>
+          <section class="rpg-brick-showcase" aria-label="RPG missing brick concept previews">
+            <div class="rpg-showcase-title">
+              <strong>✦ RPG Bricks — New Looks</strong>
+              <span>10 SOURCE-AUDITED CONCEPTS</span>
+            </div>
+            <p>Choose Rainbow, spikes, cloud, chest, gates and tougher materials.
+              See the selected look inside the CURRENT stage, without replacing its saved geometry.</p>
+            <div id="rpg-brick-library" class="rpg-brick-library" role="group" aria-label="Prototype types"></div>
+            <div id="rpg-preview-detail" aria-live="polite"></div>
+            <label class="rpg-preview-switch">
+              <input id="rpg-preview-enabled" type="checkbox" checked />
+              <span>Show selected brick on sample positions in this stage
+                <small>Original SVG art. Visual preview ONLY — no Android integration, physics, HP or rewards modified.</small>
+              </span>
+            </label>
+            <button id="rpg-preview-clear" type="button">Restore original stage visuals</button>
+            <output id="rpg-preview-status" aria-live="polite"></output>
+          </section>
           <div class="inline">
             <button id="play-stage" class="play-primary" disabled>
               ▶ Play stage
@@ -314,5 +333,6 @@
     <script defer src="gallery/ball-picker.js?v=c553e782ade9db05"></script>
     <script defer src="gallery/app.js?v=e270c50e88ac0276"></script>
     <script defer src="gallery/lab-evolution.js?v=24ee75c156f60248"></script>
+    <script defer src="gallery/rpg-brick-lab.js"></script>
   </body>
 </html>
