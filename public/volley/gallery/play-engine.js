@@ -29,14 +29,16 @@
         minimumDamageHits: 12,
       };
       // Ball artwork is cosmetic; campaign stats follow player level, not stage ID.
-      this.profile = null;
+      // Legacy ball abilities are a sandbox-only experiment, never reference parity.
+      this.profile = options.experimental && options.profile ? options.profile : null;
       this.playerLevel = clamp(Math.trunc(options.playerLevel || 1), 1, 1000000);
       this.difficulty = options.difficulty || 0;
       this.ballCount = clamp(Math.trunc(options.balls ||
         10 + Math.min(Math.floor(this.playerLevel / 10), 10)), 1, 160);
       this.baseHit = clamp(Math.trunc(options.hit ||
         Math.floor(1 * (1 + Math.floor(this.playerLevel / 10) * 10 / 100))), 1, 1000000);
-      this.shotgun = false;
+      // Reference campaign intentionally forces straight. Shotgun is opt-in here.
+      this.shotgun = Boolean(options.experimental && options.shotgun);
       this.abilityHits = 0;
       this.volleyBreaks = 0;
       this.score = 0;

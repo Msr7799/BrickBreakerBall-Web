@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Brick Breaker Ball - Current 160 Stages</title>
     <link rel="stylesheet" href="gallery/gallery.css?v=8fb2f65977f6dc86" />
+    <link rel="stylesheet" href="gallery/lab-evolution.css?v=7b2391bdedf66698" />
   </head>
   <body>
     <header>
@@ -155,6 +156,27 @@
             >
           </div>
           <div id="play-ball-stats" class="stats"></div>
+          <section class="lab-evolution" aria-label="Production Evolution Stage Lab">
+            <div class="lab-evolution-head">
+              <strong>✦ Production Evolution Lab</strong>
+              <span class="lab-evolution-safe">LOCAL / READ-ONLY</span>
+            </div>
+            <p class="lab-evolution-lede">Existing source sprites, collision shapes, 160 stages and nine boss locks remain intact.</p>
+            <label class="lab-check">
+              <input id="enhanced-bricks" type="checkbox" checked />
+              <span>Enhanced fantasy brick outlines <small>Original vector accents; visual only — no hitbox changes</small></span>
+            </label>
+            <label class="lab-check">
+              <input id="experimental-abilities" type="checkbox" />
+              <span>Experimental Shotgun &amp; ability harness <small>Shotgun works in sandbox; ball abilities remain cosmetic</small></span>
+            </label>
+            <div class="lab-actions">
+              <button type="button" id="lab-world-preset" title="P75 progress-model estimate, not actual user level">World loadout*</button>
+              <button type="button" id="lab-reference-preset">Reference reset</button>
+              <button type="button" id="lab-export-report">↓ Export stage test JSON</button>
+            </div>
+            <output id="lab-evolution-status" aria-live="polite"></output>
+          </section>
           <div class="inline">
             <button id="play-stage" class="play-primary" disabled>
               ▶ Play stage
@@ -285,11 +307,12 @@
     <script defer src="gallery/stage-loader.js?v=81977e5c50e3d187"></script>
     <script defer src="gallery/inspector.js?v=2e8dea25e1b30e8b"></script>
     <script defer src="gallery/physics.js?v=b95134c886b7100a"></script>
-    <script defer src="gallery/play-engine.js?v=3420a94e9b02724c"></script>
-    <script defer src="gallery/renderer.js?v=eed21fb99e62474c"></script>
+    <script defer src="gallery/play-engine.js?v=b82363e8103407c7"></script>
+    <script defer src="gallery/renderer.js?v=d9b4e81519650c3d"></script>
     <script defer src="gallery/camera.js?v=4211cbdceaf3be8b"></script>
-    <script defer src="gallery/playtest.js?v=f8a6fc04daf7f229"></script>
+    <script defer src="gallery/playtest.js?v=0946028346e8b9c9"></script>
     <script defer src="gallery/ball-picker.js?v=c553e782ade9db05"></script>
     <script defer src="gallery/app.js?v=e270c50e88ac0276"></script>
+    <script defer src="gallery/lab-evolution.js?v=24ee75c156f60248"></script>
   </body>
 </html>
