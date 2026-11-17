@@ -376,6 +376,12 @@
     }
     applyDamage(b, amount, { fire = false, opening = false } = {}) {
       if (b.health <= 0 || !Number.isFinite(b.health)) return;
+      // Recovered wooden/rust Alt_Blocker: open on turn 1, closed on turn 2,
+      // and toggle with every row descent. Source scene, not generic BLOCKER.
+      if (b.sourceScene?.includes("/Blocker/Alt_Blocker/") && this.turn % 2 === 0) {
+        this.message = "Alternating gate CLOSED — wait for the next descent.";
+        return;
+      }
       if (b.kind === "BOSS" && this.remainingGuards > 0) {
         this.message = `Boss shielded: ${this.remainingGuards} locks remaining.`;
         return;
