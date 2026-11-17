@@ -10,13 +10,26 @@ function node(tag){
   return {tag,attrs:{},children:[],setAttribute(k,v){this.attrs[k]=v;},
     append(...v){this.children.push(...v);}};
 }
+const ui = {
+  "rpg-preview-enabled": {checked: false},
+  "rpg-preview-detail": {replaceChildren(){},append(){}},
+  "rpg-preview-status": {textContent:""},
+};
 const context={
   window:{},currentStage:null,console,
-  document:{createElementNS:node,getElementById:()=>null,querySelectorAll:()=>[]}
+  document:{createElementNS:node,createElement:node,
+    getElementById:(id)=>ui[id]||null,querySelectorAll:()=>[]}
 };
 vm.runInNewContext(fs.readFileSync(path.join(root,"gallery/rpg-brick-lab.js"),"utf8"),context);
 const lib=context.window.RpgBrickLab;
 assert.ok(lib,"RPG prototype library must boot");
+assert.equal(lib.isEnabled(),false,"Prototype is OFF by default; first campaign stages are original");
+const untouched=node("g");
+lib.decorateBrick(untouched,{id:1,kind:"GRASS",shape:"SQ",x:10,y:10,w:80,h:80},0);
+assert.equal(untouched.children.length,0,"Unselected visual prototypes must not overlay campaign");
+lib.select("RAINBOW");
+assert.equal(lib.isEnabled(),true,"Explicit choice should enable preview");
+
 assert.equal(lib.library.length,10);
 assert.equal(new Set(lib.library.map(x=>x.id)).size,10);
 assert.ok(lib.library.some(x=>x.id==="SPIKE_TRAP"&&x.status.includes("EXISTS")));
@@ -60,6 +73,8 @@ const html=fs.readFileSync(path.join(root,"stage-gallery.html"),"utf8");
 for(const id of ["rpg-brick-library","rpg-preview-enabled","rpg-preview-clear",
   "rpg-preview-status","rpg-preview-detail"])
   assert.ok(html.includes('id="'+id+'"'),id+" must be mounted");
+assert.ok(!html.includes('id="rpg-preview-enabled" type="checkbox" checked'),
+  "Preview must be unchecked in HTML");
 console.log("RPG_BRICK_VISUAL_PREVIEW_OK:",lib.library.length,"source variants,",stages,
   "stages,",bosses,"existing bosses,",totalBricks,"untouched pieces,",
   withPrototypeSlots,"stages with preview-safe positions");
