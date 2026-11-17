@@ -8,6 +8,7 @@ import hashlib
 import json
 import re
 from pathlib import Path
+from stage_lab_overlay import WEB_LAB_ASSETS, augment_generated_html, augment_generated_asset
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -27,8 +28,9 @@ def sync(source):
     balls_text = (gallery / "gallery/balls-catalog.js").read_text()
     balls = json.loads(balls_text.split(" = ", 1)[1].strip().removesuffix(";"))
     files = {"stage-gallery.html", "stage-gallery-data.json"}
-    html = (gallery / "stage-gallery.html").read_text(encoding="utf-8")
+    html = augment_generated_html((gallery / "stage-gallery.html").read_text(encoding="utf-8"))
     files.update(re.findall(r'(?:src|href)="(gallery/[^"?]+\.(?:js|css))"', html))
+    files.update(WEB_LAB_ASSETS)
     files.update(row["file"] for row in index["stages"])
     referenced_art = set(index["images"]) | {ball["path"] for ball in balls["balls"]}
     hashes = {}
@@ -41,7 +43,8 @@ def sync(source):
         hashes[relative] = hashlib.sha256(data).hexdigest()
 
     for relative in sorted(files - {"stage-gallery.html"}):
-        raw = (gallery / relative).read_bytes()
+        raw = ((output if relative in WEB_LAB_ASSETS else gallery) / relative).read_bytes()
+        raw = augment_generated_asset(relative, raw)
         if relative in ("gallery/catalog.js", "stage-gallery-data.json"):
             raw = raw.replace(index["assetBase"].encode(), b"/volley/assets/")
         write(relative, raw)
