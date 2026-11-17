@@ -26,9 +26,12 @@ assert.ok(lab,"RPG stage art library must boot");
 assert.equal(lab.isEnabled(),false,"Original RPG stage must be default");
 assert.equal(lab.library.length,10);
 assert.equal(new Set(lab.library.map(x=>x.id)).size,10);
+// Source has 1672 GRASS_D and 1372 SAND_D. Existing boss guard/core overlays
+// replace 2 grass at stage 18, 1 grass at stage 36,
+// 2 sand at stage 54, and 3 sand at stage 72.
 const expected={
   RAINBOW:0,SPIKE_TRAP:67,CLOUD:0,CHEST:0,FIREWALL:0,
-  ALT_WOOD:178,ALT_RUST:80,GRASS_D:1672,ICE_D:1037,SAND_D:1372
+  ALT_WOOD:178,ALT_RUST:80,GRASS_D:1669,ICE_D:1037,SAND_D:1367
 };
 const actual=Object.fromEntries(lab.library.map(x=>[x.id,0]));
 const byStage={};
@@ -69,7 +72,11 @@ for(const row of index.stages){
   stages++;allBricks+=stage.bricks.length;
   if(stage.boss)bosses++;
 }
-assert.deepEqual(actual,expected,"Web stage scene variant counts must equal recovered RPG inventory");
+assert.deepEqual(actual,expected,"RPG scene counts excluding world-boss replacements");
+assert.equal(byStage[18].GRASS_D,68);
+assert.equal(byStage[36].GRASS_D,18);
+assert.equal(byStage[54].SAND_D,32);
+assert.equal(byStage[72].SAND_D,62);
 assert.equal(byStage[2].SPIKE_TRAP,3);
 assert.equal(byStage[5].SPIKE_TRAP,5);
 assert.equal(byStage[5].ALT_WOOD,1);
