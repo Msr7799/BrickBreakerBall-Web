@@ -73,7 +73,8 @@ function shapePoints(b, dy) {
 }
 function brickNode(b, dy) {
   const group = el("g", {
-    class: "piece" + (selected === b.id ? " selected" : ""),
+    class: "piece" + (selected === b.id ? " selected" : "") +
+      ($("enhanced-bricks")?.checked ? " lab-enhanced-piece" : ""),
     "data-id": b.id,
   });
   const cx = b.x + b.w / 2,
@@ -115,6 +116,23 @@ function brickNode(b, dy) {
           preserveAspectRatio: "none",
         }),
       );
+  }
+  // Original, collision-accurate vector treatment over existing owned sprites.
+  // Never replace authored polygon geometry or borrow unlicensed RPG artwork.
+  if ($("enhanced-bricks")?.checked) {
+    const accent = ({
+      BURN: "#ffad57", ICE: "#9cddff", ICE_FREEZE: "#79ecff",
+      GRASS: "#98e98d", SAND: "#efcd8b", BLACK: "#b9bad9",
+      TELEPORT: "#d9a4ff", VORTEX: "#a1caff", PROTECTOR: "#85f4d2",
+      DYNAMITE: "#ffb56b", ROTATING: "#e2caff", BOSS: "#ffd18c",
+      SPIKE_TRAP: "#ff9b9b", TORCH: "#ffac70", SLIDER: "#8ccaf0",
+    })[b.kind] || "#a6c3da";
+    group.append(el("polygon", {
+      points: shapePoints(b, dy), fill: "none", stroke: accent,
+      "stroke-width": b.kind === "BOSS" ? 5 : 2.8,
+      "stroke-linejoin": "round", "pointer-events": "none",
+      class: "lab-brick-rim" + (["BURN", "TELEPORT", "VORTEX", "ICE_FREEZE", "BOSS"].includes(b.kind) ? " lab-brick-arcane" : ""),
+    }));
   }
   if ($("special-only").checked && !regular.has(b.kind))
     group.append(
