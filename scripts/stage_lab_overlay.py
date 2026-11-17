@@ -43,8 +43,8 @@ def augment_generated_html(html):
         if n != 1: raise RuntimeError("RPG brick JS anchor missing")
     # Load the seamless-grass helper before renderer.js on every regenerated gallery.
     if 'gallery/grass-seams.js' not in html:
-        html, n = re.subn(r'(<script defer src="gallery/renderer\\.js(?:\\?[^"]*)?"></script>)',
-            r'<script defer src="gallery/grass-seams.js"></script>\\n    \\1', html)
+        html, n = re.subn(r'(<script defer src="gallery/renderer\.js(?:\?[^"]*)?"></script>)',
+            r'<script defer src="gallery/grass-seams.js"></script>\n    \1', html)
         if n != 1: raise RuntimeError("Grass seam loader anchor missing")
     return html
 
