@@ -134,6 +134,8 @@ function brickNode(b, dy) {
       class: "lab-brick-rim" + (["BURN", "TELEPORT", "VORTEX", "ICE_FREEZE", "BOSS"].includes(b.kind) ? " lab-brick-arcane" : ""),
     }));
   }
+  // Visual-only recovered RPG prototype; it never replaces source brick state or colliders.
+  if (window.RpgBrickLab) window.RpgBrickLab.decorateBrick(group, b, dy);
   if ($("special-only").checked && !regular.has(b.kind))
     group.append(
       el("polygon", {

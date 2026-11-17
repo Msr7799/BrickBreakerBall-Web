@@ -69,6 +69,10 @@ async function show(id) {
     // A slow earlier request must never replace a more recent selection.
     if (request !== navigationRequest) return;
     currentStage = st;
+    if (window.RpgBrickLab) {
+      window.RpgBrickLab.refresh(st);
+      window.RpgBrickLab.status();
+    }
     syncBallControls();
     $("play-stage").disabled = false;
     $("quick-play").disabled = false;
