@@ -6,7 +6,8 @@ from pathlib import Path
 import re
 
 WEB_LAB_ASSETS = {"gallery/lab-evolution.js", "gallery/lab-evolution.css",
-                  "gallery/rpg-brick-lab.js", "gallery/rpg-brick-lab.css"}
+                  "gallery/rpg-brick-lab.js", "gallery/rpg-brick-lab.css",
+                  "gallery/grass-seams.js"}
 
 
 def _swap(text, old, replacement, count=1):
@@ -40,6 +41,11 @@ def augment_generated_html(html):
         html, n = re.subn(r'(<script defer src="gallery/lab-evolution\.js(?:\?[^"]*)?"></script>)',
             r'\1\n    <script defer src="gallery/rpg-brick-lab.js"></script>', html)
         if n != 1: raise RuntimeError("RPG brick JS anchor missing")
+    # Load the seamless-grass helper before renderer.js on every regenerated gallery.
+    if 'gallery/grass-seams.js' not in html:
+        html, n = re.subn(r'(<script defer src="gallery/renderer\\.js(?:\\?[^"]*)?"></script>)',
+            r'<script defer src="gallery/grass-seams.js"></script>\\n    \\1', html)
+        if n != 1: raise RuntimeError("Grass seam loader anchor missing")
     return html
 
 
@@ -70,4 +76,8 @@ def augment_generated_asset(relative, raw):
     if relative == "gallery/app.js":
         code = _swap(code, '    currentStage = st;',
             '    currentStage = st;\n    if (window.RpgBrickLab) {\n      window.RpgBrickLab.refresh(st);\n      window.RpgBrickLab.status();\n    }')
+    if relative == "gallery/renderer.js":
+        code = _swap(code, "    if (layer.crop) {", "    // Crop the brown soil BASE of touching grass squares, not the foliage or hitbox.\n    // End-of-stack squares still use the complete original sprite.\n    if (window.GrassSeams?.isEligibleImage(b, layer)) {\n      const meta = gallery.images[layer.path];\n      const frame = window.GrassSeams.visualFrame(b, layer, currentStage.bricks, meta);\n      const viewport = el(\"svg\", {\n        x, y, width: layer.width, height: frame.height,\n        viewBox: frame.viewBox, preserveAspectRatio: \"none\",\n        class: \"grass-square-sprite\",\n        \"data-full-height\": layer.height,\n        \"data-source-width\": meta.width,\n        \"data-source-height\": meta.height,\n        \"data-trimmed\": String(frame.trim),\n      });\n      viewport.append(imageNode(layer.path, {\n        x: 0, y: 0, width: meta.width, height: meta.height,\n      }));\n      group.append(viewport);\n    } else if (layer.crop) {")
+    if relative == "gallery/playtest.js":
+        code = _swap(code, "    for (const b of state.bricks) {\n      const entry = this.nodes.get(b.id);", "    // Reveal brown edges live when the supporting grass below is destroyed.\n    if (window.GrassSeams) window.GrassSeams.syncLive(this.nodes, state.bricks);\n    for (const b of state.bricks) {\n      const entry = this.nodes.get(b.id);")
     return code.encode("utf-8")
