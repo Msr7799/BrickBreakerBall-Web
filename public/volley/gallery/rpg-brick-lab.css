@@ -1,0 +1,71 @@
+/* Recovered-RPG-inspired concepts, original SVG art. No game sprites or stages copied. */
+.rpg-brick-showcase {
+  border-radius: 13px;
+  border: 1px solid #654d83;
+  background: linear-gradient(137deg,#201b34 0%,#14253a 55%,#15372e 100%);
+  margin: 14px 0;
+  padding: 12px;
+  box-shadow: 0 8px 20px #02061125,inset 0 1px #ffffff16;
+}
+.rpg-showcase-title {
+  display:flex;justify-content:space-between;align-items:center;
+  gap:7px;flex-wrap:wrap;margin-bottom:5px;
+}
+.rpg-showcase-title strong{color:#f6e8ff;font-size:14px}
+.rpg-showcase-title span{border-radius:999px;padding:3px 7px;
+  background:#42305d;color:#eed7ff;font-size:10px;font-weight:800}
+.rpg-brick-showcase>p{font-size:11px;color:#bbd3df;line-height:1.55}
+.rpg-brick-library {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  max-height:355px;overflow:auto;overscroll-behavior:contain;
+  gap:6px;margin:9px 0;padding:2px;
+}
+.rpg-brick-option{
+  display:flex;align-items:center;gap:5px;text-align:left;
+  padding:6px 4px;min-width:0;min-height:63px;
+  background:#182638; border:1px solid #334963; border-radius:9px;
+}
+.rpg-brick-option svg{
+  width:45px;height:45px;flex:0 0 45px;
+  filter:drop-shadow(0 2px 5px #080b13b8);
+}
+.rpg-brick-option span{min-width:0}
+.rpg-brick-option strong{display:block;font-size:11px;line-height:1.25;color:#f2e9ff}
+.rpg-brick-option small{
+  display:block;font-size:9px;line-height:1.35;margin-top:3px;
+  color:#9bc5d8;overflow-wrap:anywhere;
+}
+.rpg-brick-option:hover,.rpg-brick-option:focus-visible{border-color:#a98bef}
+.rpg-brick-option[aria-pressed="true"]{
+  background:#374364;border-color:#d0a5ff;
+  outline:1px solid #a98cff;outline-offset:-2px;
+}
+.rpg-preview-switch{
+  display:flex;gap:7px;align-items:flex-start;margin:10px 0;
+  color:#d3e9ed;font-size:11px;line-height:1.45;cursor:pointer;
+}
+.rpg-preview-switch input{accent-color:#c09bee;margin:2px 0 0}
+.rpg-brick-showcase #rpg-preview-clear{width:100%;font-size:11px;
+  background:#29334d;border-color:#617da5;padding:7px}
+#rpg-preview-detail{
+  padding:9px 10px;margin:9px 0;
+  border-left:3px solid #b8a0ff;background:#111c2cb0;border-radius:6px;
+}
+#rpg-preview-detail strong{font-size:12px;color:#e5d3ff}
+#rpg-preview-detail p{font-size:11px;line-height:1.4;color:#c1d5df;margin:5px 0}
+#rpg-preview-detail small{color:#8db3c3;font-size:10px;overflow-wrap:anywhere}
+#rpg-preview-status{
+  display:block;color:#b8edb2;font-size:10px;line-height:1.5;
+  margin-top:9px;
+}
+.rpg-preview-on-stage{
+  filter:drop-shadow(0 0 3px #bdf9ff70);
+}
+@media (prefers-reduced-motion: no-preference){
+.rpg-preview-on-stage{animation:rpg-preview-gleam 3.8s ease-in-out infinite}
+@keyframes rpg-preview-gleam{
+0%,100%{opacity:.93;filter:drop-shadow(0 0 1px #d4b0ff64)}
+50%{opacity:1;filter:drop-shadow(0 0 4px #bdf9ff88)}
+}}
+@media(max-width:600px){.rpg-brick-library{max-height:250px}}
