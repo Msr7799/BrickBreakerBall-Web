@@ -75,11 +75,14 @@
     root.append(g,el("polygon",{points:points[shape]||points.SQ,fill:"none",stroke:entry.light,"stroke-width":2,"vector-effect":"non-scaling-stroke"}));
     return root;
   }
-  function candidates(stage) {
-    const base=stage.bricks.filter(b=>["GRASS","SAND","ICE","BLACK","BLOCKER"].includes(b.kind)&&
-       !b.shieldLock&&!b.gate&&!b.overlap&&b.shape);
-    const take=Math.min(9,base.length);
-    return Array.from({length:take},(_,i)=>base[Math.floor((i+.5)*base.length/take)].id);
+  // RPG source scene is authoritative: only preview original level placements.
+  // No sampled substitutions, no invented Rainbow / Cloud in stages 1–160.
+  function candidates(stage, kind=chosen) {
+    const entry = map.get(kind);
+    if(!stage || !entry) return [];
+    const source = "res://" + entry.scene;
+    return stage.bricks.filter(b=>b.sourceScene === source && !b.suppressedByWorldBoss)
+      .map(b=>b.id);
   }
   function refresh(stage) {
     if(!stage){sampleStage=-1;sampleIds=new Set();return;}
@@ -99,11 +102,15 @@
     refresh(typeof currentStage!=="undefined"?currentStage:null);
     const t=map.get(chosen);
     out.textContent=enabled
-      ? t.name+" — "+t.status+" | "+sampleIds.size+" visual examples"+(currentStage?" in stage "+currentStage.id:"")+". Original HP, collider and gameplay remain unchanged."
-      : "Original stage view restored; no source data changed.";
+      ? t.name+" — "+t.status+": "+sampleIds.size+
+        (sampleIds.size === 0 ? " original placements in this stage. No substitute bricks inserted." :
+        " exact source placement(s)"+(currentStage?" in stage "+currentStage.id:"")+
+        ". HP, collider and stage positions unchanged.")
+      : "Original stage view restored. Select a brick to preview only at its actual RPG positions.";
   }
   function choose(kind, activate=true){
     chosen=kind;
+    sampleStage=-1; // switch preview type even when stage ID is unchanged
     // A prototype must never appear inside the recovered campaign by default.
     if (activate) enabled=true;
     document.getElementById("rpg-preview-enabled").checked=enabled;
