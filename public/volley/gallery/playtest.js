@@ -12,12 +12,13 @@ function syncBallControls(resetBalls = true) {
   const level = Math.max(1, Math.trunc(Number($("play-level").value) || 1));
   if (resetBalls) $("play-balls").value = 10 + Math.min(Math.floor(level / 10), 10);
   $("play-hit").value = Math.floor(1 * (1 + Math.floor(level / 10) * 10 / 100));
-  $("play-pattern").disabled = true;
-  $("play-pattern").value = "straight";
+  const experimental = $("experimental-abilities").checked;
+  $("play-pattern").disabled = !experimental;
+  if (!experimental) $("play-pattern").value = "straight";
   const count = Number($("play-balls").value);
   $("play-ball-preview").replaceChildren(ballSpriteNode(ball, 30, 30, 25));
   $("play-ball-stats").textContent =
-    `Player level ${level} | ${count} balls | ${$("play-hit").value} damage / hit | No Orbs | Cosmetic ball`;
+    `Level ${level} · ${count} balls · ${$("play-hit").value} hit · No ORBs · ${experimental ? "EXPERIMENTAL abilities / not Android parity" : "Reference combat / cosmetic ball"}${experimental ? " · " + (ball.profile?.kind || "normal") : ""}`;
 }
 const playtest = {
   active: false,
@@ -42,6 +43,7 @@ const playtest = {
       radius: Number($("play-radius").value),
       profile: this.chosen.profile,
       shotgun: $("play-pattern").value === "shotgun",
+      experimental: $("experimental-abilities").checked,
     });
     $("view").value = "wave";
     $("descent").value = 0;
@@ -54,6 +56,9 @@ const playtest = {
       "play-hit",
       "play-level",
       "play-radius",
+      "play-pattern",
+      "experimental-abilities",
+      "enhanced-bricks",
     ])
       $(id).disabled = true;
     for (const id of [
@@ -88,6 +93,9 @@ const playtest = {
       "play-hit",
       "play-level",
       "play-radius",
+      "play-pattern",
+      "experimental-abilities",
+      "enhanced-bricks",
     ])
       $(id).disabled = false;
     for (const id of [
