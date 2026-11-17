@@ -12,7 +12,8 @@
     "check:lab": "node scripts/check-stage-lab-evolution.cjs",
     "check:rpg": "node scripts/check-rpg-brick-lab.cjs",
     "check:seams": "node scripts/check-grass-seams.cjs",
-    "check:rpg-gates": "node scripts/check-rpg-alternating-gates.cjs"
+    "check:rpg-gates": "node scripts/check-rpg-alternating-gates.cjs",
+    "check:rpg-effects": "node scripts/check-rpg-source-effects.cjs"
   },
   "dependencies": {
     "firebase": "^13.0.0",
