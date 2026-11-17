@@ -1,0 +1,31 @@
+/* Visualisation of recovered source timing; sprites remain original to this project. */
+.rpg-spike-tines {
+  opacity: 1;
+  transition: opacity .2s linear;
+  filter: drop-shadow(0 0 3px #f28570b8);
+}
+.rpg-vortex-rings {
+  opacity: 1;
+  transform-box: fill-box;
+  transform-origin: center center;
+  animation: source-vortex-rotate 2.4s linear infinite;
+  transition: opacity .22s ease;
+  filter: drop-shadow(0 0 5px #caa2ff89);
+}
+.rpg-vortex-rings[data-active="false"] {
+  animation-play-state: paused;
+}
+.rpg-alt-shutters .rpg-alt-left,
+.rpg-alt-shutters .rpg-alt-right {
+  transition: transform .5s ease-in-out, opacity .5s ease-in-out;
+}
+@keyframes source-vortex-rotate {
+  from { transform: rotate(0deg) }
+  to { transform: rotate(360deg) }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rpg-spike-tines,.rpg-vortex-rings,
+  .rpg-alt-shutters .rpg-alt-left,.rpg-alt-shutters .rpg-alt-right {
+    animation: none; transition: none;
+  }
+}

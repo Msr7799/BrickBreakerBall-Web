@@ -5,6 +5,10 @@
     typeof module === "object" && module.exports
       ? require("./physics.js")
       : root.VolleyPhysics;
+  const H =
+    typeof module === "object" && module.exports
+      ? require("./rpg-effects.js")
+      : root.RpgSourceEffects;
   const COUNTERS = new Set([
     "DYNAMITE",
     "SUICIDE",
@@ -229,10 +233,14 @@
         this.cooldown += 0.1;
       }
       for (const ball of this.balls) {
-        if (ball.alive) {
-          ball.portal = Math.max(0, ball.portal - dt);
-          this.move(ball, dt);
+        if (!ball.alive) continue;
+        if (ball.vortexRemaining > 0) {
+          ball.vortexRemaining = Math.max(0,ball.vortexRemaining-dt);
+          if (ball.vortexRemaining <= 0) ball.alive = false;
+          continue; // Godot 0.4s shrink/fade tween, then kill_ball()
         }
+        ball.portal = Math.max(0, ball.portal - dt);
+        this.move(ball, dt);
       }
       this.balls = this.balls.filter((b) => b.alive);
       if (this.phase === "firing" && !this.pending && !this.balls.length)
@@ -304,16 +312,19 @@
         }
         const b = hit.brick;
         if (b?.kind === "VORTEX") {
-          if (this.elapsed % 6 < 2) {
-            ball.alive = false;
+          if (H.vortexActive(b.sourceScene,this.elapsed)) {
+            Object.assign(ball,center(b));
+            ball.vx=0;ball.vy=0;
+            ball.vortexRemaining=H.VORTEX_ABSORB;
             return;
           }
           ignored.add(b.id);
           continue;
         }
-        if (b?.kind === "SPIKE_TRAP" && b.spikeCooldown <= 0) {
-          b.spikeCooldown = 10;
+        if (b?.kind === "SPIKE_TRAP" && H.spikeArmed(b.spikeCooldown,this.elapsed)) {
+          b.spikeCooldown = H.SPIKE_REARM;
           ball.alive = false;
+          this.particles.push({...center(b),life:.16});
           return;
         }
         if (b?.kind === "TELEPORT") {
@@ -376,6 +387,12 @@
     }
     applyDamage(b, amount, { fire = false, opening = false } = {}) {
       if (b.health <= 0 || !Number.isFinite(b.health)) return;
+      // Recovered wooden/rust Alt_Blocker: open on turn 1, closed on turn 2,
+      // and toggle with every row descent. Source scene, not generic BLOCKER.
+      if (b.sourceScene?.includes("/Blocker/Alt_Blocker/") && this.turn % 2 === 0) {
+        this.message = "Alternating gate CLOSED — wait for the next descent.";
+        return;
+      }
       if (b.kind === "BOSS" && this.remainingGuards > 0) {
         this.message = `Boss shielded: ${this.remainingGuards} locks remaining.`;
         return;
