@@ -16,7 +16,7 @@ const ui={
   "rpg-preview-status":{textContent:""},
 };
 const context={
-  window:{},currentStage:null,console,
+  window:{},currentStage:null,console,render:()=>{},
   document:{createElementNS:node,createElement:node,
     getElementById:id=>ui[id]||null,querySelectorAll:()=>[]}
 };
