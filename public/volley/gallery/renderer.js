@@ -86,7 +86,25 @@ function brickNode(b, dy) {
   for (const layer of b.layers) {
     const x = cx + layer.x - layer.width / 2,
       y = cy - layer.y - layer.height / 2;
-    if (layer.crop) {
+    // Crop the brown soil BASE of touching grass squares, not the foliage or hitbox.
+    // End-of-stack squares still use the complete original sprite.
+    if (window.GrassSeams?.isEligibleImage(b, layer)) {
+      const meta = gallery.images[layer.path];
+      const frame = window.GrassSeams.visualFrame(b, layer, currentStage.bricks, meta);
+      const viewport = el("svg", {
+        x, y, width: layer.width, height: frame.height,
+        viewBox: frame.viewBox, preserveAspectRatio: "none",
+        class: "grass-square-sprite",
+        "data-full-height": layer.height,
+        "data-source-width": meta.width,
+        "data-source-height": meta.height,
+        "data-trimmed": String(frame.trim),
+      });
+      viewport.append(imageNode(layer.path, {
+        x: 0, y: 0, width: meta.width, height: meta.height,
+      }));
+      group.append(viewport);
+    } else if (layer.crop) {
       const c = layer.crop,
         outer = el("svg", {
           x,
