@@ -55,12 +55,13 @@ for path in index["images"]:
 html = (PUBLIC / "stage-gallery.html").read_text(encoding="utf-8")
 assert "rpg-brick-library" in html and "rpg-preview-enabled" in html
 assert "gallery/grass-seams.js" in html
+assert "gallery/rpg-effects.js" in html and "gallery/rpg-effects.css" in html
 assert 'id="rpg-preview-enabled" type="checkbox" checked' not in html
 assert "lab-world-preset" in html and "lab-export-report" in html
 assert "ball-picker-trigger" in html and "camera-pan" in html and 'id="play-level"' in html
 assert manifest["viewerRevision"] == hashlib.sha256((PUBLIC / "stage-gallery.html").read_bytes()).hexdigest()[:16]
 dependencies = re.findall(r'(?:src|href)="(gallery/[^"?]+\.(?:js|css))(?:\?v=([a-f0-9]+))?"', html)
-assert len(dependencies) == 18
+assert len(dependencies) == 20
 for path, version in dependencies:
     assert (PUBLIC / path).is_file() and version == manifest["files"][path][:16], path
 assert "../../app/src/main/assets/" not in (PUBLIC / "gallery/catalog.js").read_text()
