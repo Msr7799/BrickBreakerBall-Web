@@ -97,6 +97,9 @@
   stroke-dasharray: 9 4;
   stroke-dashoffset: 0;
   opacity: .9;
+}
+.lab-enhanced-piece:hover .lab-brick-arcane,
+.lab-enhanced-piece.selected .lab-brick-arcane {
   animation: lab-arcane-pulse 3.4s ease-in-out infinite;
 }
 @keyframes lab-arcane-pulse {
