@@ -10,7 +10,8 @@
     "sync:gallery": "python scripts/sync-stage-gallery.py",
     "check:gallery": "python scripts/check-stage-gallery.py",
     "check:lab": "node scripts/check-stage-lab-evolution.cjs",
-    "check:rpg": "node scripts/check-rpg-brick-lab.cjs"
+    "check:rpg": "node scripts/check-rpg-brick-lab.cjs",
+    "check:seams": "node scripts/check-grass-seams.cjs"
   },
   "dependencies": {
     "firebase": "^13.0.0",
