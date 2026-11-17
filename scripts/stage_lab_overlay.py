@@ -66,7 +66,7 @@ def augment_generated_asset(relative, raw):
     if relative == "gallery/renderer.js":
         code = _swap(code,
             '  if ($("special-only").checked && !regular.has(b.kind))',
-            '  // Visual-only RPG prototype: collider and source brick state are unchanged.\n  if (window.RpgBrickLab) window.RpgBrickLab.decorateBrick(group, b, dy);\n  if ($("special-only").checked && !regular.has(b.kind))')
+            '  // Visual-only recovered RPG prototype; it never replaces source brick state or colliders.\n  if (window.RpgBrickLab) window.RpgBrickLab.decorateBrick(group, b, dy);\n  if ($("special-only").checked && !regular.has(b.kind))')
     if relative == "gallery/app.js":
         code = _swap(code, '    currentStage = st;',
             '    currentStage = st;\n    if (window.RpgBrickLab) {\n      window.RpgBrickLab.refresh(st);\n      window.RpgBrickLab.status();\n    }')
