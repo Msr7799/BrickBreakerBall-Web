@@ -46,6 +46,11 @@ def augment_generated_html(html):
         html, n = re.subn(r'(<script defer src="gallery/renderer\.js(?:\?[^"]*)?"></script>)',
             r'<script defer src="gallery/grass-seams.js"></script>\n    \1', html)
         if n != 1: raise RuntimeError("Grass seam loader anchor missing")
+    # Visual-only concept overlays must never appear over original levels by default.
+    html = html.replace('id="rpg-preview-enabled" type="checkbox" checked',
+        'id="rpg-preview-enabled" type="checkbox"')
+    html = html.replace('See the selected look inside the CURRENT stage, without replacing its saved geometry.',
+        'Preview new looks only when selected. Default is the authentic stage with unchanged saved geometry.')
     return html
 
 
