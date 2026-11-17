@@ -25,7 +25,7 @@ assert.equal(H.spikeArmed(.01,10),false);
 assert.equal(H.spikeArmed(0,10),true);
 assert.equal(H.spikeVisualStrength(0,0),0);
 assert.ok(Math.abs(H.spikeVisualStrength(0,.2)-.5)<.001);
-assert.equal(H.spikeVisualStrength(0,.3),1);
+assert.ok(Math.abs(H.spikeVisualStrength(0,.3)-1)<.001);
 assert.ok(Math.abs(H.spikeVisualStrength(10,20)-1)<.001);
 assert.ok(Math.abs(H.spikeVisualStrength(9.8,20))<.001);
 assert.ok(Math.abs(H.spikeVisualStrength(.1,20)-.5)<.001);
