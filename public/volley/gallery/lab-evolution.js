@@ -95,7 +95,7 @@
       } : null,
       warnings: [
         "Browser physics and spell timing can differ from Kotlin/LibGDX.",
-        "Experimental cosmetic effects and shotgun intentionally diverge from reference mode.",
+        "Shotgun is an experimental browser mode; ball profiles currently remain cosmetic.",
         "The world-level model is hypothetical, not the actual player progression.",
         "This JSON is a local test fixture, not a save game or authenticated export.",
       ],
@@ -111,7 +111,7 @@
     document.body.append(link);
     link.click();
     link.remove();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
     note("Exported stage " + stage.id + " local JSON fixture. No game save, coins, gems or purchases changed.");
   }
 
@@ -130,7 +130,7 @@
     .addEventListener("change", () => {
       syncBallControls(false);
       note(document.getElementById("experimental-abilities").checked
-        ? "Experimental legacy ball profile enabled for browser tests only. NOT Android parity."
+        ? "Experimental Shotgun available in browser; current catalog abilities are still cosmetic. NOT Android parity."
         : "Reference rule mode restored. Ball visuals remain cosmetic.");
     });
   note("Reference campaign by default · nine boss cores and all 160 stage layouts are unchanged.");
