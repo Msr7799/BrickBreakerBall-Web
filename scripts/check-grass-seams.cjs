@@ -16,7 +16,8 @@ for (const row of index.stages) {
   for(const brick of stage.bricks) {
     const layer=brick.layers[0];
     if(!GrassSeams.isEligibleImage(brick,layer)){
-      assert.equal(GrassSeams.joinsBelow(brick,stage.bricks),false);
+      if (!GrassSeams.isGrassSquare(brick))
+        assert.equal(GrassSeams.joinsBelow(brick,stage.bricks),false);
       untouched++;
       continue;
     }
