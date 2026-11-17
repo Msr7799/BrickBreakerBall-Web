@@ -71,6 +71,57 @@ function shapePoints(b, dy) {
     .map((p) => p.join(","))
     .join(" ");
 }
+/**
+ * The authored sourceScene, not the broad material family, determines special art.
+ * These source-effect overlays are original vector art and never change hitboxes.
+ */
+function sourceBrickEffectNode(b, dy) {
+  const isSpike = b.kind === "SPIKE_TRAP";
+  const isVortex = b.kind === "VORTEX";
+  const isAlt = b.sourceScene?.includes("/Blocker/Alt_Blocker/");
+  if (!isSpike && !isVortex && !isAlt) return null;
+  const x=b.x, y=1720-b.y-b.h+dy, w=b.w, h=b.h;
+  const fx=el("g",{class:"rpg-source-special", "pointer-events":"none"});
+  if (isSpike) {
+    const tines=el("g",{class:"rpg-spike-tines"});
+    const base=el("rect",{x:x+w*.09,y:y+h*.76,width:w*.82,height:h*.14,rx:2,
+      fill:"#372c3c",stroke:"#ff8676","stroke-width":2});
+    tines.append(base);
+    for(let i=0;i<5;i++){
+      const a=x+w*(.1+i*.16),b=a+w*.12;
+      tines.append(el("polygon",{points:`${a},${y+h*.79} ${(a+b)/2},${y+h*.19} ${b},${y+h*.79}`,
+        fill:i%2?"#bfd6e2":"#f0dce0",stroke:"#8a3e54","stroke-width":1.8}));
+    }
+    fx.append(tines);
+  }
+  if (isVortex) {
+    const ice=b.sourceScene?.includes("/Ice1_Vortex/"),
+      black=b.sourceScene?.includes("/Black1_vortex/");
+    const color=ice?"#80dfff":black?"#bf99ff":"#ffc77a";
+    const rings=el("g",{class:"rpg-vortex-rings"});
+    [0.34,0.23,0.12].forEach((scale,i)=>rings.append(el("circle",{
+      cx:x+w/2,cy:y+h/2,r:Math.min(w,h)*scale,fill:"none",
+      stroke:color,"stroke-width":i?2.5:3.5,
+      "stroke-dasharray":i?"10 7":"16 6",opacity:i?.75:.95
+    })));
+    rings.append(el("circle",{cx:x+w/2,cy:y+h/2,r:Math.min(w,h)*.08,
+      fill:color,opacity:.8}));
+    fx.append(rings);
+  }
+  if (isAlt) {
+    const wooden=b.sourceScene.includes("wooden"), color=wooden?"#ab7950":"#b1a1a0",
+      rim=wooden?"#e2be7e":"#d0c1ae";
+    const bars=el("g",{class:"rpg-alt-shutters","data-gate-open":"true"});
+    const left=el("rect",{x:x+w*.08,y:y+h*.12,width:w*.4,height:h*.76,
+      rx:2,fill:color,stroke:rim,"stroke-width":3,
+      class:"rpg-alt-left",transform:`translate(${-w*.3} 0)`,opacity:.30});
+    const right=el("rect",{x:x+w*.52,y:y+h*.12,width:w*.4,height:h*.76,
+      rx:2,fill:color,stroke:rim,"stroke-width":3,
+      class:"rpg-alt-right",transform:`translate(${w*.3} 0)`,opacity:.30});
+    bars.append(left,right);fx.append(bars);
+  }
+  return fx;
+}
 function brickNode(b, dy) {
   const group = el("g", {
     class: "piece" + (selected === b.id ? " selected" : "") +
@@ -135,6 +186,8 @@ function brickNode(b, dy) {
         }),
       );
   }
+  const sourceEffect = sourceBrickEffectNode(b, dy);
+  if (sourceEffect) group.append(sourceEffect);
   // Original, collision-accurate vector treatment over existing owned sprites.
   // Never replace authored polygon geometry or borrow unlicensed RPG artwork.
   if ($("enhanced-bricks")?.checked) {
