@@ -89,8 +89,26 @@
     if(stage.id===sampleStage)return;
     sampleStage=stage.id;sampleIds=new Set(candidates(stage));
   }
+  /**
+   * Independently authored vector rendering of ORIGINAL Spike Trap positions.
+   * Never inserts a brick or modifies physics. Shows automatically even when
+   * the optional concept palette is OFF. Source geometry is authoritative.
+   */
+  function decorateAuthoredSpike(group,brick,dy) {
+    if(brick.kind !== "SPIKE_TRAP" ||
+       brick.sourceScene !== "res://Enemies/Spike_Traps/enemy_spike_trap_2x2.tscn")
+      return false;
+    const g=el("g",{
+      class:"rpg-authored-spike",
+      transform:"translate("+brick.x+" "+(1720-brick.y-brick.h+dy)+") scale("+(brick.w/64)+" "+(brick.h/64)+")",
+      "pointer-events":"none"
+    });
+    g.append(artwork("SPIKE_TRAP",brick.shape));
+    group.append(g);
+    return true;
+  }
   function decorateBrick(group,brick,dy) {
-    if(!enabled||!currentStage)return;
+    if(!enabled||!currentStage || (chosen==="SPIKE_TRAP" && brick.kind==="SPIKE_TRAP"))return;
     refresh(currentStage);
     if(!sampleIds.has(brick.id))return;
     const g=el("g",{class:"rpg-preview-on-stage",transform:"translate("+brick.x+" "+(1720-brick.y-brick.h+dy)+") scale("+(brick.w/64)+" "+(brick.h/64)+")","pointer-events":"none"});
@@ -144,7 +162,7 @@
     });
     choose("RAINBOW",false);
   }
-  window.RpgBrickLab={library,artwork,decorateBrick,refresh,status:updateStatus,candidates,select:choose,
+  window.RpgBrickLab={library,artwork,decorateBrick,decorateAuthoredSpike,refresh,status:updateStatus,candidates,select:choose,
     getSelected:()=>chosen,isEnabled:()=>enabled};
   init();
 })();
