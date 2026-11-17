@@ -16,7 +16,7 @@
   ];
   const library=defs.map(d=>({id:d[0],name:d[1],status:d[2],scene:d[3],description:d[4],color:d[5],light:d[6]}));
   const map=new Map(library.map(x=>[x.id,x]));
-  let chosen="RAINBOW",enabled=true,sampleStage=-1,sampleIds=new Set(),counter=0;
+  let chosen="RAINBOW",enabled=false,sampleStage=-1,sampleIds=new Set(),counter=0;
   function el(tag,attrs={},text) {
     const n=document.createElementNS(NS,tag);
     for(const [k,v] of Object.entries(attrs))n.setAttribute(k,String(v));
@@ -102,9 +102,11 @@
       ? t.name+" — "+t.status+" | "+sampleIds.size+" visual examples"+(currentStage?" in stage "+currentStage.id:"")+". Original HP, collider and gameplay remain unchanged."
       : "Original stage view restored; no source data changed.";
   }
-  function choose(kind){
-    chosen=kind;enabled=true;
-    document.getElementById("rpg-preview-enabled").checked=true;
+  function choose(kind, activate=true){
+    chosen=kind;
+    // A prototype must never appear inside the recovered campaign by default.
+    if (activate) enabled=true;
+    document.getElementById("rpg-preview-enabled").checked=enabled;
     document.querySelectorAll(".rpg-brick-option").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.kind===kind)));
     const info=map.get(kind),d=document.getElementById("rpg-preview-detail");
     d.replaceChildren();
@@ -133,7 +135,7 @@
       enabled=false;document.getElementById("rpg-preview-enabled").checked=false;
       if(currentStage)render();updateStatus();
     });
-    choose("RAINBOW");
+    choose("RAINBOW",false);
   }
   window.RpgBrickLab={library,artwork,decorateBrick,refresh,status:updateStatus,candidates,select:choose,
     getSelected:()=>chosen,isEnabled:()=>enabled};
