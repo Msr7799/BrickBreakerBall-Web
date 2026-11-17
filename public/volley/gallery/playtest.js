@@ -8,22 +8,16 @@ function selectedPlayBall() {
   );
 }
 function syncBallControls(resetBalls = true) {
-  const ball = selectedPlayBall(),
-    profile = ball.profile;
-  if (resetBalls)
-    $("play-balls").value = Math.min(
-      160,
-      (currentStage?.balls || 12) + profile.startingBalls,
-    );
-  $("play-hit").value = profile.baseHitDamage;
-  $("play-pattern").disabled = !profile.shotgunAvailable;
-  if (!profile.shotgunAvailable) $("play-pattern").value = "straight";
+  const ball = selectedPlayBall();
+  const level = Math.max(1, Math.trunc(Number($("play-level").value) || 1));
+  if (resetBalls) $("play-balls").value = 10 + Math.min(Math.floor(level / 10), 10);
+  $("play-hit").value = Math.floor(1 * (1 + Math.floor(level / 10) * 10 / 100));
+  $("play-pattern").disabled = true;
+  $("play-pattern").value = "straight";
   const count = Number($("play-balls").value);
-  const momentum = profile.kind === "MOMENTUM_CORE" ? Math.floor(count / profile.ballsPerDamage) : 0;
-  const attack = currentStage?.campaignAttack || 1;
   $("play-ball-preview").replaceChildren(ballSpriteNode(ball, 30, 30, 25));
   $("play-ball-stats").textContent =
-    `${ball.rarity} | ${count} total balls (+${profile.startingBalls}) | ${(profile.baseHitDamage + momentum) * attack} standard hit | ${profile.kind.replaceAll("_", " ")}${profile.fortuneEveryBreaks ? " / +" + profile.fortuneBonusScore + " SCORE every " + profile.fortuneEveryBreaks + " bricks" : profile.triggerEveryHits ? " / " + profile.triggerEveryHits + " hits" : ""}`;
+    `Player level ${level} | ${count} balls | ${$("play-hit").value} damage / hit | No Orbs | Cosmetic ball`;
 }
 const playtest = {
   active: false,
@@ -42,6 +36,7 @@ const playtest = {
     this.chosen = selectedPlayBall();
     this.engine = new VolleySandbox(currentStage, {
       difficulty: Number($("difficulty").value),
+      playerLevel: Number($("play-level").value),
       balls: Number($("play-balls").value),
       hit: Number($("play-hit").value),
       radius: Number($("play-radius").value),
@@ -57,6 +52,7 @@ const playtest = {
       "difficulty",
       "play-balls",
       "play-hit",
+      "play-level",
       "play-radius",
     ])
       $(id).disabled = true;
@@ -90,6 +86,7 @@ const playtest = {
       "difficulty",
       "play-balls",
       "play-hit",
+      "play-level",
       "play-radius",
     ])
       $(id).disabled = false;
@@ -261,7 +258,7 @@ for (const rarity of ["NORMAL", "RARE", "LEGENDARY", "EPIC"]) {
   for (const ball of playBalls.filter((b) => b.rarity === rarity))
     group.append(
       new Option(
-        `${ball.name} (+${ball.profile.startingBalls} / ${ball.profile.baseHitDamage} hit)`,
+        `${ball.name} ? cosmetic`,
         ball.id,
       ),
     );
@@ -354,3 +351,5 @@ document.addEventListener("keydown", (event) => {
 document.addEventListener("visibilitychange", () => {
   if (document.hidden && playtest.active && !playtest.paused) playtest.pause();
 });
+
+$("play-level").addEventListener("input", () => syncBallControls());

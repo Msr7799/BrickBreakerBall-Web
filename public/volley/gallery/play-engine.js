@@ -28,19 +28,15 @@
         extraHitBudgetPerWorld: 30,
         minimumDamageHits: 12,
       };
-      this.profile = options.profile || null;
+      // Ball artwork is cosmetic; campaign stats follow player level, not stage ID.
+      this.profile = null;
+      this.playerLevel = clamp(Math.trunc(options.playerLevel || 1), 1, 1000000);
       this.difficulty = options.difficulty || 0;
-      this.ballCount = clamp(
-        Math.trunc(
-          options.balls || stage.balls + (this.profile?.startingBalls || 0),
-        ),
-        1,
-        160,
-      );
-      this.baseHit =
-        this.profile?.baseHitDamage ||
-        clamp(Math.trunc(options.hit || 1), 1, 1000000);
-      this.shotgun = Boolean(options.shotgun && this.profile?.shotgunAvailable);
+      this.ballCount = clamp(Math.trunc(options.balls ||
+        10 + Math.min(Math.floor(this.playerLevel / 10), 10)), 1, 160);
+      this.baseHit = clamp(Math.trunc(options.hit ||
+        Math.floor(1 * (1 + Math.floor(this.playerLevel / 10) * 10 / 100))), 1, 1000000);
+      this.shotgun = false;
       this.abilityHits = 0;
       this.volleyBreaks = 0;
       this.score = 0;
@@ -69,8 +65,8 @@
       this.bricks = stage.bricks.map((b) => ({
         ...b,
         hp: [...b.hp],
-        health: b.hp[this.difficulty] ?? Infinity,
-        initialHealth: b.hp[this.difficulty] ?? Infinity,
+        health: (b.sourceRemaining || b.hp)[this.difficulty] ?? Infinity,
+        initialHealth: (b.sourceRemaining || b.hp)[this.difficulty] ?? Infinity,
         baseX: b.x,
         baseY: b.y,
         angle: 0,
@@ -408,7 +404,7 @@
         (opening ? Math.min(30, damage) : damage) *
         (10 + Math.min(this.combo, 25));
       this.particles.push({ ...center(b), life: 0.16 });
-      if (b.health <= 0) this.destroy(b, new Set());
+      if (b.health < 1) this.destroy(b, new Set());
     }
     hit(b, ball) {
       this.hits++;
@@ -425,10 +421,8 @@
       const scale =
         b.kind === "BOSS"
           ? Math.max(1, Math.ceil(b.initialHealth / bossBudget))
-          : !b.sourceBaseHealth || COUNTERS.has(b.kind)
-            ? 1
-            : this.stage.campaignAttack || 1 + Math.floor((this.stage.id - 1) / 12);
-      let base = this.hitPower() + this.bonus + (this.radius === 27 ? 1 : 0);
+          : 1;
+      let base = this.hitPower() + this.bonus;
       if (triggered && ["ARMOR_BREAKER", "VOID_PHASE"].includes(profile.kind))
         base += profile.bonusDamage;
       this.applyDamage(b, opening ? b.health : base * scale, {

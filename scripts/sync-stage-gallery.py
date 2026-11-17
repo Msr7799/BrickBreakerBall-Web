@@ -20,8 +20,9 @@ def sync(source):
     assert len(index["stages"]) == 160
     kotlin = source / "app/src/main/java/com/example/brick_breaker_ball"
     runtime = hashlib.sha256(''.join((kotlin / p).read_text(encoding="utf-8") for p in
-        ["campaign/VolleySourceStageData.kt", "campaign/VolleySourceHealth.kt",
-         "cosmetics/BallAbilities.kt", "cosmetics/BallCollectionCatalog.kt"]).encode()).hexdigest()
+        ["campaign/VolleySourceStageData.kt", "campaign/VolleySourceHealth.kt", "campaign/VolleyCampaign.kt",
+         "cosmetics/BallAbilities.kt", "cosmetics/BallCollectionCatalog.kt",
+         "gameplay/VolleyReferenceCombat.kt", "gameplay/VolleyOrbEffects.kt", "gameplay/VolleyOrbCatalog.kt", "gameplay/VolleySession.kt"]).encode()).hexdigest()
     assert index.get("runtimeSha256") == runtime, "Stale gallery: regenerate it with scripts/generate_volley_stage_gallery.py in the Android project"
     balls_text = (gallery / "gallery/balls-catalog.js").read_text()
     balls = json.loads(balls_text.split(" = ", 1)[1].strip().removesuffix(";"))

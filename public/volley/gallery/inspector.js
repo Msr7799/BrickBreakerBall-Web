@@ -8,6 +8,7 @@ function inspect(b) {
   for (const [k, v] of Object.entries({
     "Brick ID": b.id,
     "Normal / Hard / Extreme HP": b.hp.map(hpText).join(" / "),
+    "Raw remaining HP": (b.sourceRemaining || b.hp).map(n => n ?? "Indestructible").join(" / "),
     Shape: b.shape,
     "Collision bounds": `${b.x.toFixed(1)}, ${b.y.toFixed(1)} / ${b.w} ? ${b.h}`,
     "Original gameplay scene": b.sourceScene || "World boss core",

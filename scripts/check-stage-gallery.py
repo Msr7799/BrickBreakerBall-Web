@@ -23,6 +23,11 @@ for stage in index["stages"]:
     assert hashlib.sha256(encoded.encode()).hexdigest() == stage["sha256"]
     data = json.loads(encoded)
     assert len(data["bricks"]) == stage["brickCount"]
+    assert data["combatRules"] == "rpg-reference-v1" and data["balls"] == 10
+    assert data["campaignAttack"] == 1
+    for brick in data["bricks"]:
+        assert len(brick["sourceRemaining"]) == 3
+        assert brick["hp"] == [None if value is None else int(value) for value in brick["sourceRemaining"]]
     if stage["id"] == 28:
         stone = next(b for b in data["bricks"] if b["id"] == 6)
         assert stone["kind"] == "BLOCKER" and not stone["gate"] and stone["hp"] == [None, None, None]
@@ -41,11 +46,14 @@ assert len(balls["balls"]) == 165
 starter = next(b for b in balls["balls"] if b["id"] == "41_pearl_white")
 assert starter["rarity"] == "NORMAL" and starter["profile"]["baseHitDamage"] == 1 and starter["profile"]["startingBalls"] == 0
 for ball in balls["balls"]:
+    profile = ball["profile"]
+    assert profile["kind"] == "COSMETIC" and profile["baseHitDamage"] == 1 and profile["startingBalls"] == 0
+    assert not profile["shotgunAvailable"] and profile["triggerEveryHits"] == 0
     assert (PUBLIC / "assets" / ball["path"]).is_file()
 for path in index["images"]:
     assert (PUBLIC / "assets" / path).is_file()
 html = (PUBLIC / "stage-gallery.html").read_text(encoding="utf-8")
-assert "ball-picker-trigger" in html and "camera-pan" in html
+assert "ball-picker-trigger" in html and "camera-pan" in html and 'id="play-level"' in html
 assert manifest["viewerRevision"] == hashlib.sha256((PUBLIC / "stage-gallery.html").read_bytes()).hexdigest()[:16]
 dependencies = re.findall(r'(?:src|href)="(gallery/[^"?]+\.(?:js|css))(?:\?v=([a-f0-9]+))?"', html)
 assert len(dependencies) == 13

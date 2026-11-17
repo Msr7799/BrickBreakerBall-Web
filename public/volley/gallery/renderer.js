@@ -30,6 +30,7 @@ function badge(text, cls = "") {
 }
 function hpText(n) {
   if (n === null) return "?";
+  n = Math.trunc(n);
   if (n >= 1e6) return (n / 1e6).toFixed(2).replace(/\.?0+$/, "") + "M";
   if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.?0+$/, "") + "K";
   return String(n);
