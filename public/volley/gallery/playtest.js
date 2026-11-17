@@ -166,6 +166,30 @@ const playtest = {
         entry.health = b.health;
         window.stageCamera.fitLabel(entry.hp);
       }
+      // Exact recovered source timings, derived from the actual sourceScene.
+      const spikes = entry.node.querySelector(".rpg-spike-tines");
+      if (spikes) {
+        const strength = window.RpgSourceEffects.spikeVisualStrength(b.spikeCooldown, state.elapsed);
+        spikes.style.opacity = String(strength);
+        spikes.setAttribute("transform", `translate(0 ${(1 - strength) * b.h * .35})`);
+      }
+      const vortex = entry.node.querySelector(".rpg-vortex-rings");
+      if (vortex) {
+        const active = window.RpgSourceEffects.vortexActive(b.sourceScene, state.elapsed);
+        vortex.style.opacity = active ? "1" : ".12";
+        vortex.setAttribute("data-active", String(active));
+      }
+      const gate = entry.node.querySelector(".rpg-alt-shutters");
+      if (gate) {
+        const open = state.turn % 2 === 1;
+        const panels = [gate.querySelector(".rpg-alt-left"),gate.querySelector(".rpg-alt-right")];
+        panels.forEach((panel,index)=>{
+          if (!panel) return;
+          panel.style.transform = `translateX(${open ? (index ? 1 : -1) * b.w * .30 : 0}px)`;
+          panel.style.opacity = open ? ".30" : ".94";
+        });
+        gate.setAttribute("data-gate-open",String(open));
+      }
       const shield = entry.node.querySelector(".boss-shield");
       if (shield) shield.style.display = state.remainingGuards > 0 ? "" : "none";
       entry.node.style.filter = b.frozen
@@ -191,7 +215,10 @@ const playtest = {
         this.ballNodes.set(b.id, node);
         this.ballLayer.append(node);
       }
-      node.setAttribute("transform", `translate(${b.x} ${1720 - b.y})`);
+      const drained = b.vortexRemaining > 0;
+      const scale = drained ? Math.max(.1,b.vortexRemaining / window.RpgSourceEffects.VORTEX_ABSORB) : 1;
+      node.setAttribute("transform", `translate(${b.x} ${1720 - b.y}) scale(${scale})`);
+      node.style.opacity = drained ? String(.2 + .8 * scale) : "1";
       node.setAttribute("data-fire", String(b.fire));
     }
     for (const [id, node] of this.ballNodes)
