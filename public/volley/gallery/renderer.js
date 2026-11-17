@@ -135,6 +135,9 @@ function brickNode(b, dy) {
         }),
       );
   }
+  // SPIKE_TRAP is already an authored enemy (never a random prototype).
+  // Show its independently drawn visual at its original position by default.
+  if (window.RpgBrickLab) window.RpgBrickLab.decorateAuthoredSpike(group, b, dy);
   // Original, collision-accurate vector treatment over existing owned sprites.
   // Never replace authored polygon geometry or borrow unlicensed RPG artwork.
   if ($("enhanced-bricks")?.checked) {
