@@ -18,7 +18,7 @@ function syncBallControls(resetBalls = true) {
   const count = Number($("play-balls").value);
   $("play-ball-preview").replaceChildren(ballSpriteNode(ball, 30, 30, 25));
   $("play-ball-stats").textContent =
-    `Level ${level} · ${count} balls · ${$("play-hit").value} hit · No ORBs · ${experimental ? "EXPERIMENTAL abilities / not Android parity" : "Reference combat / cosmetic ball"}${experimental ? " · " + (ball.profile?.kind || "normal") : ""}`;
+    `Level ${level} · ${count} balls · ${$("play-hit").value} hit · No ORBs · ${experimental ? "EXPERIMENTAL Shotgun / no Android parity" : "Reference combat / cosmetic ball"}${experimental ? " · " + (ball.profile?.kind || "normal") : ""}`;
 }
 const playtest = {
   active: false,
