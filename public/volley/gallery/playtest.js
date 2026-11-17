@@ -150,6 +150,8 @@ const playtest = {
       (state.phase === "descending" ? (state.descentTime / 0.4) * 80 : 0);
     $("descent-label").textContent =
       `${state.turn - 1} completed turns / ${Math.round(descent)} units`;
+    // Reveal brown edges live when the supporting grass below is destroyed.
+    if (window.GrassSeams) window.GrassSeams.syncLive(this.nodes, state.bricks);
     for (const b of state.bricks) {
       const entry = this.nodes.get(b.id);
       if (!entry) continue;
